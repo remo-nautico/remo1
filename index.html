@@ -6,9 +6,11 @@
 <title>Remo</title>
 <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.js"></script>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@500;600;700&family=Inter:wght@400;500;600&family=Share+Tech+Mono&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="Index.css">
+
 
 </head>
 
@@ -66,35 +68,22 @@
 
 
 <div class="app">
-
+<div class="top-bar">
+      <span class="muted" id="user-email"></span>
+      <button class="secondary" onclick="logout()" style="margin:0;">Cerrar sesión</button>
+    </div>
 <div class="content">
 
 
 
 <section class="page active" id="home">
 
-<div class="sectionTitle">
-Resumen
+<div class="resumenHeader">
+<div class="sectionTitle">Resumen</div>
+<div class="avatarCircle" id="home-avatar">--</div>
 </div>
 
-<div id="home-coach">
 
-<div class="sectionTitle" style="margin-bottom:14px;">Equipo</div>
-
-<div class="coachSummary">
-<div class="card"><h3>Atletas</h3><p id="coach-stat-athletes">---</p></div>
-<div class="card"><h3>Sesiones (7 días)</h3><p id="coach-stat-sessions7">---</p></div>
-</div>
-
-<div class="bottomCards" style="margin-bottom:20px;">
-<div class="bigCard"><div class="bigCardInner"><div class="bigCardValue" id="coach-days-to-race">---</div><div class="bigCardLabel">Días pre-regata</div></div></div>
-<div class="bigCard"><div class="bigCardInner"><div class="bigCardValue" id="coach-load-week">---</div><div class="bigCardLabel">Semana de carga</div></div></div>
-</div>
-
-<div class="sectionTitle" style="font-size:16px;margin-bottom:10px;">Atletas</div>
-<div class="teamList" id="team-list"></div>
-
-</div>
 
 
 <div id="home-athlete">
@@ -104,9 +93,43 @@ Resumen
 <select id="athlete-filter-select" onchange="setAthleteFilter(this.value)"></select>
 </div>
 
-<div class="homeGreeting">
+<div class="chartCard">
+<div class="chartBars" id="chart-z1"></div>
+<div class="chartFoot">
+<span class="chartZoneLabel">Zona 1</span>
+<span class="chartBestLabel" id="chart-z1-best">--</span>
+</div>
+</div>
 
-<div class="sub" id="home-greeting-date"></div>
+<div class="homeRow">
+<div class="raceCard">
+<div class="raceCardName" id="race-card-name">Sin regatas</div>
+<div class="raceCardDays" id="race-card-days">--</div>
+<div class="raceCardDate" id="race-card-date">&nbsp;</div>
+</div>
+<div class="weekBadgeCard">
+<div class="weekBadge" id="week-badge-num">--</div>
+<div class="weekBadgeLabel">Semana de carga</div>
+</div>
+</div>
+
+<div class="lastSessionCard">
+<div class="lastSessionTop">
+<span class="catPill" id="last-session-cat">--</span>
+<span class="lastSessionDesc" id="last-session-desc">Sin sesiones todavía</span>
+</div>
+<div class="lastSessionBottom">
+<span class="lastSessionTime" id="last-session-time">--:--</span>
+<span class="lastSessionDelta" id="last-session-delta"></span>
+</div>
+</div>
+
+<div class="chartCard">
+<div class="chartBars" id="chart-z2"></div>
+<div class="chartFoot">
+<span class="chartZoneLabel">Zona 2</span>
+<span class="chartBestLabel" id="chart-z2-best">--</span>
+</div>
 </div>
 
 
@@ -115,50 +138,6 @@ Resumen
 
 
 
-
-
-
-<div class="card statCard c-dist">
-<h3>grafico1</h3>
-<p id="prog-today">---</p>
-</div>
-<br>
-<div class="card statCard c-sessions">
-<h3>Ultima Sesion</h3>
-<p id="stat-sessions">---</p>
-</div>
-
-<br>
-
-<div class="stats">
-
-<div class="card statCard c-sessions" id="race-hero">
-<h3>Próxima regata</h3>
-<p  id="race-hero-days">---</p>
-<br>
-<h3 id="">---</h3>
-
-</div>
-
-<div class="card statCard c-split">
-<h3>Semana de carga</h3>
-<p id="load-week">---</p>
-</div>
-
-</div>
-<div class="card statCard c-dist">
-<h3>grafico2</h3>
-<p id="prog-today">---</p>
-</div>
-
-<br>
-
-<div class="card statCard c-sessions">
-<h3>Grafico3</h3>
-<p id="stat-sessions">---</p>
-</div>
-
-<br>
 <!--
 <div class="graph">
   <div class="graphHead">

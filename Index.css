@@ -20,6 +20,112 @@
     --glass-blur:22px;
     --glass-blur-lg:34px;
 }
+/* ===== Home / Resumen — estilo tipo Apple =====
+   Variables propias (rz-*) para no pisar las que ya tengas en Index.css */
+:root{
+  --rz-card:#f6f7f9;
+  --rz-border:#e6e8eb;
+  --rz-text:#1a1a1e;
+  --rz-text-muted:#8a8e96;
+  --rz-accent:#0f6e5f;
+  --rz-accent-2:#29a189;
+  --rz-radius:20px;
+  --rz-shadow:0 1px 2px rgba(0,0,0,.04), 0 8px 24px rgba(0,0,0,.06);
+}
+@media (prefers-color-scheme: dark){
+  :root{
+    --rz-card:#1c1d20;
+    --rz-border:#2a2b2f;
+    --rz-text:#f2f2f4;
+    --rz-text-muted:#9a9ba0;
+    --rz-accent:#34d1a8;
+    --rz-accent-2:#29a189;
+    --rz-shadow:0 1px 2px rgba(0,0,0,.3), 0 8px 24px rgba(0,0,0,.35);
+  }
+}
+/* ===== Home / Resumen — estilo "liquid glass" negro =====
+   Vidrio esmerilado oscuro, acorde al resto de la app (taskbar glass-btn).
+   Variables propias (rz-*) para no pisar las que ya tengas en Index.css */
+:root{
+  --rz-card: rgba(255,255,255,0.06);
+  --rz-card-hi: rgba(255,255,255,0.10);
+  --rz-border: rgba(255,255,255,0.14);
+  --rz-text: #f5f6f7;
+  --rz-text-muted: rgba(245,246,247,0.55);
+  --rz-accent: #29a189;
+  --rz-accent-2: #34d1a8;
+  --rz-radius: 22px;
+  --rz-blur: 22px;
+  --rz-shadow: 0 8px 32px rgba(0,0,0,0.45), inset 0 1px 0 rgba(255,255,255,0.06);
+}
+
+#home-athlete, #home-athlete *{ box-sizing:border-box; }
+#home-athlete{ font-family:'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; color:var(--rz-text); }
+
+.resumenHeader{ display:flex; align-items:center; justify-content:space-between; margin-bottom:18px; }
+.resumenHeader .sectionTitle{ font-family:'Poppins',sans-serif; font-weight:700; font-size:22px; margin:0; color:var(--rz-text); }
+.avatarCircle{
+  width:40px; height:40px; border-radius:50%; flex:0 0 40px;
+  display:flex; align-items:center; justify-content:center;
+  background:linear-gradient(135deg,var(--rz-accent),var(--rz-accent-2));
+  color:#0a0f0d; font-weight:700; font-size:14px; letter-spacing:.5px;
+  box-shadow:var(--rz-shadow);
+}
+
+/* Base "liquid glass": negro translúcido + blur + borde y brillo interno sutil */
+.chartCard, .raceCard, .weekBadgeCard, .lastSessionCard{
+  background: linear-gradient(180deg, var(--rz-card-hi), var(--rz-card));
+  -webkit-backdrop-filter: blur(var(--rz-blur)) saturate(160%);
+  backdrop-filter: blur(var(--rz-blur)) saturate(160%);
+  border: 1px solid var(--rz-border);
+  border-radius: var(--rz-radius);
+  box-shadow: var(--rz-shadow);
+}
+
+.chartCard{ padding:18px 18px 14px; margin-bottom:14px; }
+.chartBars{ display:flex; align-items:flex-end; gap:4px; height:88px; overflow:hidden; }
+.chartBars .bar{
+  flex:1 1 auto; min-width:3px; max-width:10px; border-radius:3px 3px 0 0;
+  background:linear-gradient(180deg,var(--rz-accent-2),var(--rz-accent));
+  opacity:.75; transition:opacity .15s;
+}
+.chartBars .bar.best{ opacity:1; box-shadow:0 0 8px rgba(52,209,168,.6); }
+.chartBars .empty{ font-size:12px; color:var(--rz-text-muted); align-self:center; margin:auto; }
+.chartFoot{ display:flex; justify-content:space-between; margin-top:10px; font-size:12px; color:var(--rz-text-muted); font-weight:600; }
+.chartBestLabel{ font-family:'Share Tech Mono', monospace; color:var(--rz-text); }
+
+.homeRow{ display:flex; gap:14px; margin-bottom:14px; }
+.raceCard, .weekBadgeCard{
+  flex:1; padding:18px; display:flex; flex-direction:column; justify-content:center; min-height:110px;
+}
+.raceCardName{ font-size:12px; font-weight:600; color:var(--rz-text-muted); text-transform:uppercase; letter-spacing:.4px; }
+.raceCardDays{ font-family:'Poppins',sans-serif; font-weight:700; font-size:38px; line-height:1.15; margin:2px 0; color:var(--rz-text); }
+.raceCardDate{ font-size:12px; color:var(--rz-text-muted); }
+
+.weekBadgeCard{ align-items:center; text-align:center; }
+.weekBadge{
+  width:64px; height:64px; border-radius:50%;
+  border:2px solid var(--rz-accent-2);
+  background: rgba(41,161,137,0.12);
+  display:flex; align-items:center; justify-content:center;
+  font-family:'Poppins',sans-serif; font-weight:700; font-size:24px; margin-bottom:8px;
+  color:var(--rz-text);
+}
+.weekBadgeLabel{ font-size:11px; color:var(--rz-text-muted); font-weight:600; text-align:center; }
+
+.lastSessionCard{ padding:18px; margin-bottom:14px; }
+.lastSessionTop{ display:flex; align-items:center; gap:10px; margin-bottom:10px; }
+.catPill{
+  font-size:11px; font-weight:700; text-transform:uppercase; letter-spacing:.4px;
+  background:linear-gradient(135deg,var(--rz-accent),var(--rz-accent-2));
+  color:#0a0f0d; padding:3px 9px; border-radius:20px;
+}
+.lastSessionDesc{ font-size:14px; font-weight:600; color:var(--rz-text); }
+.lastSessionBottom{ display:flex; align-items:baseline; gap:10px; }
+.lastSessionTime{ font-family:'Poppins',sans-serif; font-weight:700; font-size:28px; color:var(--rz-text); }
+.lastSessionDelta{ font-size:13px; font-weight:600; }
+.lastSessionDelta.up{ color:#ef6a61; }
+.lastSessionDelta.down{ color:#34d1a8; }
 
 *{
     margin:0;
@@ -35,7 +141,120 @@ h1,h2,h3,.sectionTitle,header,.mastLogo{
 body{
     background:var(--bg);
 }
+/* ===== Train — Parciales: mismo estilo "liquid glass" negro que Home ===== */
+:root{
+  --rz-card: rgba(255,255,255,0.06);
+  --rz-card-hi: rgba(255,255,255,0.10);
+  --rz-border: rgba(255,255,255,0.14);
+  --rz-text: #f5f6f7;
+  --rz-text-muted: rgba(245,246,247,0.55);
+  --rz-accent: #29a189;
+  --rz-accent-2: #34d1a8;
+  --rz-danger: #ef6161;
+  --rz-radius: 14px;
+  --rz-blur: 18px;
+}
 
+#train, #train *{ box-sizing:border-box; }
+
+.adv-table-header{
+  display:grid;
+  grid-template-columns: 24px 1.3fr 1fr 1fr 0.9fr 28px;
+  gap:6px;
+  padding:0 10px 6px;
+  font-size:11px;
+  font-weight:700;
+  text-transform:uppercase;
+  letter-spacing:.4px;
+  color:var(--rz-text-muted);
+}
+
+#parciales-container{ display:flex; flex-direction:column; gap:8px; margin-bottom:10px; }
+
+.adv-table-row, .parcial-row{
+  display:grid;
+  grid-template-columns: 24px 1.3fr 1fr 1fr 0.9fr 28px;
+  gap:6px;
+  align-items:center;
+  padding:8px 10px;
+  background: linear-gradient(180deg, var(--rz-card-hi), var(--rz-card));
+  -webkit-backdrop-filter: blur(var(--rz-blur)) saturate(160%);
+  backdrop-filter: blur(var(--rz-blur)) saturate(160%);
+  border: 1px solid var(--rz-border);
+  border-radius: var(--rz-radius);
+}
+
+.parcial-row > div:first-child{
+  font-size:12px;
+  font-weight:700;
+  color:var(--rz-text-muted);
+  text-align:center;
+}
+
+.parcial-row input{
+  width:100%;
+  background: rgba(255,255,255,0.04);
+  border: 1px solid var(--rz-border);
+  border-radius:8px;
+  color:var(--rz-text);
+  font-size:13px;
+  padding:6px 6px;
+  text-align:center;
+  font-family:'Share Tech Mono', monospace;
+}
+.parcial-row input::placeholder{ color:var(--rz-text-muted); opacity:.7; }
+.parcial-row input:focus{
+  outline:none;
+  border-color:var(--rz-accent-2);
+  box-shadow:0 0 0 2px rgba(52,209,168,0.25);
+}
+
+.removeParcialBtn {
+  width: 20px; /* Cambia este valor para hacerlo más chico (ej: 18px o 20px) */
+  height: 20px;
+  border-radius: 50%;
+  box-sizing: border-box; /* Asegura que el borde se incluya en la medida */
+  aspect-ratio: 1 / 1; /* Fuerza una proporción 1:1 perfectamente cuadrada/circular */
+  padding: 0; /* Evita espacios internos extra que lo deformen */
+  border: 1px solid var(--rz-border);
+  background: rgba(239, 106, 97, 0.10);
+  color: var(--rz-danger);
+  font-size: 11px; /* Achica también el ícono o texto interno proporcionalmente */
+  line-height: 1;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: background .15s, transform .1s;
+}
+.removeParcialBtn:hover{ background: rgba(239,106,97,0.22); }
+.removeParcialBtn:active{ transform: scale(0.92); }
+
+.addPartialBtn{
+  width:100%;
+  margin: 4px 0 20px;
+  padding:12px;
+  border-radius:var(--rz-radius);
+  border:1px dashed var(--rz-border);
+  background: rgba(41,161,137,0.08);
+  color:var(--rz-accent-2);
+  font-weight:600;
+  font-size:14px;
+  cursor:pointer;
+  transition: background .15s, border-color .15s;
+}
+.addPartialBtn:hover{
+  background: rgba(41,161,137,0.16);
+  border-color: var(--rz-accent-2);
+}
+
+@media (max-width: 380px){
+  .adv-table-header, .adv-table-row, .parcial-row{
+    grid-template-columns: 18px 1.2fr 0.9fr 0.9fr 0.8fr 24px;
+    font-size:11px;
+  }
+  .parcial-row input{ font-size:11px; padding:5px 3px; }
+}
 /* ---------- vidrio: receta base reutilizada en toda la app ---------- */
 
 .card,
@@ -203,7 +422,7 @@ header .headSub{
 }
 
 .statCard.c-dist .cardIcon{background:rgba(255,163,92,.16);color:var(--accent);}
-.statCard.c-sessions .cardIcon{background:rgba(93,209,196,.16);color:#5ED9C7;}
+.statCard.c-sessions .cardIcon{background:rgba(93,209,196,.16);color:#40e220;}
 .statCard.c-split .cardIcon{background:rgba(154,209,110,.16);color:#9AD16E;}
 .statCard.c-best .cardIcon{background:rgba(255,107,91,.16);color:#2bb40f;}
 
