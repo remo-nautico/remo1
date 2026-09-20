@@ -20,6 +20,144 @@
     --glass-blur:22px;
     --glass-blur-lg:34px;
 }
+
+/* =========================================
+   ESTILOS SKETCH (TRAIN & SESIONES)
+   ========================================= */
+
+/* Cabeceras compartidas */
+.page-header-sketch {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 20px;
+}
+.page-header-sketch .sectionTitle {
+  margin: 0;
+  font-size: 24px;
+  letter-spacing: 2px;
+}
+.header-icon-circle {
+  width: 36px; height: 36px;
+  border-radius: 50%;
+  border: 1px solid var(--border);
+  display: flex; align-items: center; justify-content: center;
+  font-weight: bold; font-size: 14px;
+  color: var(--text-muted);
+}
+
+/* Cajas estilo "Sketch" */
+.sketch-box {
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  margin-bottom: 15px;
+}
+
+/* Tarjeta Resumen Train */
+.train-summary-card {
+  display: flex;
+  align-items: center;
+  padding: 12px 16px;
+  gap: 15px;
+}
+.cat-circle {
+  width: 45px; height: 45px;
+  border-radius: 50%;
+  border: 2px solid var(--border);
+  display: flex; align-items: center; justify-content: center;
+  font-family: 'Poppins', sans-serif;
+  font-weight: 700; font-size: 16px;
+  color: var(--text);
+  flex-shrink: 0;
+}
+.title-input {
+  flex: 1;
+  background: transparent; border: none;
+  font-family: 'Poppins', sans-serif; font-size: 22px; font-weight: 600;
+  color: var(--text); outline: none;
+  text-transform: uppercase;
+}
+.summary-stats {
+  text-align: right;
+  display: flex; flex-direction: column; align-items: flex-end;
+}
+.stat-input {
+  background: transparent; border: none; outline: none;
+  color: var(--text); text-align: right;
+  font-family: 'Share Tech Mono', monospace;
+}
+.stat-input.split { font-size: 20px; font-weight: bold; }
+.spm-row { display: flex; align-items: baseline; gap: 4px; font-size: 12px; color: var(--text-muted); }
+.stat-input.spm { width: 30px; font-size: 14px; color: var(--text); }
+
+/* Tabla ajustada */
+.table-box { padding: 10px; }
+.adv-table-header { border-bottom: 1px dashed var(--border-soft); margin-bottom: 5px; }
+.parcial-row { background: transparent; border: none; padding: 4px 0; border-bottom: 1px solid rgba(255,255,255,0.05); }
+.parcial-row:last-child { border-bottom: none; }
+.parcial-row input { background: transparent; border: none; box-shadow: none; font-size: 14px; }
+
+/* Botón Guardar Ancho */
+.btn-guardar {
+  width: 100%;
+  border-radius: 12px;
+  font-size: 20px;
+  letter-spacing: 2px;
+  text-transform: uppercase;
+  padding: 16px;
+}
+
+/* =========================================
+   SESIONES (HISTORIAL COMPACTO)
+   ========================================= */
+
+.week-group { margin-bottom: 20px; }
+.week-label {
+  font-family: 'Inter', sans-serif;
+  font-size: 14px;
+  color: var(--text-muted);
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  margin-bottom: 10px;
+  margin-left: 5px;
+}
+
+.session-mini-card {
+  display: flex;
+  align-items: center;
+  padding: 12px 16px;
+  margin-bottom: 10px;
+  gap: 15px;
+  border-radius: 12px;
+}
+.session-mini-card .session-title {
+  flex: 1;
+  font-family: 'Poppins', sans-serif;
+  font-size: 20px;
+  font-weight: 600;
+  text-transform: uppercase;
+}
+.session-mini-card .session-stats {
+  text-align: right;
+}
+.session-mini-card .split {
+  font-family: 'Share Tech Mono', monospace;
+  font-size: 18px;
+  font-weight: bold;
+}
+.session-mini-card .day {
+  font-size: 11px;
+  color: var(--text-muted);
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  margin-top: 2px;
+}
+
+/* Colores para los círculos de zonas en las cards */
+.cat-circle.z1 { border-color: rgba(255,255,255,0.3); color: #fff; }
+.cat-circle.z2 { border-color: var(--accent); color: var(--accent); }
+.cat-circle.zk { border-color: var(--danger); color: var(--danger); }
+
 /* ===== Home / Resumen — estilo tipo Apple =====
    Variables propias (rz-*) para no pisar las que ya tengas en Index.css */
 :root{
@@ -2128,3 +2266,290 @@ body.role-coach header{
             from { opacity: 0; transform: translateY(10px); }
             to { opacity: 1; transform: translateY(0); }
         }
+
+/* =====================================================================
+   v2 — correcciones + diseños de los bocetos (Train / Sesiones) y Home
+   Este bloque va al final a propósito: pisa las reglas duplicadas de arriba.
+   ===================================================================== */
+
+:root{
+  --danger:#ff6b5b;            /* antes era verde (#5bff76): los errores se veían verdes */
+  --zc-z1:#6fb7ff;
+  --zc-z2:#34d1a8;
+  --zc-watts:#ffc857;
+  --zc-sprint:#ff6b5b;
+  --zc-test:#c58bff;
+}
+
+/* alto real en celulares (la barra del navegador no tapa el contenido) */
+.app{ height:100vh; height:100dvh; min-height:100vh; min-height:100dvh; }
+.page{ padding-bottom:120px; }
+select option{ background:#12151d; color:#f2f4f7; }
+input[type="date"]{ color-scheme:dark; }
+button:focus-visible, input:focus-visible, select:focus-visible, textarea:focus-visible{
+  outline:2px solid var(--zc-z2); outline-offset:2px;
+}
+
+/* ---------- barra de navegación (los íconos no tenían tamaño) ---------- */
+.glass-btn svg{ width:22px; height:22px; flex:none; }
+.glass-btn span{ font-size:10px; font-weight:500; letter-spacing:.06em; text-transform:uppercase; }
+
+/* ---------- encabezados ---------- */
+.avatarCircle{
+  padding:0; border:none; cursor:pointer;
+  font-family:'Poppins',sans-serif;
+}
+.resumenHeader.center{
+  display:grid; grid-template-columns:40px 1fr 40px; align-items:center; gap:10px;
+}
+.resumenHeader.center .sectionTitle{ text-align:center; letter-spacing:.12em; text-transform:uppercase; font-size:20px; }
+.headerIconBtn{
+  width:40px; height:40px; padding:0; border-radius:50%;
+  display:flex; align-items:center; justify-content:center;
+  background:rgba(255,255,255,.06);
+  border:1px solid var(--border);
+  color:var(--text);
+}
+.headerIconBtn svg{ width:18px; height:18px; }
+.headerIconBtn.on{ background:rgba(52,209,168,.18); border-color:var(--zc-z2); color:var(--zc-z2); }
+
+/* ---------- círculo de zona (Train, Sesiones y Home) ---------- */
+.cat-circle{
+  --zc:#98A2AE;
+  border:2px solid var(--zc);
+  color:var(--zc);
+  background:color-mix(in srgb, var(--zc) 13%, transparent);
+  padding:0;
+  line-height:1;
+}
+button.cat-circle{ cursor:pointer; font-size:16px; border-radius:50%; }
+button.cat-circle:active{ transform:scale(.93); }
+.cat-circle.z-z1{ --zc:var(--zc-z1); }
+.cat-circle.z-z2{ --zc:var(--zc-z2); }
+.cat-circle.z-watts{ --zc:var(--zc-watts); }
+.cat-circle.z-sprint{ --zc:var(--zc-sprint); }
+.cat-circle.z-test{ --zc:var(--zc-test); }
+.session-mini-card .cat-circle{ font-size:15px; }
+
+/* ---------- TRAIN ---------- */
+.editBanner{
+  display:flex; align-items:center; justify-content:space-between; gap:10px;
+  padding:10px 14px; margin-bottom:14px; border-radius:12px;
+  background:rgba(255,200,87,.12); border:1px solid rgba(255,200,87,.35);
+  color:var(--zc-watts); font-size:13px; font-weight:600;
+}
+.editBanner button{ padding:6px 12px; font-size:12px; background:rgba(255,255,255,.08); color:var(--text); border-radius:8px; }
+
+.trainMeta{ display:grid; grid-template-columns:1fr 1fr; gap:10px; }
+.trainMeta .input{ padding:9px 12px; margin-bottom:12px; min-width:0; }
+.histFilters .trainMeta .input{ margin-bottom:10px; }
+
+.train-summary-card{ min-width:0; }
+.title-input{ min-width:0; width:100%; }
+.train-summary-card .summary-stats{ flex:none; }
+.stat-input.split{ width:92px; }
+.stat-input.spm{ width:34px; }
+
+/* tabla de parciales: encabezado y filas con la MISMA grilla (antes estaban desalineados) */
+.table-box{ padding:12px 10px 10px; }
+.table-box .adv-table-header{
+  display:grid; grid-template-columns:24px 1.3fr 1fr 1fr .9fr 28px; gap:6px;
+  padding:0 11px 8px; margin:0 0 6px;
+  border-bottom:1px dashed var(--border-soft);
+  text-align:center; font-size:10px;
+}
+.table-box .adv-table-header div:first-child{ text-align:center; }
+.table-box .parcial-row{
+  background:rgba(255,255,255,.035);
+  -webkit-backdrop-filter:none; backdrop-filter:none;
+  border:1px solid var(--border-soft);
+  padding:7px 10px;
+}
+.table-box .addPartialBtn{ margin:2px 0 12px; padding:10px; font-size:13px; }
+.tableFoot{ display:grid; grid-template-columns:1fr 1fr; gap:8px; }
+.tableFoot input{
+  width:100%; min-width:0; padding:9px 8px; text-align:center;
+  background:rgba(255,255,255,.04); border:1px solid var(--rz-border); border-radius:8px;
+  color:var(--text); font-family:'Share Tech Mono',monospace; font-size:13px;
+}
+.tableFoot input::placeholder{ color:var(--text-faint); font-size:11px; font-family:'Inter',sans-serif; }
+.aiCopyBtn.copied{ background:var(--good); }
+.btn-guardar{ font-family:'Poppins',sans-serif; }
+
+/* ---------- SESIONES ---------- */
+.resultCount{ font-size:12px; color:var(--text-muted); margin:-4px 4px 12px; }
+.resultCount:empty{ display:none; }
+.emptyMsg{ text-align:center; padding:40px 20px; color:var(--text-muted); font-size:14px; line-height:1.6; }
+.histFilters{ padding:14px; margin-bottom:14px; border-radius:16px; }
+.clearFiltersBtn{
+  width:100%; padding:10px; font-size:13px; font-family:'Inter',sans-serif; font-weight:600;
+  background:rgba(255,255,255,.06); color:var(--text-muted); border:1px solid var(--border-soft);
+}
+
+.week-label{ font-family:'Poppins',sans-serif; font-weight:600; letter-spacing:.08em; }
+.session-item{ margin-bottom:10px; }
+.session-item .session-mini-card{ margin-bottom:0; cursor:pointer; }
+.session-item .session-title{ min-width:0; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
+.session-item .session-mini-card .split{ letter-spacing:.02em; }
+
+.session-detail{
+  display:none;
+  margin:-6px 8px 0; padding:16px 14px 14px;
+  background:rgba(255,255,255,.035);
+  border:1px solid var(--border-soft); border-top:none;
+  border-radius:0 0 16px 16px;
+}
+.session-item.open .session-detail{ display:block; }
+.session-item.open .session-mini-card{ border-bottom-left-radius:12px; border-bottom-right-radius:12px; }
+
+.sd-grid{ display:grid; grid-template-columns:1fr 1fr; gap:10px 14px; margin-bottom:12px; }
+.sd-k{ display:block; font-size:10px; font-weight:600; color:var(--text-muted); text-transform:uppercase; letter-spacing:.08em; }
+.sd-v{ display:block; font-size:14px; font-weight:500; color:var(--text); font-family:'Share Tech Mono',monospace; }
+.sd-table{ margin-bottom:14px; }
+.sd-row{
+  display:grid; grid-template-columns:22px 1.2fr 1fr 1fr .8fr; gap:6px;
+  padding:6px 0; border-bottom:1px solid rgba(255,255,255,.06);
+  font-family:'Share Tech Mono',monospace; font-size:13px; text-align:center; color:var(--text);
+}
+.sd-row:last-child{ border-bottom:none; }
+.sd-row span:first-child{ color:var(--text-muted); }
+.sd-head{ font-family:'Inter',sans-serif; font-size:10px; font-weight:700; text-transform:uppercase; letter-spacing:.06em; color:var(--text-muted); }
+.sd-actions{ display:flex; gap:8px; }
+.sd-btn{
+  flex:1; padding:10px; font-size:13px; font-family:'Inter',sans-serif; font-weight:600;
+  background:rgba(255,255,255,.08); color:var(--text); border:1px solid var(--border-soft);
+}
+.sd-btn.danger{ color:var(--danger); background:rgba(255,107,91,.1); border-color:rgba(255,107,91,.3); }
+
+/* ---------- HOME ---------- */
+.chartCard{ --cc:var(--zc-z2); padding:16px 18px 14px; }
+.chartCard.z1{ --cc:var(--zc-z1); }
+.chartCard.z2{ --cc:var(--zc-z2); }
+.chartCard .chartBars{ height:104px; gap:5px; }
+.chartCard .chartBars .bar{
+  max-width:16px; min-width:5px; border-radius:4px 4px 0 0; cursor:pointer;
+  background:linear-gradient(180deg, var(--cc), color-mix(in srgb, var(--cc) 55%, transparent));
+  opacity:.6;
+}
+.chartCard .chartBars .bar.best{ opacity:1; box-shadow:0 0 10px color-mix(in srgb, var(--cc) 70%, transparent); }
+.chartCard .chartBars .bar.sel{ opacity:1; outline:1.5px solid #fff; outline-offset:1px; }
+.chartCard .chartZoneLabel{ display:flex; align-items:center; gap:7px; }
+.chartCard .chartZoneLabel::before{ content:""; width:8px; height:8px; border-radius:50%; background:var(--cc); }
+
+.lastSessionCard{ cursor:pointer; padding:14px 16px 16px; }
+.lastSessionLabel{ font-size:12px; font-weight:600; color:var(--rz-text-muted); margin-bottom:10px; }
+.lastSessionRow{ display:flex; align-items:center; gap:14px; }
+.lastSessionInfo{ flex:1; min-width:0; }
+.lastSessionDesc{ font-family:'Poppins',sans-serif; font-size:18px; font-weight:600; text-transform:uppercase; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
+.lastSessionMeta{ font-size:11px; color:var(--rz-text-muted); text-transform:uppercase; letter-spacing:.08em; margin-top:2px; }
+.lastSessionRight{ text-align:right; }
+.lastSessionTime{ font-family:'Share Tech Mono',monospace; font-size:22px; font-weight:700; }
+.lastSessionDelta{ font-family:'Share Tech Mono',monospace; font-size:12px; min-height:16px; }
+
+.raceCardDays small{ font-family:'Inter',sans-serif; font-size:13px; font-weight:600; color:var(--rz-text-muted); margin-left:6px; }
+.raceRow{ display:flex; justify-content:space-between; align-items:center; margin-bottom:10px; padding:12px 14px; }
+.muted{ color:var(--text-muted); font-size:12px; }
+
+@media (prefers-reduced-motion: reduce){
+  *{ animation:none !important; transition:none !important; }
+}
+
+/* ---------- SESIONES: texto en blanco ---------- */
+#historial .week-label,
+#historial .resultCount,
+#historial .session-mini-card .session-title,
+#historial .session-mini-card .split,
+#historial .session-mini-card .day,
+#historial .session-mini-card .cat-circle,
+#historial .sd-k,
+#historial .sd-v,
+#historial .sd-row,
+#historial .sd-row span:first-child,
+#historial .sd-head,
+#historial .emptyMsg{
+  color:#fff;
+}
+/* el borde del círculo conserva el color de la zona */
+
+/* =====================================================================
+   v3 — lista desplegable de zonas + trabajos en agua resaltados
+   ===================================================================== */
+:root{ --water:#00e5ff; }
+
+/* ---------- lista desplegable de zona (Train) ---------- */
+.train-summary-card{ position:relative; z-index:6; }   /* para que la lista quede por encima de la tabla */
+.zoneWrap{ position:relative; flex:none; }
+.zoneCaret{
+  position:absolute; right:-4px; bottom:-3px; width:17px; height:17px; border-radius:50%;
+  display:flex; align-items:center; justify-content:center;
+  background:#1b1e27; border:1px solid var(--border); color:var(--text);
+  font-size:9px; pointer-events:none;
+}
+.zoneBadge{
+  display:none; position:absolute; top:-8px; left:50%; transform:translateX(-50%);
+  padding:1px 6px; border-radius:8px; pointer-events:none;
+  background:var(--zc-z2); color:#04130f;
+  font-size:8px; font-weight:700; letter-spacing:.08em; text-transform:uppercase;
+}
+.zoneWrap.auto .zoneBadge{ display:block; }
+.zoneMenu{
+  display:none; position:absolute; top:calc(100% + 10px); left:0; z-index:30;
+  min-width:200px; padding:6px; border-radius:14px;
+  background:rgba(22,24,32,.97);
+  -webkit-backdrop-filter:blur(24px); backdrop-filter:blur(24px);
+  border:1px solid var(--border); box-shadow:var(--shadow);
+}
+.zoneMenu.show{ display:block; }
+.zoneItem{
+  display:flex; align-items:center; gap:10px; width:100%;
+  padding:11px 12px; border-radius:10px; background:transparent; color:var(--text);
+  font-family:'Inter',sans-serif; font-size:14px; font-weight:500; text-align:left;
+}
+.zoneItem:hover, .zoneItem.active{ background:rgba(255,255,255,.09); }
+.zoneItem.active::after{ content:"✓"; margin-left:auto; color:var(--zc-z2); }
+.zdot{ width:12px; height:12px; border-radius:50%; flex:none; background:var(--zc,#98A2AE); }
+.zdot.z-z1{ --zc:var(--zc-z1); }
+.zdot.z-z2{ --zc:var(--zc-z2); }
+.zdot.z-watts{ --zc:var(--zc-watts); }
+.zdot.z-sprint{ --zc:var(--zc-sprint); }
+.zdot.z-test{ --zc:var(--zc-test); }
+.zdot.auto{ background:conic-gradient(var(--zc-z1), var(--zc-z2), var(--zc-watts), var(--zc-sprint), var(--zc-test), var(--zc-z1)); }
+
+/* ---------- AGUA: se distingue del ergo ---------- */
+.waterTag{
+  display:inline-flex; align-items:center; align-self:flex-start;
+  padding:2px 9px; border-radius:20px; margin-top:4px;
+  background:rgba(0,229,255,.14); border:1px solid rgba(0,229,255,.55);
+  color:#fff; font-size:10px; font-weight:700; letter-spacing:.08em; text-transform:uppercase;
+}
+.session-main{ flex:1; min-width:0; display:flex; flex-direction:column; }
+.session-item .session-main .session-title{ flex:none; }
+
+/* Sesiones */
+.session-item.agua .session-mini-card{
+  border-left:4px solid var(--water);
+  background:linear-gradient(90deg, rgba(0,229,255,.20), rgba(255,255,255,.04) 65%);
+  box-shadow:inset 0 1px 0 rgba(255,255,255,.12), 0 0 18px rgba(0,229,255,.14);
+}
+.session-item.agua .session-detail{ border-color:rgba(0,229,255,.28); }
+
+/* Home: última sesión */
+.lastSessionCard.agua{
+  border-color:rgba(0,229,255,.5);
+  background:linear-gradient(135deg, rgba(0,229,255,.18), rgba(255,255,255,.04) 60%);
+}
+.lastSessionMeta .waterTag{ margin:0 0 0 6px; }
+
+/* Home: barras de trabajos en agua (rayadas, no dependen solo del color) */
+.chartCard .chartBars .bar.agua{
+  background:
+    repeating-linear-gradient(135deg, rgba(255,255,255,.55) 0 3px, transparent 3px 7px),
+    linear-gradient(180deg, var(--water), color-mix(in srgb, var(--water) 50%, transparent));
+  opacity:.9;
+}
+
+/* Train: la tarjeta se marca cuando el medio es agua */
+.train-summary-card.is-agua{
+  border-color:rgba(0,229,255,.6);
+  box-shadow:inset 0 0 0 1px rgba(0,229,255,.25), 0 0 18px rgba(0,229,255,.16);
+}

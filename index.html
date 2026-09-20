@@ -4,481 +4,384 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Remo</title>
-<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
-<script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.js"></script>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@500;600;700&family=Inter:wght@400;500;600&family=Share+Tech+Mono&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="Index.css">
-
-
 </head>
 
 <body>
 
+<!-- ================= LOGIN ================= -->
 <div class="loginOverlay" id="login-overlay">
-<div class="loginBox">
-<h2>Remo — Training Log</h2>
+  <div class="loginBox">
+    <h2>Remo — Training Log</h2>
 
-<div id="login-mode">
-<div class="loginSub">Iniciá sesión para continuar</div>
-<div class="input">
-<label>Usuario</label>
-<input type="text" id="login-user" autocomplete="username" placeholder="ej: juan.perez">
+    <div id="login-mode">
+      <div class="loginSub">Iniciá sesión para continuar</div>
+      <div class="input">
+        <label>Usuario</label>
+        <input type="text" id="login-user" autocomplete="username" placeholder="ej: juan.perez">
+      </div>
+      <div class="input">
+        <label>Contraseña</label>
+        <input type="password" id="login-pass" autocomplete="current-password" placeholder="••••••••">
+      </div>
+      <button class="add" onclick="doLogin()">Ingresar</button>
+      <div class="loginErr" id="login-err"></div>
+      <div class="loginSwitch"><a href="javascript:void(0)" onclick="showRegisterMode()">¿No tenés cuenta? Creá una</a></div>
+    </div>
+
+    <div id="register-mode" style="display:none;">
+      <div class="loginSub">Creá tu cuenta</div>
+      <div class="input">
+        <label>Elegí un usuario</label>
+        <input type="text" id="reg-user" autocomplete="username" placeholder="ej: juan.perez">
+      </div>
+      <div class="input">
+        <label>Elegí una contraseña</label>
+        <input type="password" id="reg-pass" autocomplete="new-password" placeholder="mínimo 4 caracteres">
+      </div>
+      <div class="input">
+        <label>Repetí la contraseña</label>
+        <input type="password" id="reg-pass2" autocomplete="new-password" placeholder="••••••••">
+      </div>
+      <button class="add" onclick="doRegister()">Crear cuenta</button>
+      <div class="loginErr" id="register-err"></div>
+      <div class="loginSwitch"><a href="javascript:void(0)" onclick="showLoginMode()">Ya tengo cuenta, volver</a></div>
+    </div>
+  </div>
 </div>
-<div class="input">
-<label>Contraseña</label>
-<input type="password" id="login-pass" autocomplete="current-password" placeholder="••••••••">
-</div>
-<button class="add" onclick="doLogin()">Ingresar</button>
-<div class="loginErr" id="login-err"></div>
-<div class="loginSwitch"><a href="javascript:void(0)" onclick="showRegisterMode()">¿No tenés cuenta? Creá una</a></div>
-</div>
-
-<div id="register-mode" style="display:none;">
-<div class="loginSub">Creá tu cuenta</div>
-<div class="input">
-<label>Elegí un usuario</label>
-<input type="text" id="reg-user" autocomplete="username" placeholder="ej: juan.perez">
-</div>
-<div class="input">
-<label>Elegí una contraseña</label>
-<input type="password" id="reg-pass" autocomplete="new-password" placeholder="mínimo 4 caracteres">
-</div>
-<div class="input">
-<label>Repetí la contraseña</label>
-<input type="password" id="reg-pass2" autocomplete="new-password" placeholder="••••••••">
-</div>
-
-<button class="add" onclick="doRegister()">Crear cuenta</button>
-<div class="loginErr" id="register-err"></div>
-<div class="loginSwitch"><a href="javascript:void(0)" onclick="showLoginMode()">Ya tengo cuenta, volver</a></div>
-</div>
-
-</div>
-</div>
-
-
-
-
-
-
-
-
-
 
 <div class="app">
-<div class="top-bar">
-      <span class="muted" id="user-email"></span>
-      <button class="secondary" onclick="logout()" style="margin:0;">Cerrar sesión</button>
-    </div>
-<div class="content">
 
-
-
+<!-- ================= HOME ================= -->
 <section class="page active" id="home">
 
-<div class="resumenHeader">
-<div class="sectionTitle">Resumen</div>
-<div class="avatarCircle" id="home-avatar">--</div>
-</div>
-
-
-
-
-<div id="home-athlete">
-
-<div class="input" id="athlete-filter-wrap" style="display:none;">
-<label>Viendo a</label>
-<select id="athlete-filter-select" onchange="setAthleteFilter(this.value)"></select>
-</div>
-
-<div class="chartCard">
-<div class="chartBars" id="chart-z1"></div>
-<div class="chartFoot">
-<span class="chartZoneLabel">Zona 1</span>
-<span class="chartBestLabel" id="chart-z1-best">--</span>
-</div>
-</div>
-
-<div class="homeRow">
-<div class="raceCard">
-<div class="raceCardName" id="race-card-name">Sin regatas</div>
-<div class="raceCardDays" id="race-card-days">--</div>
-<div class="raceCardDate" id="race-card-date">&nbsp;</div>
-</div>
-<div class="weekBadgeCard">
-<div class="weekBadge" id="week-badge-num">--</div>
-<div class="weekBadgeLabel">Semana de carga</div>
-</div>
-</div>
-
-<div class="lastSessionCard">
-<div class="lastSessionTop">
-<span class="catPill" id="last-session-cat">--</span>
-<span class="lastSessionDesc" id="last-session-desc">Sin sesiones todavía</span>
-</div>
-<div class="lastSessionBottom">
-<span class="lastSessionTime" id="last-session-time">--:--</span>
-<span class="lastSessionDelta" id="last-session-delta"></span>
-</div>
-</div>
-
-<div class="chartCard">
-<div class="chartBars" id="chart-z2"></div>
-<div class="chartFoot">
-<span class="chartZoneLabel">Zona 2</span>
-<span class="chartBestLabel" id="chart-z2-best">--</span>
-</div>
-</div>
-
-
-
-
-
-
-
-<!--
-<div class="graph">
-  <div class="graphHead">
-    <div class="graphTitle" id="chart-label">Gráfico — todos los ejercicios</div>
-    <select id="chart-filter-select" onchange="setChartFilter(this.value)"></select>
+  <div class="resumenHeader">
+    <div class="sectionTitle">Resumen</div>
+    <button type="button" class="avatarCircle" onclick="navigateTo('settings')" id="home-avatar" aria-label="Ajustes">--</button>
   </div>
 
-  <canvas id="areaChart" height="220"></canvas>
-</div>
--->
+  <div id="home-athlete">
 
-
-
-<!--<div class="homeSectionLabel">Progreso reciente</div>
-<div class="progressCards">
-
-<div class="progCard" id="prog-today">
-<div class="progTitle">Entrenamiento de hoy</div>
-<div class="progEmpty">Todavía no cargaste nada hoy.</div>
-</div>
-
-<div class="progCard" id="prog-compare">
-<div class="progTitle">Vs. la vez anterior</div>
-<div class="progEmpty">Sin datos para comparar todavía.</div>
-</div>
-
-</div>
-
--->
-
-</div></section>
-
-<section class="page" id="train">
-
-<div class="sectionTitle">
-Train
-</div>
-
- 
-
-  <div class="editBanner" id="edit-banner" style="display:none;">
-    <span>✎ Editando sesión guardada</span>
-    <button type="button" class="cancelEditBtn" onclick="cancelEdit()">Cancelar</button>
-  </div>
-
-  <div class="adv-header">Configuración</div>
-  <div class="adv-grid">
-    <div class="input">
-      <label>Fecha</label>
-      <input type="date" id="f-date">
-    </div>
-    
-    <div class="input">
-      <label>Nombre del Trabajo</label>
-      <input type="text" id="f-type" placeholder="Ej: 4x8:00">
-    </div>
-
-    <div class="input" style="grid-column: span 2;">
-      <label>Categoría</label>
-      <select id="f-cat">
-        <option value="z1">Zona 1</option>
-        <option value="z2" selected>Zona 2</option>
-        <option value="sprint">Sprint</option>
-        <option value="test">Test</option>
-        <option value="watts">Watts</option>
-      </select>
-      <div class="zoneHint" id="zone-hint" style="font-size: 10px; color: var(--text-faint); margin-top: 4px;">Cargá el SPM para sugerir la zona automáticamente</div>
-    </div>
-  </div>
-
-  <div class="zoneDetectRow">
-    <div id="zone-suggestion">Sin sugerencia todavía</div>
-    <button type="button" class="zoneApplyBtn" onclick="applyZoneSuggestion()">Aplicar zona sugerida</button>
-  </div>
-
-  <div class="adv-header">Medio / Trabajo en Agua</div>
-  <div class="input">
-      <label>Medio de Entrenamiento</label>
-      <select id="f-medium" onchange="toggleWaterOptions()">
-          <option value="ergo">Ergómetro / Estándar</option>
-          <option value="agua">Trabajo en Agua</option>
-      </select>
-  </div>
-
-  <div id="water-options" style="display:none;">
-      <div class="adv-grid">
-          <div class="input">
-              <label>Embarcación (Bote)</label>
-              <select id="f-boat">
-                  <option value="Single">Single (1x)</option>
-                  <option value="Doble">Doble (2x / 2-)</option>
-                  <option value="Cuádruple">Cuádruple (4x / 4-)</option>
-              </select>
-          </div>
-          <div class="input">
-              <label>% del Entrenador</label>
-              <input type="number" id="f-percentage" placeholder="Ej: 85" min="1" max="150">
-          </div>
+    <div class="chartCard z1">
+      <div class="chartBars" id="chart-z1"></div>
+      <div class="chartFoot">
+        <span class="chartZoneLabel">Zona 1</span>
+        <span class="chartBestLabel" id="chart-z1-best">--</span>
       </div>
+    </div>
+
+    <div class="lastSessionCard" onclick="navigateTo('historial', 'historial', $('nav-historial'))">
+      <div class="lastSessionLabel">Última sesión</div>
+      <div class="lastSessionRow">
+        <div class="cat-circle" id="last-session-cat">--</div>
+        <div class="lastSessionInfo">
+          <div class="lastSessionDesc" id="last-session-desc">Sin sesiones todavía</div>
+          <div class="lastSessionMeta" id="last-session-meta">Cargá tu primer entreno en Train</div>
+        </div>
+        <div class="lastSessionRight">
+          <div class="lastSessionTime" id="last-session-time">--:--</div>
+          <div class="lastSessionDelta" id="last-session-delta"></div>
+        </div>
+      </div>
+    </div>
+
+    <div class="homeRow">
+      <div class="raceCard">
+        <div class="raceCardName" id="race-card-name">Sin regatas</div>
+        <div class="raceCardDays" id="race-card-days">--</div>
+        <div class="raceCardDate" id="race-card-date">&nbsp;</div>
+      </div>
+      <div class="weekBadgeCard">
+        <div class="weekBadge" id="week-badge-num">--</div>
+        <div class="weekBadgeLabel">Semana de carga</div>
+      </div>
+    </div>
+
+    <div class="chartCard z2">
+      <div class="chartBars" id="chart-z2"></div>
+      <div class="chartFoot">
+        <span class="chartZoneLabel">Zona 2</span>
+        <span class="chartBestLabel" id="chart-z2-best">--</span>
+      </div>
+    </div>
+
+  </div>
+</section>
+
+<!-- ================= TRAIN ================= -->
+<section class="page" id="train">
+  <div class="resumenHeader">
+    <div class="sectionTitle">Train</div>
+    <button type="button" class="avatarCircle" id="train-avatar" onclick="navigateTo('settings')" aria-label="Ajustes">--</button>
   </div>
 
-  <div class="adv-header" style="margin-top: 25px;">Resumen General</div>
-  <div class="adv-grid">
-    <div class="input">
-      <label>Metros Totales</label>
-      <input type="number" id="f-meters" placeholder="Ej: 8140">
-    </div>
-
-    <div class="input">
-      <label>Tiempo Total</label>
-      <input type="text" id="f-totaltime" placeholder="Ej: 35:00.0">
-    </div>
-
-    <div class="input">
-      <label>Promedio /500m</label>
-      <input type="text" id="f-split" placeholder="Ej: 1:57.9">
-    </div>
-
-    <div class="input">
-      <label>SPM General</label>
-      <input type="number" id="f-spm" placeholder="Ej: 19" oninput="updateZoneHint()">
-    </div>
+  <!-- Aviso cuando se edita una sesión guardada -->
+  <div class="editBanner" id="edit-banner" style="display:none;">
+    <span>Editando una sesión guardada</span>
+    <button type="button" onclick="cancelEdit()">Cancelar</button>
   </div>
 
-  <div class="adv-header">Parciales (Splits)</div>
-
-  <div class="adv-table-header">
-    <div>#</div>
-    <div>Tiempo</div>
-    <div>Metros</div>
-    <div>/500m</div>
-    <div>SPM</div>
-    <div></div>
-  </div>
-
-  <div id="parciales-container"></div>
-
-  <button type="button" class="addPartialBtn" onclick="addParcialRow()">+ Agregar parcial</button>
-
-  <div class="line" style="margin-top: 30px;"></div>
-
-  <div class="aiImportBox">
+  <!-- 1. Bloque IA -->
+  <div class="aiImportBox glass-card sketch-box">
     <div class="aiImportHeader">
-      <span>📷 Cargar desde foto con IA</span>
-      <button type="button" class="aiCopyBtn" id="ai-copy-btn" onclick="copyAiPrompt()">Copiar instrucciones</button>
-    </div>
-    <div class="aiImportSteps">
-      <div class="aiImportStep"><span class="num">1</span><span>Sacale una foto a la pantalla del PM5 al terminar el trabajo.</span></div>
-      <div class="aiImportStep"><span class="num">2</span><span>Tocá "Copiar instrucciones" y pegalas en ChatGPT junto con la foto.</span></div>
-      <div class="aiImportStep"><span class="num">3</span><span>Pegá el código de la IA abajo y cargalo.</span></div>
+      <span>ⓘ Foto AI</span>
+      <button type="button" class="aiCopyBtn" id="ai-copy-btn" onclick="copyAiPrompt()">COPY</button>
     </div>
     <div class="aiTextareaWrap">
-      <textarea id="ai-code-input" placeholder='{"date":"2026-07-22","type":"2000m","meters":2000,"split":"1:47.7","totaltime":"7:10.8","spm":26,"cat":"sprint","parciales":[]}'></textarea>
+      <textarea id="ai-code-input" placeholder="Insertá el código"></textarea>
     </div>
-    <button type="button" class="aiLoadBtn" onclick="loadFromAiCode()">Cargar datos en el formulario</button>
+    <button type="button" class="aiLoadBtn add" onclick="loadFromAiCode()">CARGAR TRAIN</button>
   </div>
 
+  <!-- 2. Fecha y medio -->
+  <div class="trainMeta">
+    <div class="input">
+      <label for="f-date">Fecha</label>
+      <input type="date" id="f-date">
+    </div>
+    <div class="input">
+      <label for="f-medium">Medio</label>
+      <select id="f-medium" onchange="toggleWaterOptions()">
+        <option value="ergo">Ergómetro</option>
+        <option value="agua">Agua</option>
+      </select>
+    </div>
+  </div>
+  <div class="trainMeta" id="water-options" style="display:none;">
+    <div class="input">
+      <label for="f-boat">Bote</label>
+      <select id="f-boat">
+        <option value="Single">Single</option>
+        <option value="Doble">Doble</option>
+        <option value="Cuadruple">Cuádruple</option>
+        <option value="Dos sin">Dos sin</option>
+        <option value="Cuatro sin">Cuatro sin</option>
+        <option value="Ocho">Ocho</option>
+      </select>
+    </div>
+    <div class="input">
+      <label for="f-percentage">Porcentaje</label>
+      <input type="number" id="f-percentage" placeholder="100" inputmode="decimal">
+    </div>
+  </div>
+
+  <!-- 3. Resumen principal (tocá el círculo para cambiar la zona) -->
+  <div class="train-summary-card glass-card sketch-box">
+    <div class="zoneWrap auto" id="zone-wrap">
+      <button type="button" class="cat-circle" id="f-cat-btn" onclick="toggleMenuZona(event)" aria-haspopup="true" aria-label="Elegir zona">Z1</button>
+      <span class="zoneCaret">▾</span>
+      <span class="zoneBadge">auto</span>
+      <div class="zoneMenu" id="zone-menu"></div>
+    </div>
+    <input type="hidden" id="f-cat" value="z1">
+    <input type="text" id="f-type" class="title-input" placeholder="6x8:00" autocomplete="off">
+    <div class="summary-stats">
+      <input type="text" id="f-split" placeholder="2:04.2" class="stat-input split" inputmode="decimal">
+      <div class="spm-row">
+        <input type="number" id="f-spm" placeholder="18" class="stat-input spm" inputmode="numeric"> <span>spm</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- 4. Tabla de parciales -->
+  <div class="sketch-box glass-card table-box">
+    <div class="adv-table-header">
+      <div>#</div>
+      <div>Tiempo</div>
+      <div>Metros</div>
+      <div>/500m</div>
+      <div>SPM</div>
+      <div></div>
+    </div>
+    <div id="parciales-container"></div>
+    <button type="button" class="addPartialBtn" onclick="addParcialRow()">+ Agregar parcial</button>
+    <div class="tableFoot">
+      <input type="text" id="f-totaltime" placeholder="Tiempo total (auto)" inputmode="decimal">
+      <input type="number" id="f-meters" placeholder="Metros totales (auto)" inputmode="numeric">
+    </div>
+  </div>
+
+  <!-- 5. Guardar -->
   <div class="trainButtons">
-    <button class="add" id="btn-add-session" onclick="addSession()" style="width: 100%; padding: 18px; font-size: 16px;">
-      Guardar Entrenamiento
+    <button class="add btn-guardar" id="btn-add-session" onclick="addSession()">GUARDAR</button>
+  </div>
+</section>
+
+<!-- ================= SESIONES ================= -->
+<section class="page" id="historial">
+  <div class="resumenHeader center">
+    <button type="button" class="headerIconBtn" id="hist-filter-btn" onclick="toggleHistFilters()" aria-label="Filtros">
+      <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.6" stroke="currentColor">
+        <path stroke-linecap="round" stroke-linejoin="round" d="M12 3c2.755 0 5.455.232 8.083.678.533.09.917.556.917 1.096v1.044a2.25 2.25 0 01-.659 1.591l-5.432 5.432a2.25 2.25 0 00-.659 1.591v2.927a2.25 2.25 0 01-1.244 2.013L9.75 21v-6.568a2.25 2.25 0 00-.659-1.591L3.659 7.409A2.25 2.25 0 013 5.818V4.774c0-.54.384-1.006.917-1.096A48.32 48.32 0 0112 3z" />
+      </svg>
+    </button>
+    <div class="sectionTitle">Sesiones</div>
+    <button type="button" class="avatarCircle" id="hist-avatar" onclick="navigateTo('settings')" aria-label="Ajustes">--</button>
+  </div>
+
+  <div class="histFilters glass-card" id="hist-filters" style="display:none;">
+    <div class="input">
+      <label for="table-filter-select">Zona</label>
+      <select id="table-filter-select" onchange="setTableFilter(this.value)"></select>
+    </div>
+    <div class="trainMeta">
+      <div class="input">
+        <label for="hist-date-from">Desde</label>
+        <input type="date" id="hist-date-from" onchange="setDateFilter()">
+      </div>
+      <div class="input">
+        <label for="hist-date-to">Hasta</label>
+        <input type="date" id="hist-date-to" onchange="setDateFilter()">
+      </div>
+    </div>
+    <button type="button" class="clearFiltersBtn" onclick="clearHistFilters()">Limpiar filtros</button>
+  </div>
+
+  <div class="resultCount" id="result-count"></div>
+
+  <div id="rows"></div>
+</section>
+
+<!-- ================= SETTINGS ================= -->
+<section class="page" id="settings">
+
+  <div class="sectionTitle">Settings</div>
+  <div class="settingsStatus" id="settings-user" style="text-align:left;margin:-8px 0 14px;"></div>
+
+  <div class="input">
+    <label>Inicio bloque de carga</label>
+    <input type="date" id="load-start-input">
+  </div>
+
+  <button class="settingsBtn" onclick="saveDatesConfig()">
+    <span>Guardar bloque de carga</span><span>📅</span>
+  </button>
+
+  <div class="settingsStatus" id="dates-status">Configurá el inicio del bloque para ver la semana de carga en Home.</div>
+
+  <div class="line"></div>
+
+  <div class="sectionTitle" style="font-size:16px;margin-bottom:10px;">Regatas próximas</div>
+
+  <div id="races-list"></div>
+
+  <div class="row" id="race-add-row">
+    <div class="input">
+      <label>Nombre de la regata</label>
+      <input type="text" id="race-name-input" placeholder="ej: Regata Metropolitana">
+    </div>
+    <div class="input">
+      <label>Fecha</label>
+      <input type="date" id="race-date-new-input">
+    </div>
+  </div>
+  <button class="settingsBtn" id="race-add-btn" onclick="addRace()">
+    <span>Agregar regata</span><span>🏁</span>
+  </button>
+
+  <div class="settingsStatus" id="races-status"></div>
+
+  <div class="line"></div>
+
+  <button class="settingsBtn" onclick="syncNow()">
+    <span>Sincronizar ahora</span><span>⟳</span>
+  </button>
+
+  <div class="settingsStatus" id="api-status">Conectado a Supabase.</div>
+
+  <div class="line"></div>
+
+  <button class="settingsBtn" onclick="exportJSON()">
+    <span>Guardar .json</span><span>⭳</span>
+  </button>
+
+  <button class="settingsBtn" onclick="document.getElementById('import-input').click()">
+    <span>Cargar .json</span><span>⭱</span>
+  </button>
+
+  <button class="settingsBtn" onclick="document.getElementById('import-rowcoach-input').click()">
+    <span>Cargar backup RowCoach</span><span>⭱</span>
+  </button>
+
+  <div id="excel-import-wrap">
+    <button class="settingsBtn" onclick="document.getElementById('import-excel-input').click()">
+      <span>Cargar Excel del entrenador</span><span>📊</span>
+    </button>
+
+    <div class="settingsStatus" id="excel-import-status">Subí el Excel del entreno (el nombre del archivo tiene que traer la fecha, ej "22-07").</div>
+
+    <div id="apodo-section">
+      <div class="sectionTitle" style="font-size:15px;margin:16px 0 6px;">Apodos → Usuarios</div>
+      <div id="apodo-list"></div>
+    </div>
+  </div>
+
+  <div class="line"></div>
+
+  <button class="settingsBtn" onclick="exportCSV()">
+    <span>Exportar CSV</span><span>⭳</span>
+  </button>
+
+  <div id="reset-db-wrap">
+    <button class="settingsBtn danger" onclick="showClearConfirm()">
+      <span>Borrar todas mis sesiones</span><span>✕</span>
     </button>
   </div>
 
-</section>
+  <button class="settingsBtn danger" id="logout-btn" onclick="logout()">
+    <span>Cerrar sesión</span><span>⎋</span>
+  </button>
 
+  <input type="file" id="import-input" accept=".json" style="display:none" onchange="importJSON(event)">
+  <input type="file" id="import-rowcoach-input" accept=".json" style="display:none" onchange="importRowCoachJSON(event)">
+  <input type="file" id="import-excel-input" accept=".xlsx,.xls,.csv" style="display:none" onchange="importExcel(event)">
 
-
-
-
-
-<section class="page" id="historial">
-
-<div class="sectionTitle">
-Historial
-</div>
-
-<div class="input" id="hist-athlete-filter-wrap" style="display:none;">
-<label>Atleta</label>
-<select class="athleteFilterSelect" id="hist-athlete-filter-select" onchange="setAthleteFilter(this.value)"></select>
-</div>
-
-<div class="row">
-<div class="input">
-<label>Desde</label>
-<input type="date" id="hist-date-from" onchange="setDateFilter()">
-</div>
-<div class="input">
-<label>Hasta</label>
-<input type="date" id="hist-date-to" onchange="setDateFilter()">
-</div>
-</div>
-
-<select class="filterSelect" id="table-filter-select" onchange="setTableFilter(this.value)"></select>
-
-<div class="resultCount" id="result-count"></div>
-
-<div id="rows"></div>
+  <div class="settingsStatus" id="db-status">Cargando…</div>
 
 </section>
 
-<section class="page" id="settings">
-
-<div class="sectionTitle">Settings</div>
-
-<div class="input">
-<label>Inicio bloque de carga</label>
-<input type="date" id="load-start-input">
-</div>
-
-<button class="settingsBtn" onclick="saveDatesConfig()">
-<span>Guardar bloque de carga</span><span>📅</span>
-</button>
-
-<div class="settingsStatus" id="dates-status">Configurá el inicio del bloque para ver la semana de carga en Home.</div>
-
-<div class="line"></div>
-
-<div class="sectionTitle" style="font-size:16px;margin-bottom:10px;">Regatas próximas</div>
-
-<div id="races-list"></div>
-
-<div class="row" id="race-add-row">
-<div class="input">
-<label>Nombre de la regata</label>
-<input type="text" id="race-name-input" placeholder="ej: Regata Metropolitana">
-</div>
-<div class="input">
-<label>Fecha</label>
-<input type="date" id="race-date-new-input">
-</div>
-</div>
-<button class="settingsBtn" id="race-add-btn" onclick="addRace()">
-<span>Agregar regata</span><span>🏁</span>
-</button>
-
-<div class="settingsStatus" id="races-status"></div>
-
-<div class="line"></div>
-
-<button class="settingsBtn" onclick="syncNow()">
-<span>Sincronizar ahora</span><span>⟳</span>
-</button>
-
-<div class="settingsStatus" id="api-status">Conectado a Google Sheets.</div>
-
-<div class="line"></div>
-
-<button class="settingsBtn" onclick="exportJSON()">
-<span>Guardar .json</span><span>⭳</span>
-</button>
-
-<button class="settingsBtn" onclick="document.getElementById('import-input').click()">
-<span>Cargar .json</span><span>⭱</span>
-</button>
-
-<button class="settingsBtn" onclick="document.getElementById('import-rowcoach-input').click()">
-<span>Cargar backup RowCoach</span><span>⭱</span>
-</button>
-
-<div id="excel-import-wrap">
-<button class="settingsBtn" onclick="document.getElementById('import-excel-input').click()">
-<span>Cargar Excel del entrenador</span><span>📊</span>
-</button>
-
-<div class="settingsStatus" id="excel-import-status">Subí el Excel del entreno (el nombre del archivo tiene que traer la fecha, ej "22-07"). La primera vez te va a preguntar a qué usuario corresponde cada apodo y después ya no vuelve a preguntar. Podés subir el mismo archivo dos veces sin miedo: no duplica.</div>
-
-<div id="apodo-section">
-<div class="sectionTitle" style="font-size:15px;margin:16px 0 6px;">Apodos → Usuarios</div>
-<div class="settingsStatus" style="margin-top:0;margin-bottom:10px;text-align:left;">Mapeo entre el apodo que aparece en el Excel y el usuario real de cada atleta. Se completa solo al importar, pero podés revisarlo o corregirlo acá.</div>
-<div id="apodo-list"></div>
-</div>
-
-</div>
-
-<div class="line"></div>
-
-<button class="settingsBtn" onclick="exportCSV()">
-<span>Exportar CSV</span><span>⭳</span>
-</button>
-
-<div id="reset-db-wrap">
-<button class="settingsBtn danger" onclick="showClearConfirm()">
-<span>Resetear base de datos</span><span>✕</span>
-</button>
-</div>
-
-<input type="file" id="import-input" accept=".json" style="display:none" onchange="importJSON(event)">
-<input type="file" id="import-rowcoach-input" accept=".json" style="display:none" onchange="importRowCoachJSON(event)">
-<input type="file" id="import-excel-input" accept=".xlsx,.xls,.csv" style="display:none" onchange="importExcel(event)">
-
-<div class="settingsStatus" id="db-status">Cargando…</div>
-
-</section>
-
-</div>
+<!-- ================= NAV ================= -->
 <div class="taskbar-wrapper">
- <nav class="glass-taskbar-container" id="taskbar">
-  
-            <!-- Resumen Button -->
-            <button class="glass-btn active" id="nav-home" onclick="navigateTo('home', 'resumen', this)">
+  <nav class="glass-taskbar-container" id="taskbar">
 
-    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"
-         stroke-width="1.5" stroke="currentColor" class="w-6 h-6">
-        <path stroke-linecap="round" stroke-linejoin="round"
-              d="M10.5 6a7.5 7.5 0 107.5 7.5h-7.5V6z" />
-        <path stroke-linecap="round" stroke-linejoin="round"
-              d="M13.5 10.5H21A7.5 7.5 0 0013.5 3v7.5z" />
-    </svg>
+    <button class="glass-btn active" id="nav-home" onclick="navigateTo('home', 'resumen', this)">
+      <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">
+        <path stroke-linecap="round" stroke-linejoin="round" d="M10.5 6a7.5 7.5 0 107.5 7.5h-7.5V6z" />
+        <path stroke-linecap="round" stroke-linejoin="round" d="M13.5 10.5H21A7.5 7.5 0 0013.5 3v7.5z" />
+      </svg>
+      <span>Home</span>
+    </button>
 
-    <span class="text-[10px] font-medium tracking-wide uppercase">
-        Home
-    </span>
-</button>
-<button class="glass-btn" id="nav-train" onclick="navigateTo('train', 'train', this)">
-                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-6 h-6">
-                    <path stroke-linecap="round" stroke-linejoin="round" d="M15.362 5.214A8.252 8.252 0 0112 21 8.25 8.25 0 016.038 7.048 8.287 8.287 0 009 9.6a8.983 8.983 0 013.361-6.867 8.21 8.21 0 003 2.48z" />
-                    <path stroke-linecap="round" stroke-linejoin="round" d="M12 18a3.75 3.75 0 00.495-7.467 5.99 5.99 0 00-1.925 3.546 5.974 5.974 0 01-2.133-1A3.75 3.75 0 0012 18z" />
-                </svg>
-                <span class="text-[10px] font-medium tracking-wide uppercase">Train</span>
-            </button>
-            <button class="glass-btn" id="nav-historial" onclick="navigateTo('historial', 'historial', this)">
-        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-6 h-6">
-            <path stroke-linecap="round" stroke-linejoin="round" d="M8.25 6.75h12M8.25 12h12m-12 5.25h12M3.75 6.75h.007v.008H3.75V6.75zm.375 0a.375.375 0 11-.75 0 .375.375 0 01.75 0zM3.75 12h.007v.008H3.75V12zm.375 0a.375.375 0 11-.75 0 .375.375 0 01.75 0zm-.375 5.25h.007v.008H3.75v-.008zm.375 0a.375.375 0 11-.75 0 .375.375 0 01.75 0z" />
-        </svg>
-     <span class="text-[10px] font-medium tracking-wide uppercase">Sesiones</span>
- </button>
+    <button class="glass-btn" id="nav-train" onclick="navigateTo('train', 'train', this)">
+      <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">
+        <path stroke-linecap="round" stroke-linejoin="round" d="M15.362 5.214A8.252 8.252 0 0112 21 8.25 8.25 0 016.038 7.048 8.287 8.287 0 009 9.6a8.983 8.983 0 013.361-6.867 8.21 8.21 0 003 2.48z" />
+        <path stroke-linecap="round" stroke-linejoin="round" d="M12 18a3.75 3.75 0 00.495-7.467 5.99 5.99 0 00-1.925 3.546 5.974 5.974 0 01-2.133-1A3.75 3.75 0 0012 18z" />
+      </svg>
+      <span>Train</span>
+    </button>
 
-            <!-- Train Button -->
-            
+    <button class="glass-btn" id="nav-historial" onclick="navigateTo('historial', 'historial', this)">
+      <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">
+        <path stroke-linecap="round" stroke-linejoin="round" d="M8.25 6.75h12M8.25 12h12m-12 5.25h12M3.75 6.75h.007v.008H3.75V6.75zm.375 0a.375.375 0 11-.75 0 .375.375 0 01.75 0zM3.75 12h.007v.008H3.75V12zm.375 0a.375.375 0 11-.75 0 .375.375 0 01.75 0zm-.375 5.25h.007v.008H3.75v-.008zm.375 0a.375.375 0 11-.75 0 .375.375 0 01.75 0z" />
+      </svg>
+      <span>Sesiones</span>
+    </button>
 
-        </nav>
+  </nav>
 </div>
 </div>
 
+<!-- ================= MODALES ================= -->
 <div class="overlay" id="clear-overlay">
   <div class="modal">
-    <h4>Resetear base de datos</h4>
-    <p>Esto eliminará todas las sesiones y cargará los datos originales. Asegurate de haber guardado el .json antes.</p>
+    <h4>Borrar todas mis sesiones</h4>
+    <p>Esto elimina de forma permanente todas tus sesiones guardadas. Guardá el .json antes si querés conservar una copia.</p>
     <div class="modalBtns">
       <button class="cancel" onclick="document.getElementById('clear-overlay').classList.remove('show')">Cancelar</button>
-      <button class="confirm" onclick="clearDB()">Sí, resetear</button>
+      <button class="confirm" onclick="clearDB()">Sí, borrar todo</button>
     </div>
   </div>
 </div>
@@ -501,3 +404,4 @@ Historial
 <div class="toast" id="toast"></div>
 <script src="Index.js"></script>
 </body>
+</html>
