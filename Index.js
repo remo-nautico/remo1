@@ -741,7 +741,18 @@ function toggleHistFilters() {
 
 // Devuelve a qué semana pertenece una fecha: relativa al bloque de carga si está
 // configurado (Semana 1, 2, 3…), o "Semana del dd/mm" (lunes) si no lo está.
-
+function semanaDe(fechaISO) {
+  const inicio = getLoadStart();
+  if (inicio) {
+    const d = diasEntre(inicio, fechaISO);
+    if (d < 0) return { key: 'pre', label: 'Antes del bloque' };
+    const n = Math.floor(d / 7) + 1;
+    return { key: 'w' + n, label: 'Semana ' + n };
+  }
+  const f = fechaDesdeISO(fechaISO);
+  const lunes = new Date(f.getFullYear(), f.getMonth(), f.getDate() - ((f.getDay() + 6) % 7));
+  return { key: isoDeFecha(lunes), label: 'Semana del ' + fechaCorta(isoDeFecha(lunes)) };
+}
 
 function renderHistorial() {
   const cont = $('rows');
