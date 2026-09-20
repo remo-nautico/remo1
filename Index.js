@@ -19,7 +19,7 @@ let zonaManual = false;     // true = el usuario eligió la zona a mano; false =
 let configDBLista = true;
 // Umbrales para reconocer la zona automáticamente por SPM (ajustalos al plan del entrenador).
 // hasta z1Max → Z1 · hasta z2Max → Z2 · hasta wattsMax → Watts · más → Sprint
-const ZONA_SPM = { z1Max: 19, z2Max: 23, wattsMax: 27 };
+const ZONA_SPM = { z1Max: 19, z2Max: 23};
 const DOMINIO_INTERNO = 'remo.local';
 const N_PARCIALES_MAX = 10;
 
