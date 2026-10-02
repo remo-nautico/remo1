@@ -10,7 +10,7 @@ const SUPABASE_KEY = 'sb_publishable_1tWdx70gALNUqj38Hh75UQ_s2I4fgf1';
 // Clave única de Google Gemini para el reconocimiento por foto en Train.
 // La sacás gratis (sin tarjeta) en https://aistudio.google.com/apikey y la pegás acá una sola vez.
 // Vale para los ~12 usuarios de la app; no hace falta que cada uno tenga la suya.
-const GEMINI_API_KEY = 'AQ.Ab8RN6J13SSB94vSbx5ghaEqq3yeMOwzhby3B18cDv6qP7QBAg';
+const GEMINI_API_KEY = 'AQ.Ab8RN6Jdr8rwWrFeAPDcWsfkltuwM0KyLXwNubzFl3OEVGVlpg';
 
 let sb = null;
 let currentUser = null;
