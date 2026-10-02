@@ -2,7 +2,11 @@
 <html lang="es">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0, user-scalable=no, viewport-fit=cover">
+<meta name="theme-color" content="#05070b">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 <title>Remo</title>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.js"></script>
 <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -108,6 +112,22 @@
       </div>
     </div>
 
+    <div class="chartCard k2">
+      <div class="chartBars" id="chart-2k"></div>
+      <div class="chartFoot">
+        <span class="chartZoneLabel">2K</span>
+        <span class="chartBestLabel" id="chart-2k-best">--</span>
+      </div>
+    </div>
+
+    <div class="chartCard agua">
+      <div class="chartBars" id="chart-agua"></div>
+      <div class="chartFoot">
+        <span class="chartZoneLabel">Agua</span>
+        <span class="chartBestLabel" id="chart-agua-best">--</span>
+      </div>
+    </div>
+
   </div>
 </section>
 
@@ -127,13 +147,15 @@
   <!-- 1. Bloque IA -->
   <div class="aiImportBox glass-card sketch-box">
     <div class="aiImportHeader">
-      <span>ⓘ Foto AI</span>
-      <button type="button" class="aiCopyBtn" id="ai-copy-btn" onclick="copyAiPrompt()">COPY</button>
+      <span>🤖 Reconocimiento con IA</span>
     </div>
-    <div class="aiTextareaWrap">
-      <textarea id="ai-code-input" placeholder="Insertá el código"></textarea>
+    <div class="aiPhotoRow">
+      <button type="button" class="aiPhotoBtn add" onclick="triggerAiPhoto('camera')">📷 Sacar foto</button>
+      <button type="button" class="aiPhotoBtn" onclick="triggerAiPhoto('gallery')">🖼️ Subir fotos</button>
     </div>
-    <button type="button" class="aiLoadBtn add" onclick="loadFromAiCode()">CARGAR TRAIN</button>
+    <div class="aiPhotoStatus" id="ai-photo-status"></div>
+    <input type="file" id="ai-photo-input-camera" accept="image/*" capture="environment" style="display:none" onchange="handleAiPhoto(event)">
+    <input type="file" id="ai-photo-input-gallery" accept="image/*" multiple style="display:none" onchange="handleAiPhoto(event)">
   </div>
 
   <!-- 2. Fecha y medio -->

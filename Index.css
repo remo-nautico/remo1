@@ -1791,6 +1791,47 @@ body.role-coach header{
 
 .aiLoadBtn:hover{box-shadow:var(--shadow);}
 
+.aiPhotoRow{
+    display:flex;
+    gap:10px;
+}
+
+.aiPhotoBtn{
+    flex:1;
+    background:linear-gradient(155deg, rgba(255,255,255,.16), rgba(255,255,255,.04));
+    backdrop-filter:blur(var(--glass-blur)) saturate(160%);
+    -webkit-backdrop-filter:blur(var(--glass-blur)) saturate(160%);
+    color:var(--text);
+    border:1px solid var(--border);
+    border-radius:10px;
+    padding:13px 8px;
+    font-family:'Poppins',sans-serif;
+    font-size:13px;
+    font-weight:600;
+    cursor:pointer;
+    transition:box-shadow .12s ease, transform .12s ease;
+}
+
+.aiPhotoBtn:hover{box-shadow:var(--shadow);}
+
+.aiPhotoBtn.add{
+    background:linear-gradient(135deg, #FFC685, var(--accent));
+    color:#1a1206;
+    border:none;
+}
+
+.aiPhotoBtn.add:hover{background:linear-gradient(135deg, #FFD199, var(--accent-dark));}
+
+.aiPhotoBtn:disabled{opacity:.55;cursor:default;transform:none;}
+
+.aiPhotoStatus{
+    margin-top:10px;
+    font-family:'Inter',sans-serif;
+    font-size:12px;
+    color:var(--text-muted);
+    min-height:14px;
+}
+
 /* ============================================================
    APODOS → USUARIOS (mapeo para importar Excel del entrenador)
    ============================================================ */
@@ -2552,4 +2593,57 @@ button.cat-circle:active{ transform:scale(.93); }
 .train-summary-card.is-agua{
   border-color:rgba(0,229,255,.6);
   box-shadow:inset 0 0 0 1px rgba(0,229,255,.25), 0 0 18px rgba(0,229,255,.16);
+}
+
+/* =====================================================================
+   v4 — gráficos de 2K y de Agua en Resumen
+   ===================================================================== */
+.chartCard.k2{ --cc:var(--zc-test); }
+.chartCard.agua{ --cc:var(--water); }
+.chartCard.agua .chartBars .bar{
+  background:
+    repeating-linear-gradient(135deg, rgba(255,255,255,.55) 0 3px, transparent 3px 7px),
+    linear-gradient(180deg, var(--water), color-mix(in srgb, var(--water) 50%, transparent));
+  opacity:.9;
+}
+
+/* =====================================================================
+   v5 — sin zoom, pantalla completa en celular
+   ===================================================================== */
+html{
+  -webkit-text-size-adjust:100%;
+  text-size-adjust:100%;
+  touch-action:pan-x pan-y;          /* bloquea pellizco y doble toque para zoom */
+  overscroll-behavior:none;
+  background:var(--bg);
+}
+body{
+  touch-action:pan-x pan-y;
+  -webkit-tap-highlight-color:transparent;
+  min-height:100vh; min-height:100dvh;
+}
+button, nav, .glass-btn{ touch-action:manipulation; }
+
+/* iOS hace zoom automático al enfocar un campo con letra menor a 16px */
+@media (max-width:899px){
+  input, select, textarea,
+  .input input, .input select,
+  .parcial-row input, .tableFoot input,
+  .title-input, .stat-input, .stat-input.split, .stat-input.spm,
+  .confirmTypeBox input, #ai-code-input, .filterSelect, .graph select{
+    font-size:16px !important;
+  }
+  .parcial-row input{ padding:6px 2px; }
+
+  /* ocupa todo el ancho del celular */
+  .app{ max-width:none; width:100%; }
+
+  /* respeta notch y barra inferior */
+  .page{
+    padding-top:calc(18px + env(safe-area-inset-top));
+    padding-left:calc(18px + env(safe-area-inset-left));
+    padding-right:calc(18px + env(safe-area-inset-right));
+    padding-bottom:calc(120px + env(safe-area-inset-bottom));
+  }
+  .taskbar-wrapper{ padding-bottom:calc(1.5rem + env(safe-area-inset-bottom)); }
 }

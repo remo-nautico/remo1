@@ -7,6 +7,11 @@
 const SUPABASE_URL = 'https://bpclsyvvwsdybicddmee.supabase.co';
 const SUPABASE_KEY = 'sb_publishable_1tWdx70gALNUqj38Hh75UQ_s2I4fgf1';
 
+// Clave única de Google Gemini para el reconocimiento por foto en Train.
+// La sacás gratis (sin tarjeta) en https://aistudio.google.com/apikey y la pegás acá una sola vez.
+// Vale para los ~12 usuarios de la app; no hace falta que cada uno tenga la suya.
+const GEMINI_API_KEY = 'AQ.Ab8RN6J13SSB94vSbx5ghaEqq3yeMOwzhby3B18cDv6qP7QBAg';
+
 let sb = null;
 let currentUser = null;
 let entrenamientosCache = [];
@@ -19,7 +24,7 @@ let zonaManual = false;     // true = el usuario eligió la zona a mano; false =
 let configDBLista = true;
 // Umbrales para reconocer la zona automáticamente por SPM (ajustalos al plan del entrenador).
 // hasta z1Max → Z1 · hasta z2Max → Z2 · hasta wattsMax → Watts · más → Sprint
-const ZONA_SPM = { z1Max: 19, z2Max: 23};
+const ZONA_SPM = { z1Max: 19, z2Max: 23, wattsMax: 30 };
 const DOMINIO_INTERNO = 'remo.local';
 const N_PARCIALES_MAX = 10;
 
@@ -290,20 +295,29 @@ function elegirZona(z) {
   }
 }
 
-// Reconoce la zona con lo que hay cargado: nombre del trabajo, SPM y parciales.
-function detectarZona() {
-  const tipo = $('f-type').value.trim().toLowerCase();
-  const tot = calcularTotales();
-  if (/\btest\b/.test(tipo) || /^(2000\s*m?|2\s*k(m)?)$/.test(tipo)) return 'test';
-  if (tot.n <= 1 && tot.metros === 2000) return 'test';
-  if (/sprint/.test(tipo)) return 'sprint';
-  if (/watt/.test(tipo)) return 'watts';
-  const spm = Number($('f-spm').value) || tot.spm;
+// Reconoce la zona a partir de nombre del trabajo, SPM y parciales (sirve para el formulario y para la carga por IA).
+function zonaDeDatos({ tipo, spm, metros, n }) {
+  const t = String(tipo || '').trim().toLowerCase();
+  if (/\btest\b/.test(t) || /^(2000\s*m?|2\s*k(m)?)$/.test(t)) return 'test';
+  if (n <= 1 && metros === 2000) return 'test';
+  if (/sprint/.test(t)) return 'sprint';
+  if (/watt/.test(t)) return 'watts';
   if (!spm) return null;
   if (spm <= ZONA_SPM.z1Max) return 'z1';
   if (spm <= ZONA_SPM.z2Max) return 'z2';
   if (spm <= ZONA_SPM.wattsMax) return 'watts';
   return 'sprint';
+}
+
+// Reconoce la zona con lo que hay cargado en el formulario.
+function detectarZona() {
+  const tot = calcularTotales();
+  return zonaDeDatos({
+    tipo: $('f-type').value,
+    spm: Number($('f-spm').value) || tot.spm,
+    metros: tot.metros,
+    n: tot.n,
+  });
 }
 
 function autoZona() {
@@ -390,38 +404,170 @@ function calcularTotales() {
   return { metros, segundos, spm: spmN ? Math.round(spmSum / spmN) : null, n };
 }
 
-/* ---------------- Train: importar desde IA ---------------- */
+/* ---------------- Train: importar desde fotos con IA (Google Gemini, gratis) ---------------- */
 
-function copyAiPrompt() {
-  const prompt = `Mirá la foto de la pantalla del PM5 (Concept2) que te paso y devolveme ÚNICAMENTE un JSON (sin texto extra, sin backticks) con esta forma exacta:
-{"date":"AAAA-MM-DD","type":"texto corto del trabajo, ej 4x8:00","meters":numero_metros_totales,"split":"promedio /500m, ej 1:57.9","totaltime":"tiempo total, ej 35:00.0","spm":numero_spm_promedio,"parciales":[{"tiempo":"mm:ss.s","metros":numero,"pace":"mm:ss.s por 500m","spm":numero}]}
-Si no ves algún dato en la pantalla, poné null en ese campo. No inventes datos.`;
-  const btn = $('ai-copy-btn');
-  const ok = () => {
-    toast('Instrucciones copiadas.');
-    if (btn) { btn.classList.add('copied'); setTimeout(() => btn.classList.remove('copied'), 1500); }
-  };
-  if (navigator.clipboard && navigator.clipboard.writeText) {
-    navigator.clipboard.writeText(prompt).then(ok, () => alert(prompt));
-  } else {
-    alert(prompt);
+const GEMINI_MODEL = 'gemini-3.8-flash';
+const AI_MAX_FOTOS = 8;     // máximo de fotos por tanda
+const AI_MAX_LADO = 1600;   // las fotos se reducen a este tamaño (px) antes de enviarse
+
+const AI_PROMPT_FOTO = `Te paso una o más fotos de pantallas del monitor PM5 (Concept2) de un ergómetro de remo.
+Devolvé las sesiones de entrenamiento que veas, siguiendo el esquema JSON pedido.
+Reglas:
+- Si varias fotos son del MISMO entrenamiento (ej: pantalla de resumen + pantalla de parciales/splits), unilas en UNA sola sesión.
+- Si las fotos son de entrenamientos DISTINTOS, devolvé una sesión por cada uno.
+- "type": texto corto del trabajo, ej "4x8:00", "6x2000m", "2000m", "30:00".
+- "split": promedio /500m de toda la sesión, ej "1:57.9". "totaltime": tiempo total, ej "35:00.0".
+- En "parciales" va un elemento por cada intervalo/parcial, en orden. "pace" es el /500m del parcial.
+- Si algún dato no se ve en la pantalla, poné null. No inventes datos.`;
+
+const AI_SCHEMA = {
+  type: 'OBJECT',
+  properties: {
+    sesiones: {
+      type: 'ARRAY',
+      items: {
+        type: 'OBJECT',
+        properties: {
+          date: { type: 'STRING', nullable: true, description: 'AAAA-MM-DD si se ve en la pantalla' },
+          type: { type: 'STRING', nullable: true },
+          meters: { type: 'NUMBER', nullable: true },
+          split: { type: 'STRING', nullable: true },
+          totaltime: { type: 'STRING', nullable: true },
+          spm: { type: 'NUMBER', nullable: true },
+          parciales: {
+            type: 'ARRAY',
+            items: {
+              type: 'OBJECT',
+              properties: {
+                tiempo: { type: 'STRING', nullable: true },
+                metros: { type: 'NUMBER', nullable: true },
+                pace: { type: 'STRING', nullable: true },
+                spm: { type: 'NUMBER', nullable: true },
+              },
+            },
+          },
+        },
+      },
+    },
+  },
+  required: ['sesiones'],
+};
+
+function getGeminiKey() {
+  return GEMINI_API_KEY;
+}
+
+function triggerAiPhoto(modo) {
+  if (!getGeminiKey() || getGeminiKey() === 'PEGÁ_ACÁ_TU_CLAVE_DE_GEMINI') {
+    toast('Falta configurar la clave de Gemini en el código de la app (GEMINI_API_KEY en Index.js).');
+    return;
+  }
+  const input = modo === 'camera' ? $('ai-photo-input-camera') : $('ai-photo-input-gallery');
+  input.value = '';
+  input.click();
+}
+
+// Reduce la foto (lado máx. AI_MAX_LADO) y la devuelve como JPEG en base64: sube más rápido y gasta menos cuota.
+async function fotoABase64(file) {
+  try {
+    const bmp = await createImageBitmap(file);
+    const k = Math.min(1, AI_MAX_LADO / Math.max(bmp.width, bmp.height));
+    const canvas = document.createElement('canvas');
+    canvas.width = Math.round(bmp.width * k);
+    canvas.height = Math.round(bmp.height * k);
+    canvas.getContext('2d').drawImage(bmp, 0, 0, canvas.width, canvas.height);
+    if (bmp.close) bmp.close();
+    return { mime: 'image/jpeg', data: canvas.toDataURL('image/jpeg', 0.85).split(',')[1] };
+  } catch (e) {
+    // Si el navegador no puede decodificarla (ej. HEIC), se manda tal cual.
+    return new Promise((resolve, reject) => {
+      const reader = new FileReader();
+      reader.onload = () => resolve({ mime: file.type || 'image/jpeg', data: String(reader.result).split(',')[1] || '' });
+      reader.onerror = () => reject(new Error('No se pudo leer la imagen.'));
+      reader.readAsDataURL(file);
+    });
   }
 }
 
-function loadFromAiCode() {
-  const raw = $('ai-code-input').value.trim();
-  if (!raw) { toast('Pegá el código generado por la IA primero.'); return; }
-  // Tolera ```json ... ``` o texto alrededor del JSON.
-  const ini = raw.indexOf('{');
-  const fin = raw.lastIndexOf('}');
+async function handleAiPhoto(event) {
+  let files = [...(event.target.files || [])];
+  event.target.value = '';
+  if (!files.length) return;
+  if (files.length > AI_MAX_FOTOS) {
+    toast(`Se analizan las primeras ${AI_MAX_FOTOS} fotos.`);
+    files = files.slice(0, AI_MAX_FOTOS);
+  }
+  const statusEl = $('ai-photo-status');
+  const botones = document.querySelectorAll('.aiPhotoBtn');
+  botones.forEach((b) => (b.disabled = true));
+  if (statusEl) statusEl.textContent = `Analizando ${files.length} foto${files.length === 1 ? '' : 's'}…`;
+  try {
+    const fotos = await Promise.all(files.map(fotoABase64));
+    const sesiones = await analizarFotosConGemini(fotos);
+    if (!sesiones.length) throw new Error('no se detectó ningún entrenamiento en las fotos.');
+    if (sesiones.length === 1) {
+      aplicarDatosIA(sesiones[0]);
+      toast('Datos cargados desde las fotos. Revisalos y guardá.');
+    } else {
+      if (statusEl) statusEl.textContent = `Guardando ${sesiones.length} sesiones…`;
+      await guardarSesionesIA(sesiones);
+    }
+  } catch (e) {
+    console.error(e);
+    toast('No se pudo analizar: ' + (e.message || 'error desconocido'));
+  } finally {
+    if (statusEl) statusEl.textContent = '';
+    botones.forEach((b) => (b.disabled = false));
+  }
+}
+
+// Envía todas las fotos en una sola consulta y pide salida JSON estructurada (responseSchema).
+async function analizarFotosConGemini(fotos) {
+  const key = getGeminiKey();
+  if (!key) throw new Error('falta la clave de Gemini');
+  const url = `https://generativelanguage.googleapis.com/v1beta/models/${GEMINI_MODEL}:generateContent`;
+  const body = {
+    contents: [{
+      parts: [
+        { text: AI_PROMPT_FOTO },
+        ...fotos.map((f) => ({ inline_data: { mime_type: f.mime, data: f.data } })),
+      ],
+    }],
+    generationConfig: {
+      responseMimeType: 'application/json',
+      responseSchema: AI_SCHEMA,
+      thinkingConfig: { thinkingLevel: 'low' },
+    },
+  };
+  const res = await fetch(url, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json', 'x-goog-api-key': key },
+    body: JSON.stringify(body),
+  });
+  if (!res.ok) {
+    let detalle = '';
+    try { detalle = (await res.json()).error?.message || ''; } catch (e) { /* ignore */ }
+    if (res.status === 400 && /api key/i.test(detalle)) throw new Error('la clave de Gemini no es válida.');
+    if (res.status === 403) throw new Error('la clave de Gemini no tiene permiso (revisá restricciones de la clave).');
+    if (res.status === 429) throw new Error('se alcanzó el límite gratuito por ahora, probá en un minuto.');
+    throw new Error(detalle || `Gemini respondió ${res.status}`);
+  }
+  const data = await res.json();
+  const texto = (data.candidates?.[0]?.content?.parts || []).map((p) => p.text || '').join('');
+  const ini = texto.indexOf('{');
+  const fin = texto.lastIndexOf('}');
+  if (ini === -1 || fin <= ini) throw new Error('la IA no devolvió datos legibles, probá con otras fotos.');
   let obj;
   try {
-    if (ini === -1 || fin <= ini) throw new Error('sin json');
-    obj = JSON.parse(raw.slice(ini, fin + 1));
+    obj = JSON.parse(texto.slice(ini, fin + 1));
   } catch (e) {
-    toast('Ese texto no es un JSON válido.');
-    return;
+    throw new Error('la IA no devolvió un JSON válido.');
   }
+  return Array.isArray(obj.sesiones) ? obj.sesiones : [];
+}
+
+// Aplica al formulario de Train una sesión devuelta por la IA.
+function aplicarDatosIA(obj) {
   if (obj.date && /^\d{4}-\d{2}-\d{2}$/.test(obj.date)) $('f-date').value = obj.date;
   if (obj.type) $('f-type').value = obj.type;
   if (obj.meters !== undefined && obj.meters !== null) $('f-meters').value = obj.meters;
@@ -431,11 +577,61 @@ function loadFromAiCode() {
   limpiarParciales();
   (obj.parciales || []).slice(0, N_PARCIALES_MAX).forEach((p) => addParcialRow(p));
   if (!$('parciales-container').children.length) addParcialRow();
-  // Si el código trae una zona válida se respeta; si no, se reconoce sola.
-  const catIA = String(obj.cat || '').toLowerCase();
-  if (CATEGORIAS.includes(catIA)) { zonaManual = true; setCategoria(catIA); }
-  else { zonaManual = false; autoZona(); }
-  toast('Datos cargados. Revisalos y guardá.');
+  zonaManual = false;
+  autoZona();
+}
+
+// Convierte una sesión de la IA en el registro de la tabla `entrenamientos`.
+function registroDesdeIA(obj) {
+  const parciales = (obj.parciales || []).slice(0, N_PARCIALES_MAX);
+  const tramos = {};
+  for (let i = 1; i <= N_PARCIALES_MAX; i++) tramos[`tramo_${i}`] = null;
+  let sumM = 0, sumS = 0, spmSum = 0, spmN = 0;
+  parciales.forEach((p, i) => {
+    const tiempo = normTiempo(p.tiempo);
+    const metros = p.metros != null ? Number(p.metros) : null;
+    let pace = normTiempo(p.pace);
+    const seg = parseTiempoASegundos(tiempo);
+    if (!pace && seg && metros > 0) pace = segundosATiempo((seg / metros) * 500);
+    if (!tiempo && !metros && !pace && p.spm == null) return;
+    tramos[`tramo_${i + 1}`] = { tiempo, metros, pace, spm: p.spm != null ? Number(p.spm) : null };
+    if (metros > 0) sumM += metros;
+    if (seg) sumS += seg;
+    if (p.spm > 0) { spmSum += Number(p.spm); spmN++; }
+  });
+  const metros = obj.meters != null ? Number(obj.meters) : (sumM || null);
+  let tiempoSeg = parseTiempoASegundos(obj.totaltime);
+  if (tiempoSeg === null && sumS) tiempoSeg = sumS;
+  let pace = normTiempo(obj.split);
+  if (!pace && metros && tiempoSeg) pace = segundosATiempo((tiempoSeg / metros) * 500);
+  const spm = obj.spm != null ? Number(obj.spm) : (spmN ? Math.round(spmSum / spmN) : null);
+  const tipo = (obj.type || '').trim() || (metros ? `${metros}m` : 'Sesión');
+  const fecha = /^\d{4}-\d{2}-\d{2}$/.test(obj.date || '') ? obj.date : hoyISO();
+  const zona = zonaDeDatos({ tipo, spm, metros, n: parciales.length }) || 'z1';
+  return {
+    usuario_id: currentUser.id,
+    fecha,
+    tipo,
+    categoria: zona,
+    medio: 'ergo',
+    bote: null,
+    porcentaje: null,
+    distancia_metros: metros,
+    tiempo_segundos: tiempoSeg,
+    pace_500m: pace,
+    spm_general: spm,
+    ...tramos,
+  };
+}
+
+// Varias sesiones detectadas en las fotos: se guardan todas directamente.
+async function guardarSesionesIA(sesiones) {
+  if (!currentUser) { toast('Iniciá sesión primero.'); return; }
+  const registros = sesiones.map(registroDesdeIA);
+  const { error } = await sb.from('entrenamientos').insert(registros);
+  if (error) throw new Error('error al guardar: ' + error.message);
+  toast(`${registros.length} sesiones guardadas desde las fotos.`);
+  await cargarEntrenamientos();
 }
 
 /* ---------------- Train: guardar / editar sesión ---------------- */
@@ -454,7 +650,6 @@ function resetTrainForm() {
   toggleWaterOptions();
   limpiarParciales();
   addParcialRow();
-  $('ai-code-input').value = '';
   $('f-date').value = hoyISO();
 }
 
@@ -577,11 +772,21 @@ function setAvatarInitials(email) {
 }
 
 function renderHome() {
-  renderZoneChart('z1', 'chart-z1', 'chart-z1-best');
-  renderZoneChart('z2', 'chart-z2', 'chart-z2-best');
+  // Los trabajos en agua van aparte: no entran en los gráficos de zona ni de 2K.
+  renderChart(chartSesiones((e) => esErgo(e) && catDe(e) === 'z1'), 'chart-z1', 'chart-z1-best', 'pace');
+  renderChart(chartSesiones((e) => esErgo(e) && catDe(e) === 'z2'), 'chart-z2', 'chart-z2-best', 'pace');
+  renderChart(chartSesiones(es2K), 'chart-2k', 'chart-2k-best', 'tiempo');
+  renderChart(chartSesiones((e) => e.medio === 'agua'), 'chart-agua', 'chart-agua-best', 'pace');
   renderRaceCard();
   renderWeekBadge();
   renderLastSessionCard();
+}
+
+function catDe(e) { return (e.categoria || '').toLowerCase(); }
+function esErgo(e) { return e.medio !== 'agua'; }
+// 2K = test de 2000 m en ergómetro (por categoría test o por distancia exacta).
+function es2K(e) {
+  return esErgo(e) && Number(e.distancia_metros) === 2000 && (catDe(e) === 'test' || /2\s*k|2000/i.test(e.tipo || ''));
 }
 
 function paceDeSesion(e) {
@@ -593,16 +798,25 @@ function paceDeSesion(e) {
   return null;
 }
 
-// Barras: la más alta es la más rápida (menor /500m). Tocá una barra para ver su fecha y pace.
-function renderZoneChart(zona, contId, bestId) {
+// Tiempo total del 2K (si no está guardado, se deduce del /500m).
+function tiempoDeSesion(e) {
+  if (e.tiempo_segundos) return Number(e.tiempo_segundos);
+  const p = paceDeSesion(e);
+  return p !== null && e.distancia_metros ? p * Number(e.distancia_metros) / 500 : null;
+}
+
+function chartSesiones(filtro) {
+  return entrenamientosCache.filter(filtro).slice().sort((a, b) => a.fecha.localeCompare(b.fecha)).slice(-20);
+}
+
+// Barras: la más alta es la más rápida (menor valor). Tocá una barra para ver su fecha y valor.
+// modo 'pace' → /500m · modo 'tiempo' → tiempo total (2K).
+function renderChart(lista, contId, bestId, modo) {
   const cont = $(contId);
   const bestEl = $(bestId);
   if (!cont) return;
-  const sesiones = entrenamientosCache
-    .filter((e) => (e.categoria || '').toLowerCase() === zona && paceDeSesion(e) !== null)
-    .slice()
-    .sort((a, b) => a.fecha.localeCompare(b.fecha))
-    .slice(-20);
+  const valor = modo === 'tiempo' ? tiempoDeSesion : paceDeSesion;
+  const sesiones = lista.filter((e) => valor(e) !== null);
 
   cont.innerHTML = '';
   if (!sesiones.length) {
@@ -611,19 +825,19 @@ function renderZoneChart(zona, contId, bestId) {
     return;
   }
 
-  const paces = sesiones.map(paceDeSesion);
-  const min = Math.min(...paces);
-  const max = Math.max(...paces);
+  const vals = sesiones.map(valor);
+  const min = Math.min(...vals);
+  const max = Math.max(...vals);
   const mejorTexto = 'Mejor ' + conComa(segundosATiempo(min));
   if (bestEl) bestEl.textContent = mejorTexto;
 
   sesiones.forEach((e, i) => {
-    const p = paces[i];
+    const p = vals[i];
     const alto = max === min ? 60 : 22 + 78 * ((max - p) / (max - min));
     const bar = document.createElement('div');
-    bar.className = 'bar' + (p === min ? ' best' : '') + (e.medio === 'agua' ? ' agua' : '');
+    bar.className = 'bar' + (p === min ? ' best' : '');
     bar.style.height = alto.toFixed(0) + '%';
-    bar.title = `${fechaLegible(e.fecha)} — ${conComa(segundosATiempo(p))}/500m${e.medio === 'agua' ? ' · Agua' : ''}`;
+    bar.title = `${fechaLegible(e.fecha)} — ${conComa(segundosATiempo(p))}${modo === 'tiempo' ? '' : '/500m'}`;
     bar.addEventListener('click', () => {
       const ya = bar.classList.contains('sel');
       cont.querySelectorAll('.bar').forEach((b) => b.classList.remove('sel'));
@@ -693,7 +907,7 @@ function renderLastSessionCard() {
   deltaEl.className = 'lastSessionDelta';
   const anterior = entrenamientosCache
     .slice(1)
-    .find((e) => (e.categoria || '').toLowerCase() === cat && paceDeSesion(e) !== null);
+    .find((e) => (e.categoria || '').toLowerCase() === cat && esAgua === (e.medio === 'agua') && paceDeSesion(e) !== null);
   if (!anterior || paceUltima === null) return;
   // Menor /500m = más rápido: ↓ verde es mejorar, ↑ rojo es empeorar.
   const delta = paceUltima - paceDeSesion(anterior);
@@ -707,11 +921,15 @@ function renderLastSessionCard() {
 function poblarFiltroTipos() {
   const sel = $('table-filter-select');
   if (!sel) return;
-  const tipos = CATEGORIAS.filter((c) => entrenamientosCache.some((e) => (e.categoria || '').toLowerCase() === c));
+  // Las zonas filtran solo ergómetro; "Agua" es un filtro aparte.
+  const tipos = CATEGORIAS.filter((c) => entrenamientosCache.some((e) => esErgo(e) && catDe(e) === c));
+  const hayAgua = entrenamientosCache.some((e) => e.medio === 'agua');
+  const opciones = [...tipos, ...(hayAgua ? ['agua'] : [])];
   const actual = tableFilterValue;
-  sel.innerHTML = '<option value="">Todas las zonas</option>' +
-    tipos.map((t) => `<option value="${t}">${CAT_NOMBRE[t]}</option>`).join('');
-  sel.value = tipos.includes(actual) ? actual : '';
+  sel.innerHTML = '<option value="">Todas</option>' +
+    tipos.map((t) => `<option value="${t}">${CAT_NOMBRE[t]}</option>`).join('') +
+    (hayAgua ? '<option value="agua">Agua</option>' : '');
+  sel.value = opciones.includes(actual) ? actual : '';
   tableFilterValue = sel.value;
 }
 
@@ -763,7 +981,8 @@ function renderHistorial() {
   let lista = entrenamientosCache.slice();
   if (desde) lista = lista.filter((e) => e.fecha >= desde);
   if (hasta) lista = lista.filter((e) => e.fecha <= hasta);
-  if (tableFilterValue) lista = lista.filter((e) => (e.categoria || '').toLowerCase() === tableFilterValue);
+  if (tableFilterValue === 'agua') lista = lista.filter((e) => e.medio === 'agua');
+  else if (tableFilterValue) lista = lista.filter((e) => esErgo(e) && (e.categoria || '').toLowerCase() === tableFilterValue);
 
   $('result-count').textContent = entrenamientosCache.length
     ? `${lista.length} sesión${lista.length === 1 ? '' : 'es'}`
@@ -1134,3 +1353,10 @@ document.addEventListener('DOMContentLoaded', () => {
   [['login-user', doLogin], ['login-pass', doLogin], ['reg-user', doRegister], ['reg-pass', doRegister], ['reg-pass2', doRegister]]
     .forEach(([id, fn]) => $(id).addEventListener('keydown', (ev) => { if (ev.key === 'Enter') fn(); }));
 });
+
+// Bloquea el zoom por pellizco (el doble toque ya lo bloquea touch-action en el CSS) (iOS Safari ignora user-scalable=no).
+['gesturestart', 'gesturechange', 'gestureend'].forEach((ev) =>
+  document.addEventListener(ev, (e) => e.preventDefault(), { passive: false }));
+document.addEventListener('touchmove', (e) => {
+  if (e.touches.length > 1) e.preventDefault();
+}, { passive: false });
