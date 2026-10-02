@@ -1008,8 +1008,8 @@ function renderHistorial() {
     const bloque = document.createElement('div');
     bloque.className = 'week-group';
     bloque.innerHTML = `<h3 class="week-label">${esc(g.label)}</h3>`;
-    // Dentro de cada semana, de la más reciente a la más antigua (la lista ya viene así).
-    g.items.forEach((e) => bloque.appendChild(crearTarjetaSesion(e)));
+    // Dentro de cada semana, en orden cronológico (como en el boceto).
+    g.items.slice().reverse().forEach((e) => bloque.appendChild(crearTarjetaSesion(e)));
     cont.appendChild(bloque);
   });
 }
