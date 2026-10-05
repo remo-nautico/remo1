@@ -406,7 +406,11 @@ function calcularTotales() {
 
 /* ---------------- Train: importar desde fotos con IA (Google Gemini, gratis) ---------------- */
 
-const GEMINI_MODEL = 'gemini-3.8-flash';
+// Modelo principal y respaldos: si el principal está saturado (error 503 "alta demanda"),
+// se prueba con el siguiente. Cada modelo tiene su propia capacidad y su propia cuota.
+const GEMINI_MODELOS = ['gemini-3.8-flash', 'gemini-2.5-flash', 'gemini-2.5-flash-lite'];
+const GEMINI_REINTENTOS = 3;        // intentos por modelo antes de pasar al siguiente
+const GEMINI_ESPERA_BASE_MS = 1500; // espera inicial; se duplica en cada reintento (1,5s → 3s → 6s)
 const AI_MAX_FOTOS = 8;     // máximo de fotos por tanda
 const AI_MAX_LADO = 1600;   // las fotos se reducen a este tamaño (px) antes de enviarse
 
@@ -525,34 +529,74 @@ async function handleAiPhoto(event) {
 async function analizarFotosConGemini(fotos) {
   const key = getGeminiKey();
   if (!key) throw new Error('falta la clave de Gemini');
-  const url = `https://generativelanguage.googleapis.com/v1beta/models/${GEMINI_MODEL}:generateContent`;
-  const body = {
-    contents: [{
-      parts: [
-        { text: AI_PROMPT_FOTO },
-        ...fotos.map((f) => ({ inline_data: { mime_type: f.mime, data: f.data } })),
-      ],
-    }],
-    generationConfig: {
-      responseMimeType: 'application/json',
-      responseSchema: AI_SCHEMA,
-      thinkingConfig: { thinkingLevel: 'low' },
-    },
+  const statusEl = $('ai-photo-status');
+  const esperar = (ms) => new Promise((r) => setTimeout(r, ms));
+  const armarBody = (modelo) => {
+    const generationConfig = { responseMimeType: 'application/json', responseSchema: AI_SCHEMA };
+    // thinkingLevel solo lo entienden los modelos Gemini 3; los 2.5 lo rechazarían.
+    if (/gemini-3/.test(modelo)) generationConfig.thinkingConfig = { thinkingLevel: 'low' };
+    return JSON.stringify({
+      contents: [{
+        parts: [
+          { text: AI_PROMPT_FOTO },
+          ...fotos.map((f) => ({ inline_data: { mime_type: f.mime, data: f.data } })),
+        ],
+      }],
+      generationConfig,
+    });
   };
-  const res = await fetch(url, {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json', 'x-goog-api-key': key },
-    body: JSON.stringify(body),
-  });
-  if (!res.ok) {
-    let detalle = '';
-    try { detalle = (await res.json()).error?.message || ''; } catch (e) { /* ignore */ }
-    if (res.status === 400 && /api key/i.test(detalle)) throw new Error('la clave de Gemini no es válida.');
-    if (res.status === 403) throw new Error('la clave de Gemini no tiene permiso (revisá restricciones de la clave).');
-    if (res.status === 429) throw new Error('se alcanzó el límite gratuito por ahora, probá en un minuto.');
-    throw new Error(detalle || `Gemini respondió ${res.status}`);
+
+  let data = null;
+  let ultimoError = 'Gemini no respondió.';
+  modelos:
+  for (let m = 0; m < GEMINI_MODELOS.length; m++) {
+    const modelo = GEMINI_MODELOS[m];
+    const url = `https://generativelanguage.googleapis.com/v1beta/models/${modelo}:generateContent`;
+    const body = armarBody(modelo);
+    for (let intento = 1; intento <= GEMINI_REINTENTOS; intento++) {
+      let res;
+      try {
+        res = await fetch(url, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json', 'x-goog-api-key': key },
+          body,
+        });
+      } catch (e) {
+        // Error de red: se reintenta igual.
+        ultimoError = 'no hay conexión con Gemini.';
+        if (intento < GEMINI_REINTENTOS) { await esperar(GEMINI_ESPERA_BASE_MS * 2 ** (intento - 1)); continue; }
+        continue modelos;
+      }
+      if (res.ok) { data = await res.json(); break modelos; }
+
+      let detalle = '';
+      try { detalle = (await res.json()).error?.message || ''; } catch (e) { /* ignore */ }
+      // Errores que no se arreglan reintentando: se cortan acá.
+      if (res.status === 400 && /api key/i.test(detalle)) throw new Error('la clave de Gemini no es válida.');
+      if (res.status === 403) throw new Error('la clave de Gemini no tiene permiso (revisá restricciones de la clave).');
+
+      if (res.status === 429) {
+        // Cuota agotada: esperar poco sirve, mejor pasar directo al siguiente modelo.
+        ultimoError = 'se alcanzó el límite gratuito por ahora, probá en un minuto.';
+        continue modelos;
+      }
+      if (res.status === 503 || res.status === 500 || res.status === 504) {
+        // Saturado / error temporal: reintento con espera creciente (+ azar para no chocar con otros usuarios).
+        ultimoError = 'los servidores de la IA están con mucha demanda, probá de nuevo en un rato.';
+        if (intento < GEMINI_REINTENTOS) {
+          if (statusEl) statusEl.textContent = `IA con mucha demanda, reintentando (${intento}/${GEMINI_REINTENTOS - 1})…`;
+          await esperar(GEMINI_ESPERA_BASE_MS * 2 ** (intento - 1) + Math.random() * 500);
+          continue;
+        }
+        if (m < GEMINI_MODELOS.length - 1 && statusEl) statusEl.textContent = 'Probando con otro modelo de IA…';
+        continue modelos;
+      }
+      // Modelo inexistente u otro error: se prueba el siguiente modelo.
+      ultimoError = detalle || `Gemini respondió ${res.status}`;
+      continue modelos;
+    }
   }
-  const data = await res.json();
+  if (!data) throw new Error(ultimoError);
   const texto = (data.candidates?.[0]?.content?.parts || []).map((p) => p.text || '').join('');
   const ini = texto.indexOf('{');
   const fin = texto.lastIndexOf('}');
