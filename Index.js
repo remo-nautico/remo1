@@ -408,11 +408,11 @@ function calcularTotales() {
 
 // Modelo principal y respaldos: si el principal está saturado (error 503 "alta demanda"),
 // se prueba con el siguiente. Cada modelo tiene su propia capacidad y su propia cuota.
-const GEMINI_MODELOS = ['gemini-3.8-flash', 'gemini-2.5-flash', 'gemini-2.5-flash-lite'];
+const GEMINI_MODELOS = ['gemini-3.8-flash', 'gemini-flash-latest', 'gemini-2.5-flash', 'gemini-flash-lite-latest', 'gemini-2.5-flash-lite'];
 const GEMINI_REINTENTOS = 3;        // intentos por modelo antes de pasar al siguiente
-const GEMINI_ESPERA_BASE_MS = 1500; // espera inicial; se duplica en cada reintento (1,5s → 3s → 6s)
+const GEMINI_ESPERA_BASE_MS = 2000; // espera inicial; se duplica en cada reintento (2s → 4s → 8s)
 const AI_MAX_FOTOS = 8;     // máximo de fotos por tanda
-const AI_MAX_LADO = 1600;   // las fotos se reducen a este tamaño (px) antes de enviarse
+const AI_MAX_LADO = 1280;   // las fotos se reducen a este tamaño (px) antes de enviarse
 
 const AI_PROMPT_FOTO = `Te paso una o más fotos de pantallas del monitor PM5 (Concept2) de un ergómetro de remo.
 Devolvé las sesiones de entrenamiento que veas, siguiendo el esquema JSON pedido.
@@ -548,6 +548,7 @@ async function analizarFotosConGemini(fotos) {
 
   let data = null;
   let ultimoError = 'Gemini no respondió.';
+  const registroIA = [];
   modelos:
   for (let m = 0; m < GEMINI_MODELOS.length; m++) {
     const modelo = GEMINI_MODELOS[m];
@@ -571,6 +572,8 @@ async function analizarFotosConGemini(fotos) {
 
       let detalle = '';
       try { detalle = (await res.json()).error?.message || ''; } catch (e) { /* ignore */ }
+      console.warn(`Gemini ${modelo} (intento ${intento}): HTTP ${res.status} — ${detalle}`);
+      registroIA.push(`${modelo}: ${res.status}`);
       // Errores que no se arreglan reintentando: se cortan acá.
       if (res.status === 400 && /api key/i.test(detalle)) throw new Error('la clave de Gemini no es válida.');
       if (res.status === 403) throw new Error('la clave de Gemini no tiene permiso (revisá restricciones de la clave).');
@@ -596,7 +599,11 @@ async function analizarFotosConGemini(fotos) {
       continue modelos;
     }
   }
-  if (!data) throw new Error(ultimoError);
+  if (!data) {
+    // Se muestra qué respondió cada modelo (ej: "gemini-3.8-flash: 503") para saber dónde falla.
+    const resumen = [...new Set(registroIA)].join(' · ');
+    throw new Error(ultimoError + (resumen ? ` [${resumen}]` : ''));
+  }
   const texto = (data.candidates?.[0]?.content?.parts || []).map((p) => p.text || '').join('');
   const ini = texto.indexOf('{');
   const fin = texto.lastIndexOf('}');
