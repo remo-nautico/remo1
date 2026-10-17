@@ -253,6 +253,22 @@ function toggleWaterOptions() {
   if (card) card.classList.toggle('is-agua', esAgua);
 }
 
+// Marca la sesión como "no completada" (borde rojo).
+function toggleIncomplete() {
+  const on = $('f-incomplete').checked;
+  $('incomplete-toggle').classList.toggle('on', on);
+  const card = document.querySelector('.train-summary-card');
+  if (card) card.classList.toggle('is-incompleto', on);
+}
+
+// Porcentaje del agua: acepta décimas con punto o coma (88.2 / 88,2).
+function leerPorcentaje() {
+  const v = String($('f-percentage').value).trim().replace(',', '.');
+  if (!v) return null;
+  const n = Number(v);
+  return isNaN(n) ? null : Math.round(n * 10) / 10;
+}
+
 function setCategoria(cat) {
   const c = CATEGORIAS.includes(cat) ? cat : 'z1';
   $('f-cat').value = c;
@@ -315,7 +331,7 @@ function detectarZona() {
   return zonaDeDatos({
     tipo: $('f-type').value,
     spm: Number($('f-spm').value) || tot.spm,
-    metros: tot.metros,
+    metros: tot.metros || Number($('f-meters').value) || 0,
     n: tot.n,
   });
 }
@@ -349,6 +365,122 @@ function renumerarParciales() {
   [...$('parciales-container').children].forEach((row, i) => {
     row.firstElementChild.textContent = i + 1;
   });
+  autoTotalesForm();
+}
+
+/* ---------- Cálculo automático (en el agua solo se ve el tiempo total) ---------- */
+
+// Un campo es "libre" si está vacío o si lo llenó la app sola (no lo escribió el usuario).
+function esLibre(input) {
+  return !input.value.trim() || input.dataset.auto === '1';
+}
+
+// Dentro de un parcial: con tiempo + metros calcula el /500m; con tiempo + /500m calcula los metros.
+function recalcularFila(row) {
+  const iT = row.querySelector('.p-tiempo');
+  const iM = row.querySelector('.p-metros');
+  const iP = row.querySelector('.p-pace');
+  const t = parseTiempoASegundos(iT.value);
+  const m = Number(iM.value);
+  const p = parseTiempoASegundos(iP.value);
+  if (t && m > 0 && esLibre(iP)) {
+    iP.value = segundosATiempo((t / m) * 500);
+    iP.dataset.auto = '1';
+  } else if (t && p && esLibre(iM)) {
+    iM.value = Math.round((t / p) * 500);
+    iM.dataset.auto = '1';
+  }
+}
+
+// Totales del formulario: suma de parciales y /500m promedio, mientras el usuario no los escriba a mano.
+// Si no hay parciales, con tiempo total + metros calcula igual el /500m.
+function autoTotalesForm() {
+  const tot = calcularTotales();
+  const iT = $('f-totaltime');
+  const iM = $('f-meters');
+  const iS = $('f-split');
+  if (esLibre(iT)) {
+    if (tot.segundos) { iT.value = segundosATiempo(tot.segundos); iT.dataset.auto = '1'; }
+    else { iT.value = ''; delete iT.dataset.auto; }
+  }
+  if (esLibre(iM)) {
+    if (tot.metros) { iM.value = tot.metros; iM.dataset.auto = '1'; }
+    else { iM.value = ''; delete iM.dataset.auto; }
+  }
+  const seg = parseTiempoASegundos(iT.value);
+  const m = Number(iM.value);
+  if (esLibre(iS)) {
+    if (seg && m > 0) { iS.value = segundosATiempo((seg / m) * 500); iS.dataset.auto = '1'; }
+    else { iS.value = ''; delete iS.dataset.auto; }
+  }
+}
+
+function limpiarAutoTotales() {
+  ['f-meters', 'f-totaltime', 'f-split'].forEach((id) => delete $(id).dataset.auto);
+}
+
+/* ---------- Campos de tiempo: el teclado numérico del celular no tiene ":" ----------
+   Se escriben solo los números y la app pone ":" y "." sola, como un cronómetro:
+   7123 → 7:12.3 · 2042 → 2:04.2 · 8000 → 8:00.0 · 35000 → 35:00.0
+   Si alguien escribe ":" o "." a mano (teclado completo), se respeta lo que escribió. */
+
+function esCampoTiempo(el) {
+  return !!el && (el.classList.contains('p-tiempo') || el.classList.contains('p-pace') ||
+    el.id === 'f-totaltime' || el.id === 'f-split');
+}
+
+function formatearDigitosATiempo(digitos) {
+  const d = String(digitos).replace(/^0+/, '').slice(0, 7);
+  if (!d) return '';
+  const s = d.padStart(3, '0');
+  return `${s.slice(0, -3) || '0'}:${s.slice(-3, -1)}.${s.slice(-1)}`;
+}
+
+function autoFormatoTiempo(input, ev) {
+  // Escribió un separador a mano: modo manual hasta que vacíe el campo.
+  if (ev && /^[:.,]$/.test(ev.data || '')) input.dataset.manual = '1';
+  if (!input.value.trim()) { delete input.dataset.manual; return; }
+  if (input.dataset.manual === '1') return;
+  const formateado = formatearDigitosATiempo(input.value.replace(/\D/g, ''));
+  if (formateado !== input.value) input.value = formateado;
+}
+
+/* ---------- Guardado en Supabase con respaldo si la base todavía no está actualizada ---------- */
+
+function sinCampo(r, campo) {
+  const f = (o) => { const c = { ...o }; delete c[campo]; return c; };
+  return Array.isArray(r) ? r.map(f) : f(r);
+}
+
+function redondearEnteros(r) {
+  const f = (o) => {
+    const c = { ...o };
+    ['tiempo_segundos', 'porcentaje', 'distancia_metros', 'spm_general'].forEach((k) => {
+      if (c[k] != null) c[k] = Math.round(Number(c[k]));
+    });
+    return c;
+  };
+  return Array.isArray(r) ? r.map(f) : f(r);
+}
+
+// op(registro) -> { error }. Devuelve { error, aviso }.
+async function guardarConRespaldo(op, registro) {
+  let res = await op(registro);
+  let aviso = '';
+  if (res.error && /completado/i.test(res.error.message || '')) {
+    registro = sinCampo(registro, 'completado');
+    res = await op(registro);
+    aviso = ' Falta ejecutar supabase_cambios.sql para guardar "no completado".';
+  }
+  if (res.error && /integer/i.test(res.error.message || '')) {
+    registro = redondearEnteros(registro);
+    res = await op(registro);
+    aviso = ' Se guardó redondeado: ejecutá supabase_cambios.sql en Supabase para guardar décimas.';
+  }
+  if (res.error && /check constraint/i.test(res.error.message || '')) {
+    res.error = { ...res.error, message: 'la base no admite esta zona. Ejecutá supabase_cambios.sql en Supabase (SQL Editor).' };
+  }
+  return { error: res.error, aviso };
 }
 
 function limpiarParciales() {
@@ -619,6 +751,10 @@ async function analizarFotosConGemini(fotos) {
 
 // Aplica al formulario de Train una sesión devuelta por la IA.
 function aplicarDatosIA(obj) {
+  limpiarAutoTotales();
+  ['f-meters', 'f-totaltime', 'f-split', 'f-spm'].forEach((id) => { $(id).value = ''; });
+  $('f-incomplete').checked = false;
+  toggleIncomplete();
   if (obj.date && /^\d{4}-\d{2}-\d{2}$/.test(obj.date)) $('f-date').value = obj.date;
   if (obj.type) $('f-type').value = obj.type;
   if (obj.meters !== undefined && obj.meters !== null) $('f-meters').value = obj.meters;
@@ -628,6 +764,7 @@ function aplicarDatosIA(obj) {
   limpiarParciales();
   (obj.parciales || []).slice(0, N_PARCIALES_MAX).forEach((p) => addParcialRow(p));
   if (!$('parciales-container').children.length) addParcialRow();
+  autoTotalesForm();
   zonaManual = false;
   autoZona();
 }
@@ -667,6 +804,7 @@ function registroDesdeIA(obj) {
     medio: 'ergo',
     bote: null,
     porcentaje: null,
+    completado: true,
     distancia_metros: metros,
     tiempo_segundos: tiempoSeg,
     pace_500m: pace,
@@ -679,9 +817,9 @@ function registroDesdeIA(obj) {
 async function guardarSesionesIA(sesiones) {
   if (!currentUser) { toast('Iniciá sesión primero.'); return; }
   const registros = sesiones.map(registroDesdeIA);
-  const { error } = await sb.from('entrenamientos').insert(registros);
+  const { error, aviso } = await guardarConRespaldo((r) => sb.from('entrenamientos').insert(r), registros);
   if (error) throw new Error('error al guardar: ' + error.message);
-  toast(`${registros.length} sesiones guardadas desde las fotos.`);
+  toast(`${registros.length} sesiones guardadas desde las fotos.${aviso}`);
   await cargarEntrenamientos();
 }
 
@@ -695,6 +833,9 @@ function resetTrainForm() {
   $('f-totaltime').value = '';
   $('f-split').value = '';
   $('f-spm').value = '';
+  limpiarAutoTotales();
+  $('f-incomplete').checked = false;
+  toggleIncomplete();
   $('f-medium').value = 'ergo';
   zonaManual = false;
   setCategoria('z1');
@@ -734,7 +875,8 @@ async function addSession() {
     categoria: $('f-cat').value,
     medio: $('f-medium').value,
     bote: esAgua ? $('f-boat').value : null,
-    porcentaje: esAgua && $('f-percentage').value ? Number($('f-percentage').value) : null,
+    porcentaje: esAgua ? leerPorcentaje() : null,
+    completado: !$('f-incomplete').checked,
     distancia_metros: metros,
     tiempo_segundos: tiempoSeg,
     pace_500m: pace,
@@ -745,19 +887,20 @@ async function addSession() {
   const btn = $('btn-add-session');
   btn.disabled = true;
   const eraEdicion = !!editingSessionId;
-  let error;
-  if (eraEdicion) {
-    ({ error } = await sb.from('entrenamientos').update(registro).eq('id', editingSessionId));
-  } else {
-    ({ error } = await sb.from('entrenamientos').insert(registro));
-  }
+  const idEdicion = editingSessionId;
+  const { error, aviso } = await guardarConRespaldo(
+    (r) => (eraEdicion
+      ? sb.from('entrenamientos').update(r).eq('id', idEdicion)
+      : sb.from('entrenamientos').insert(r)),
+    registro,
+  );
   btn.disabled = false;
 
   if (error) {
     toast('Error al guardar: ' + error.message);
     return;
   }
-  toast(eraEdicion ? 'Sesión actualizada.' : 'Entrenamiento guardado.');
+  toast((eraEdicion ? 'Sesión actualizada.' : 'Entrenamiento guardado.') + aviso);
   cancelEdit();
   await cargarEntrenamientos();
   if (eraEdicion) navigateTo('historial', 'historial', $('nav-historial'));
@@ -780,6 +923,9 @@ function editSession(id) {
   $('f-totaltime').value = e.tiempo_segundos != null ? segundosATiempo(e.tiempo_segundos) : '';
   $('f-split').value = e.pace_500m || '';
   $('f-spm').value = e.spm_general ?? '';
+  limpiarAutoTotales();
+  $('f-incomplete').checked = e.completado === false;
+  toggleIncomplete();
   limpiarParciales();
   parcialesDesdeEntreno(e).forEach((p) => addParcialRow(p));
   if (!$('parciales-container').children.length) addParcialRow();
@@ -879,14 +1025,18 @@ function renderChart(lista, contId, bestId, modo) {
   const vals = sesiones.map(valor);
   const min = Math.min(...vals);
   const max = Math.max(...vals);
-  const mejorTexto = 'Mejor ' + conComa(segundosATiempo(min));
+  // El "mejor" ignora los trabajos que no se completaron (salvo que sean los únicos).
+  const completas = vals.filter((_, i) => sesiones[i].completado !== false);
+  const mejor = completas.length ? Math.min(...completas) : min;
+  const mejorTexto = 'Mejor ' + conComa(segundosATiempo(mejor));
   if (bestEl) bestEl.textContent = mejorTexto;
 
   sesiones.forEach((e, i) => {
     const p = vals[i];
     const alto = max === min ? 60 : 22 + 78 * ((max - p) / (max - min));
+    const incompleta = e.completado === false;
     const bar = document.createElement('div');
-    bar.className = 'bar' + (p === min ? ' best' : '');
+    bar.className = 'bar' + (p === mejor && !incompleta ? ' best' : '') + (incompleta ? ' incompleto' : '');
     bar.style.height = alto.toFixed(0) + '%';
     bar.title = `${fechaLegible(e.fecha)} — ${conComa(segundosATiempo(p))}${modo === 'tiempo' ? '' : '/500m'}`;
     bar.addEventListener('click', () => {
@@ -937,7 +1087,7 @@ function renderLastSessionCard() {
     circle.className = 'cat-circle';
     $('last-session-desc').textContent = 'Sin sesiones todavía';
     $('last-session-meta').textContent = 'Cargá tu primer entreno en Train';
-    document.querySelector('.lastSessionCard').classList.remove('agua');
+    document.querySelector('.lastSessionCard').classList.remove('agua', 'incompleto');
     $('last-session-time').textContent = '--:--';
     $('last-session-delta').textContent = '';
     return;
@@ -947,9 +1097,12 @@ function renderLastSessionCard() {
   circle.className = 'cat-circle z-' + cat;
   $('last-session-desc').textContent = ultima.tipo || '';
   const esAgua = ultima.medio === 'agua';
+  const incompletaUlt = ultima.completado === false;
   document.querySelector('.lastSessionCard').classList.toggle('agua', esAgua);
+  document.querySelector('.lastSessionCard').classList.toggle('incompleto', incompletaUlt);
   $('last-session-meta').innerHTML = esc(`${nombreDia(ultima.fecha)} ${fechaCorta(ultima.fecha)}`) +
-    (esAgua ? ` <span class="waterTag">≈ AGUA${ultima.bote ? ' · ' + esc(ultima.bote) : ''}</span>` : '');
+    (esAgua ? ` <span class="waterTag">≈ AGUA${ultima.bote ? ' · ' + esc(ultima.bote) : ''}</span>` : '') +
+    (incompletaUlt ? ' <span class="incTag">NO COMPLETADO</span>' : '');
   const paceUltima = paceDeSesion(ultima);
   $('last-session-time').textContent = paceUltima !== null ? conComa(segundosATiempo(paceUltima)) : '--:--';
 
@@ -1059,8 +1212,8 @@ function renderHistorial() {
     const bloque = document.createElement('div');
     bloque.className = 'week-group';
     bloque.innerHTML = `<h3 class="week-label">${esc(g.label)}</h3>`;
-    // Dentro de cada semana, en orden cronológico (como en el boceto).
-    g.items.slice().reverse().forEach((e) => bloque.appendChild(crearTarjetaSesion(e)));
+    // Dentro de cada semana, de la más reciente a la más antigua (igual que las semanas).
+    g.items.forEach((e) => bloque.appendChild(crearTarjetaSesion(e)));
     cont.appendChild(bloque);
   });
 }
@@ -1076,7 +1229,11 @@ function crearTarjetaSesion(e) {
   const pace = paceDeSesion(e);
   const item = document.createElement('div');
   const esAgua = e.medio === 'agua';
-  item.className = 'session-item' + (esAgua ? ' agua' : '');
+  const incompleto = e.completado === false;
+  // En agua y en 2K lo que importa es el tiempo total: va como título (el /500m queda a la derecha).
+  const totalSeg = tiempoDeSesion(e);
+  const mostrarTotal = (esAgua || es2K(e)) && totalSeg !== null;
+  item.className = 'session-item' + (esAgua ? ' agua' : '') + (incompleto ? ' incompleto' : '') + (mostrarTotal ? ' totalTitle' : '');
 
   const parciales = parcialesDesdeEntreno(e);
   const tablaParciales = parciales.length ? `
@@ -1098,15 +1255,20 @@ function crearTarjetaSesion(e) {
     e.distancia_metros ? ['Metros', e.distancia_metros + 'm'] : null,
     e.tiempo_segundos != null ? ['Tiempo', segundosATiempo(e.tiempo_segundos)] : null,
     e.spm_general != null ? ['SPM', e.spm_general] : null,
-    e.porcentaje != null ? ['%', e.porcentaje] : null,
+    e.porcentaje != null ? ['%', conComa(e.porcentaje) + '%'] : null,
+    incompleto ? ['Estado', 'No completado'] : null,
   ].filter(Boolean);
 
   item.innerHTML = `
     <div class="session-mini-card glass-card">
       <div class="cat-circle z-${esc(cat)}">${esc(etiquetaCirculo(e))}</div>
       <div class="session-main">
-        <div class="session-title">${esc(e.tipo || '')}</div>
-        ${esAgua ? `<span class="waterTag">≈ AGUA${e.bote ? ' · ' + esc(e.bote) : ''}</span>` : ''}
+        <div class="session-title">${esc(mostrarTotal ? conComa(segundosATiempo(totalSeg)) : (e.tipo || ''))}</div>
+        ${mostrarTotal && e.tipo ? `<div class="session-sub">${esc(e.tipo)}</div>` : ''}
+        ${(esAgua || incompleto) ? `<div class="tagRow">
+          ${esAgua ? `<span class="waterTag">≈ AGUA${e.bote ? ' · ' + esc(e.bote) : ''}</span>` : ''}
+          ${incompleto ? '<span class="incTag">NO COMPLETADO</span>' : ''}
+        </div>` : ''}
       </div>
       <div class="session-stats">
         <div class="split">${pace !== null ? esc(conComa(segundosATiempo(pace))) : '--:--'}</div>
@@ -1392,7 +1554,13 @@ document.addEventListener('DOMContentLoaded', () => {
   // Zona automática: se recalcula al escribir el trabajo, el SPM o los parciales.
   $('train').addEventListener('input', (ev) => {
     const t = ev.target;
-    if (t.id === 'f-type' || t.id === 'f-spm' || t.classList.contains('p-spm') || t.classList.contains('p-metros') || t.classList.contains('p-tiempo')) autoZona();
+    // Lo que escribe el usuario deja de ser "automático" y no se pisa más.
+    if (t.dataset) delete t.dataset.auto;
+    if (esCampoTiempo(t)) autoFormatoTiempo(t, ev);
+    const fila = t.closest('.parcial-row');
+    if (fila) { recalcularFila(fila); autoTotalesForm(); }
+    else if (t.id === 'f-totaltime' || t.id === 'f-meters') autoTotalesForm();
+    if (t.id === 'f-totaltime' || t.id === 'f-meters' || t.id === 'f-type' || t.id === 'f-spm' || t.classList.contains('p-spm') || t.classList.contains('p-metros') || t.classList.contains('p-tiempo')) autoZona();
   });
   // Cerrar la lista de zonas al tocar afuera.
   document.addEventListener('click', (ev) => { if (!ev.target.closest('.zoneWrap')) cerrarMenuZona(); });
