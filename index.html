@@ -186,7 +186,7 @@
     </div>
     <div class="input">
       <label for="f-percentage">Porcentaje</label>
-      <input type="text" id="f-percentage" placeholder="100" inputmode="decimal">
+      <input type="text" id="f-percentage" placeholder="88.2" inputmode="decimal" autocomplete="off">
     </div>
   </div>
 
@@ -224,9 +224,20 @@
       <input type="text" id="f-totaltime" placeholder="Tiempo total (auto)" inputmode="decimal">
       <input type="number" id="f-meters" placeholder="Metros totales (auto)" inputmode="numeric">
     </div>
+    <div class="timeHint">Los tiempos se escriben solo con números: <b>7123</b> → 7:12.3 · <b>8000</b> → 8:00.0</div>
   </div>
 
-  <!-- 5. Guardar -->
+  <!-- 5. Trabajo no completado -->
+  <label class="incompleteToggle" id="incomplete-toggle">
+    <input type="checkbox" id="f-incomplete" onchange="toggleIncomplete()">
+    <span class="incBox"></span>
+    <span class="incText">
+      <strong>No se completó</strong>
+      <small>No se pudo terminar o no salió como querías</small>
+    </span>
+  </label>
+
+  <!-- 6. Guardar -->
   <div class="trainButtons">
     <button class="add btn-guardar" id="btn-add-session" onclick="addSession()">GUARDAR</button>
   </div>
