@@ -2,503 +2,4764 @@
 <html lang="es">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<meta name="theme-color" content="#1b1d1a">
-<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0, user-scalable=no, viewport-fit=cover">
+<meta name="theme-color" content="#05070b">
 <meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-<meta name="apple-mobile-web-app-title" content="MateClub">
-<link rel="apple-touch-icon" href="icon-180.png">
-<link rel="icon" type="image/png" href="icon-192.png">
-<link rel="manifest" href="manifest.webmanifest">
-<title>MateClub</title>
+<title>Remo</title>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.js"></script>
 <link rel="preconnect" href="https://fonts.googleapis.com">
-<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Archivo:wdth,wght@62..125,400..900&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@500;600;700&family=Inter:wght@400;500;600&family=Share+Tech+Mono&display=swap" rel="stylesheet">
 <style>
-/* Concepto: tienda oscura de carácter editorial. Hero tipográfico, carruseles por categoría con tarjetas de color, secciones crema para respirar. */
 :root{
-  --ink:#1b1d1a; --ink2:#242722; --cream:#f6efe2; --cream2:#ece2cd;
-  --green:#9bc16a; --green-d:#3f5d2c; --terra:#c8793f;
-  --muted:#a9b1a2; --muted-dk:#5f6a55; --line:rgba(246,239,226,.18);
-  --ease:cubic-bezier(.22,.8,.24,1);
-  --f-disp:"Archivo",Impact,"Arial Narrow",sans-serif;
-  --f-body:"Inter",system-ui,-apple-system,"Segoe UI",sans-serif;
-  color-scheme:dark;
+    --bg:#05070b;
+    --bg-soft:#0e1117;
+    --bg-elev:#12151d;
+    --panel:rgba(255,255,255,.045);
+    --panel-solid:#12151d;
+    --border:rgba(255,255,255,.16);
+    --border-soft:rgba(255,255,255,.09);
+    --text:#F2F4F7;
+    --text-muted:#98A2AE;
+    --text-faint:#5C6672;
+    --accent:#F2F4F7;
+    --accent-dark:#9bff3d;
+    --accent-soft:rgba(130, 255, 92, 0.16);
+    --danger:#5bff76;
+    --danger-soft:rgba(255,107,91,.14);
+    --good:#6FD19B;
+    --shadow:0 20px 50px rgba(0,0,0,.55);
+    --shadow-sm:0 8px 22px rgba(0,0,0,.35);
+    --glass-blur:22px;
+    --glass-blur-lg:34px;
 }
-*{box-sizing:border-box}
-html{scroll-behavior:smooth}
-body{margin:0;font-family:var(--f-body);font-size:16px;background:var(--ink);color:var(--cream);line-height:1.5;overflow-x:hidden;overflow-x:clip;-webkit-tap-highlight-color:transparent}
-img,svg{display:block;max-width:100%}
-a{color:inherit;text-decoration:none}
-button{font-family:inherit;-webkit-appearance:none;appearance:none}
-html{-webkit-text-size-adjust:100%}
-:focus-visible{outline:3px solid var(--green);outline-offset:3px}
-.wrap{width:min(1240px,100% - 32px - env(safe-area-inset-left,0px) - env(safe-area-inset-right,0px));margin-inline:auto}
-.disp{font-family:var(--f-disp);font-stretch:112%;font-weight:900;text-transform:uppercase;letter-spacing:-.02em;line-height:.94;text-wrap:balance;margin:0}
 
-/* Header */
-header.top{position:fixed;top:0;left:0;right:0;z-index:100;padding-top:env(safe-area-inset-top,0px);transition:background .3s}
-header.top.solid{background:rgba(27,29,26,.9);-webkit-backdrop-filter:blur(10px);backdrop-filter:blur(10px)}
-.bar{display:flex;align-items:center;justify-content:space-between;height:74px;padding-inline:max(16px,env(safe-area-inset-left)) max(16px,env(safe-area-inset-right))}
-.left{display:flex;align-items:center;gap:18px;min-width:0}
-.burger{flex:none;width:44px;height:44px;border-radius:50%;border:1px solid var(--line);background:transparent;cursor:pointer;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:5px;transition:.3s}
-.burger:hover{background:var(--cream)}
-.burger span{width:18px;height:2px;background:var(--cream);transition:.3s}
-.burger:hover span{background:var(--ink)}
-.burger.x span:nth-child(1){transform:translateY(7px) rotate(45deg)}
-.burger.x span:nth-child(2){opacity:0}
-.burger.x span:nth-child(3){transform:translateY(-7px) rotate(-45deg)}
-.logo{font-family:var(--f-disp);font-stretch:120%;font-weight:900;font-size:1.5rem;letter-spacing:-.02em}
-.logo span{color:var(--green)}
-.tagline{font-size:.72rem;letter-spacing:.3em;color:var(--muted);font-weight:600}
-.cartbtn{border:1px solid var(--cream);background:transparent;color:var(--cream);border-radius:999px;height:44px;padding:0 20px;font-weight:700;cursor:pointer;display:flex;align-items:center;gap:10px;transition:.3s;flex:none}
-.cartbtn:hover{background:var(--cream);color:var(--ink)}
-.cartbtn b{background:var(--green);color:var(--ink);min-width:22px;height:22px;border-radius:99px;display:grid;place-items:center;font-size:.78rem}
+/* =========================================
+   ESTILOS SKETCH (TRAIN & SESIONES)
+   ========================================= */
 
-/* Menú */
-#menu{position:fixed;inset:0;background:var(--ink2);z-index:90;display:flex;flex-direction:column;justify-content:center;padding:100px 16px 40px;clip-path:circle(0 at 40px 40px);transition:clip-path .8s var(--ease);visibility:hidden}
-#menu.on{clip-path:circle(160% at 40px 40px);visibility:visible}
-#menu nav{display:flex;flex-direction:column}
-#menu nav a{font-family:var(--f-disp);font-stretch:115%;font-weight:900;text-transform:uppercase;font-size:clamp(2.2rem,8vw,5.5rem);line-height:1.1;opacity:0;transform:translateX(-40px);transition:.6s var(--ease),color .2s;width:fit-content}
-#menu.on nav a{opacity:1;transform:none}
-#menu nav a:nth-child(2){transition-delay:.08s}#menu nav a:nth-child(3){transition-delay:.16s}#menu nav a:nth-child(4){transition-delay:.24s}
-#menu nav a:hover{color:var(--green)}
-#menu .soc{margin-top:40px;display:flex;gap:26px;flex-wrap:wrap;color:var(--muted);font-size:.95rem}
+/* Cabeceras compartidas */
+.page-header-sketch {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 20px;
+}
+.page-header-sketch .sectionTitle {
+  margin: 0;
+  font-size: 24px;
+  letter-spacing: 2px;
+}
+.header-icon-circle {
+  width: 36px; height: 36px;
+  border-radius: 50%;
+  border: 1px solid var(--border);
+  display: flex; align-items: center; justify-content: center;
+  font-weight: bold; font-size: 14px;
+  color: var(--text-muted);
+}
 
-/* Hero */
-.hero{position:relative;min-height:640px;min-height:min(100svh,780px);display:flex;align-items:center;overflow:hidden;padding-block:130px 90px;
-  background:radial-gradient(900px 600px at 80% 30%,rgba(155,193,106,.30),transparent 60%),radial-gradient(700px 500px at 5% 95%,rgba(200,121,63,.28),transparent 60%),var(--ink)}
-.hero h1{font-size:clamp(3.2rem,11vw,9.5rem);position:relative;z-index:2}
-.hero h1 .o{color:transparent;-webkit-text-stroke:2px var(--cream)}
-.hero h1 .g{color:var(--green)}
-.hero p{margin:26px 0 0;max-width:30em;color:var(--muted);font-size:1.1rem;position:relative;z-index:2}
-.hero .cta{margin-top:34px;position:relative;z-index:2}
-.floaty{position:absolute;right:-2%;top:50%;width:min(50vw,620px);transform:translateY(-50%);z-index:1;filter:drop-shadow(0 40px 60px rgba(0,0,0,.45));will-change:transform}
-.floaty svg{width:100%;height:auto;animation:bob 6s ease-in-out infinite}
-@keyframes bob{50%{transform:translateY(-14px) rotate(1.5deg)}}
-.mouse{position:absolute;left:50%;bottom:26px;width:26px;height:42px;border:2px solid var(--cream);border-radius:20px;transform:translateX(-50%);z-index:2}
-.mouse i{position:absolute;left:50%;top:8px;width:3px;height:8px;background:var(--cream);border-radius:3px;transform:translateX(-50%);animation:wheel 1.6s infinite}
-@keyframes wheel{0%{opacity:1;transform:translate(-50%,0)}100%{opacity:0;transform:translate(-50%,14px)}}
+/* Cajas estilo "Sketch" */
+.sketch-box {
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  margin-bottom: 15px;
+}
 
-/* Botón swap */
-.btn{position:relative;overflow:hidden;display:inline-block;height:54px;border-radius:999px;border:0;cursor:pointer;background:var(--cream);color:var(--ink);font-weight:700;font-size:.95rem;vertical-align:middle}
-.btn span{display:flex;align-items:center;justify-content:center;height:54px;padding:0 32px;transition:transform .4s var(--ease);white-space:nowrap}
-.btn span+span{position:absolute;inset:0;transform:translateY(100%);background:var(--green)}
-.btn:hover span:first-child{transform:translateY(-100%)}
-.btn:hover span+span{transform:none}
-.btn.dark{background:var(--ink);color:var(--cream)}
-.btn.dark span+span{background:var(--terra);color:var(--ink)}
+/* Tarjeta Resumen Train */
+.train-summary-card {
+  display: flex;
+  align-items: center;
+  padding: 12px 16px;
+  gap: 15px;
+}
+.cat-circle {
+  width: 45px; height: 45px;
+  border-radius: 50%;
+  border: 2px solid var(--border);
+  display: flex; align-items: center; justify-content: center;
+  font-family: 'Poppins', sans-serif;
+  font-weight: 700; font-size: 16px;
+  color: var(--text);
+  flex-shrink: 0;
+}
+.title-input {
+  flex: 1;
+  background: transparent; border: none;
+  font-family: 'Poppins', sans-serif; font-size: 22px; font-weight: 600;
+  color: var(--text); outline: none;
+  text-transform: uppercase;
+}
+.summary-stats {
+  text-align: right;
+  display: flex; flex-direction: column; align-items: flex-end;
+}
+.stat-input {
+  background: transparent; border: none; outline: none;
+  color: var(--text); text-align: right;
+  font-family: 'Share Tech Mono', monospace;
+}
+.stat-input.split { font-size: 20px; font-weight: bold; }
+.spm-row { display: flex; align-items: baseline; gap: 4px; font-size: 12px; color: var(--text-muted); }
+.stat-input.spm { width: 30px; font-size: 14px; color: var(--text); }
 
-/* Marquee */
-.marqwrap{overflow:hidden;position:relative;z-index:5;padding-block:18px;margin-top:-18px}
-.marq{background:var(--green);color:var(--ink);padding-block:16px;white-space:nowrap;transform:rotate(-1.2deg);width:104%;margin-left:-2%}
-.marq .tr{display:inline-flex;gap:40px;padding-right:40px;animation:mq 30s linear infinite;font-family:var(--f-disp);font-stretch:115%;font-weight:900;text-transform:uppercase;font-size:clamp(1.3rem,3vw,2.1rem)}
-@keyframes mq{to{transform:translateX(-50%)}}
+/* Tabla ajustada */
+.table-box { padding: 10px; }
+.adv-table-header { border-bottom: 1px dashed var(--border-soft); margin-bottom: 5px; }
+.parcial-row { background: transparent; border: none; padding: 4px 0; border-bottom: 1px solid rgba(255,255,255,0.05); }
+.parcial-row:last-child { border-bottom: none; }
+.parcial-row input { background: transparent; border: none; box-shadow: none; font-size: 14px; }
 
-/* Productos */
-.prods{background:var(--cream);color:var(--ink);padding-block:110px 80px}
-.prods h2{font-size:clamp(2.6rem,8vw,6.4rem)}
-.prods h2 small{display:block;font-family:var(--f-body);font-weight:600;font-size:clamp(1rem,2vw,1.35rem);text-transform:none;letter-spacing:0;color:var(--muted-dk);margin-bottom:12px}
-.prods h2 .o{color:transparent;-webkit-text-stroke:2px var(--ink)}
-.demo-note{margin:18px 0 0;font-size:.9rem;color:var(--muted-dk);max-width:40em}
-.cat{margin-top:64px}
-.cat-h{display:flex;align-items:center;gap:16px;margin-bottom:22px}
-.cat-h i{flex:none;display:block;width:60px;height:2px;background:var(--ink)}
-.cat-h h3{margin:0;font-family:var(--f-disp);font-stretch:112%;font-weight:800;text-transform:uppercase;font-size:clamp(1.3rem,2.4vw,1.9rem)}
-.cat-h .arrows{margin-left:auto;display:flex;gap:10px}
-.arr{width:46px;height:46px;border-radius:50%;border:1.5px solid var(--ink);background:transparent;color:var(--ink);font-size:1.1rem;cursor:pointer;display:grid;place-items:center;transition:.25s}
-.arr:hover{background:var(--ink);color:var(--cream)}
-.slider{display:flex;gap:20px;overflow-x:auto;scroll-snap-type:x mandatory;padding:8px 16px 28px;margin-inline:-16px;scrollbar-width:none;cursor:grab;-webkit-overflow-scrolling:touch}
-.slider::-webkit-scrollbar{display:none}
-.slider.drag{cursor:grabbing;scroll-snap-type:none}
-.pcard{flex:0 0 min(290px,78vw);scroll-snap-align:start;display:flex;flex-direction:column;user-select:none}
-.pimg{position:relative;height:270px;display:flex;align-items:flex-end;justify-content:center}
-.pimg>svg,.pimg>img{height:96%;width:auto;max-width:92%;object-fit:contain;transition:transform .5s var(--ease);filter:drop-shadow(0 16px 20px rgba(0,0,0,.25));pointer-events:none}
-.pcard:hover .pimg>svg,.pcard:hover .pimg>img{transform:translateY(-10px) rotate(-3deg) scale(1.04)}
-.stag{position:absolute;top:6px;left:6px;background:var(--ink);color:var(--cream);font-size:.7rem;font-weight:700;letter-spacing:.07em;text-transform:uppercase;padding:5px 11px;border-radius:99px}
-.stag.out{background:#9b2c2c}.stag.low{background:var(--terra)}
-.pdesc{background:var(--c);color:var(--t);border-radius:22px;padding:22px 22px 20px;margin-top:-14px;position:relative;z-index:2;display:flex;flex-direction:column;gap:8px;min-height:205px;transition:transform .4s var(--ease)}
-.pcard:hover .pdesc{transform:translateY(-6px)}
-.pdesc strong{font-family:var(--f-disp);font-stretch:108%;font-weight:800;text-transform:uppercase;font-size:1.06rem;line-height:1.1}
-.pdesc p{margin:0;font-size:.88rem;opacity:.85;flex:1}
-.pfoot{display:flex;align-items:center;justify-content:space-between;gap:10px;margin-top:6px}
-.price{font-family:var(--f-disp);font-stretch:110%;font-weight:900;font-size:1.4rem;font-variant-numeric:tabular-nums}
-.add{flex:none;width:46px;height:46px;border-radius:50%;border:0;background:var(--t);color:var(--c);font-size:1.6rem;line-height:1;cursor:pointer;display:grid;place-items:center;transition:transform .3s var(--ease)}
-.add:hover{transform:rotate(90deg) scale(1.1)}
-.add:disabled{opacity:.35;cursor:not-allowed;transform:none}
-.state{padding:40px 0;color:var(--muted-dk)}
+/* Botón Guardar Ancho */
+.btn-guardar {
+  width: 100%;
+  border-radius: 12px;
+  font-size: 20px;
+  letter-spacing: 2px;
+  text-transform: uppercase;
+  padding: 16px;
+}
 
-/* Cómo comprar */
-.how{position:relative;padding-block:110px;background:var(--ink2);overflow:hidden}
-.how::before{content:"";position:absolute;inset:0;background-image:linear-gradient(var(--line) 1px,transparent 1px),linear-gradient(90deg,var(--line) 1px,transparent 1px);background-size:80px 80px;opacity:.35;-webkit-mask-image:radial-gradient(circle at 70% 40%,#000,transparent 70%);mask-image:radial-gradient(circle at 70% 40%,#000,transparent 70%)}
-.how h2{font-size:clamp(2.6rem,8vw,6.4rem);position:relative}
-.how h2 .g{color:var(--green)}
-.steps{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(250px,100%),1fr));gap:28px;margin-top:56px;position:relative}
-.step{border-top:2px solid var(--cream);padding-top:22px;min-width:0}
-.step b{font-family:var(--f-disp);font-stretch:120%;font-weight:900;font-size:4rem;color:transparent;-webkit-text-stroke:1.5px var(--green);display:block;line-height:1}
-.step h4{font-family:var(--f-disp);font-stretch:110%;font-weight:800;text-transform:uppercase;font-size:1.3rem;margin:14px 0 8px}
-.step p{margin:0;color:var(--muted)}
+/* =========================================
+   SESIONES (HISTORIAL COMPACTO)
+   ========================================= */
 
-/* Novedades */
-.news{background:var(--cream);color:var(--ink);padding-block:84px 100px;overflow:hidden}
-.mosaic{display:flex;white-space:nowrap;animation:mq 45s linear infinite;width:max-content;margin-bottom:48px}
-.mosaic span{font-family:var(--f-disp);font-stretch:120%;font-weight:900;font-size:clamp(3.5rem,11vw,9rem);padding-right:.35em;line-height:1}
-.mosaic span:nth-child(odd){color:transparent;-webkit-text-stroke:2px var(--ink)}
-.ncols{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(280px,100%),1fr));gap:30px}
-.ncard{min-width:0}
-.ncard .tg{display:flex;align-items:center;gap:12px;font-weight:700;font-size:.78rem;letter-spacing:.14em;text-transform:uppercase}
-.ncard .tg i{width:46px;height:2px;background:var(--ink)}
-.ncard h4{font-family:var(--f-disp);font-stretch:112%;font-weight:900;text-transform:uppercase;font-size:1.7rem;line-height:1.02;margin:14px 0 10px}
-.ncard p{margin:0 0 18px;color:#3f4a38}
-.nimg{aspect-ratio:4/3;border-radius:20px;overflow:hidden;background:var(--cream2);display:grid;place-items:center}
-.nimg>img{width:100%;height:100%;object-fit:cover}
-.nimg>div{width:48%;max-width:220px;transition:transform .6s var(--ease)}
-.ncard:hover .nimg>div{transform:scale(1.08) rotate(-3deg)}
+.week-group { margin-bottom: 20px; }
+.week-label {
+  font-family: 'Inter', sans-serif;
+  font-size: 14px;
+  color: var(--text-muted);
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  margin-bottom: 10px;
+  margin-left: 5px;
+}
 
-/* Footer */
-footer{background:var(--ink);padding-block:90px 36px}
-.ftop{display:grid;grid-template-columns:1fr 1fr;gap:48px;align-items:end}
-.ftop .big{font-size:clamp(2.4rem,7vw,5.6rem)}
-.ftop .big .g{color:var(--green)}
-.fnav{display:flex;gap:56px;flex-wrap:wrap}
-.fnav div{display:flex;flex-direction:column;gap:10px}
-.fnav a{color:var(--muted);transition:.2s}
-.fnav a:hover{color:var(--green);padding-left:6px}
-.fbot{margin-top:64px;padding-top:24px;border-top:1px solid var(--line);display:flex;justify-content:space-between;flex-wrap:wrap;gap:12px;color:var(--muted);font-size:.88rem}
-@media(max-width:820px){.ftop{grid-template-columns:1fr}.tagline{display:none}.floaty{opacity:.3;width:92vw}}
+.session-mini-card {
+  display: flex;
+  align-items: center;
+  padding: 12px 16px;
+  margin-bottom: 10px;
+  gap: 15px;
+  border-radius: 12px;
+}
+.session-mini-card .session-title {
+  flex: 1;
+  font-family: 'Poppins', sans-serif;
+  font-size: 20px;
+  font-weight: 600;
+  text-transform: uppercase;
+}
+.session-mini-card .session-stats {
+  text-align: right;
+}
+.session-mini-card .split {
+  font-family: 'Share Tech Mono', monospace;
+  font-size: 18px;
+  font-weight: bold;
+}
+.session-mini-card .day {
+  font-size: 11px;
+  color: var(--text-muted);
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  margin-top: 2px;
+}
 
-/* Carrito */
-.ov{position:fixed;inset:0;background:rgba(0,0,0,.55);opacity:0;pointer-events:none;transition:.3s;z-index:150}
-.ov.on{opacity:1;pointer-events:all}
-#cart{position:fixed;top:0;right:0;height:100%;width:min(440px,100%);background:var(--cream);color:var(--ink);transform:translateX(100%);transition:transform .5s var(--ease);z-index:160;display:flex;flex-direction:column;padding-top:env(safe-area-inset-top,0px);visibility:hidden}
-#cart.on{transform:none;visibility:visible}
-#cart .ch{display:flex;justify-content:space-between;align-items:center;padding:20px 24px;border-bottom:1.5px solid var(--ink)}
-#cart .ch h3{margin:0;font-family:var(--f-disp);font-stretch:115%;font-weight:900;text-transform:uppercase;font-size:1.5rem}
-#cart .ch button{background:none;border:0;color:var(--ink);font-size:2rem;line-height:1;cursor:pointer}
-#items{flex:1;overflow:auto;padding:6px 24px}
-.it{display:flex;gap:14px;align-items:center;padding:14px 0;border-bottom:1px solid var(--cream2)}
-.it .th{width:58px;height:58px;border-radius:14px;background:var(--c);flex:none;display:grid;place-items:center;padding:6px}
-.it .th svg,.it .th img{width:100%;height:100%;object-fit:contain}
-.it .n{flex:1;min-width:0;font-weight:600;font-size:.95rem;line-height:1.25}
-.it .n small{display:block;color:var(--muted-dk);font-weight:500;margin-top:2px}
-.qty{display:flex;align-items:center;gap:10px;font-weight:700}
-.qty button{width:30px;height:30px;border-radius:50%;border:1.5px solid var(--ink);background:transparent;color:var(--ink);cursor:pointer;font-size:1rem}
-.qty button:hover{background:var(--ink);color:var(--cream)}
-.cf{padding:18px 24px calc(24px + env(safe-area-inset-bottom,0px));border-top:1.5px solid var(--ink)}
-.tot{display:flex;justify-content:space-between;font-family:var(--f-disp);font-stretch:112%;font-weight:900;font-size:1.5rem;margin-bottom:14px;font-variant-numeric:tabular-nums}
-.cf input{width:100%;padding:13px 16px;border:1.5px solid var(--ink);border-radius:12px;background:transparent;color:var(--ink);margin-bottom:10px;font-family:inherit;font-size:16px;-webkit-appearance:none;appearance:none}
-.cf input::placeholder{color:var(--muted-dk)}
-.cf .btn{display:block;width:100%}
-.empty{padding:50px 0;text-align:center;color:var(--muted-dk)}
-.toast{position:fixed;left:50%;bottom:calc(28px + env(safe-area-inset-bottom,0px));transform:translate(-50%,140px);background:var(--ink);color:var(--cream);padding:14px 24px;border-radius:99px;font-weight:600;z-index:200;transition:transform .5s var(--ease);border:1px solid var(--green);max-width:calc(100% - 32px);text-align:center}
-.toast.on{transform:translate(-50%,0)}
+/* Colores para los círculos de zonas en las cards */
+.cat-circle.z1 { border-color: rgba(255,255,255,0.3); color: #fff; }
+.cat-circle.z2 { border-color: var(--accent); color: var(--accent); }
+.cat-circle.zk { border-color: var(--danger); color: var(--danger); }
 
-.btn.line{background:transparent;color:var(--ink);box-shadow:inset 0 0 0 1.5px var(--ink)}
-.btn.line span+span{background:var(--green)}
-.cf .btn+.btn{margin-top:10px}
-.cf [hidden]{display:none!important}
-.toast{width:max-content;max-width:calc(100% - 32px);text-align:center}
-.cnote{margin:12px 0 0;font-size:.8rem;color:var(--muted-dk);line-height:1.4}
-#menu .soc a:hover{color:var(--green)}
+/* ===== Home / Resumen — estilo tipo Apple =====
+   Variables propias (rz-*) para no pisar las que ya tengas en Index.css */
+:root{
+  --rz-card:#f6f7f9;
+  --rz-border:#e6e8eb;
+  --rz-text:#1a1a1e;
+  --rz-text-muted:#8a8e96;
+  --rz-accent:#0f6e5f;
+  --rz-accent-2:#29a189;
+  --rz-radius:20px;
+  --rz-shadow:0 1px 2px rgba(0,0,0,.04), 0 8px 24px rgba(0,0,0,.06);
+}
+@media (prefers-color-scheme: dark){
+  :root{
+    --rz-card:#1c1d20;
+    --rz-border:#2a2b2f;
+    --rz-text:#f2f2f4;
+    --rz-text-muted:#9a9ba0;
+    --rz-accent:#34d1a8;
+    --rz-accent-2:#29a189;
+    --rz-shadow:0 1px 2px rgba(0,0,0,.3), 0 8px 24px rgba(0,0,0,.35);
+  }
+}
+/* ===== Home / Resumen — estilo "liquid glass" negro =====
+   Vidrio esmerilado oscuro, acorde al resto de la app (taskbar glass-btn).
+   Variables propias (rz-*) para no pisar las que ya tengas en Index.css */
+:root{
+  --rz-card: rgba(255,255,255,0.06);
+  --rz-card-hi: rgba(255,255,255,0.10);
+  --rz-border: rgba(255,255,255,0.14);
+  --rz-text: #f5f6f7;
+  --rz-text-muted: rgba(245,246,247,0.55);
+  --rz-accent: #29a189;
+  --rz-accent-2: #34d1a8;
+  --rz-radius: 22px;
+  --rz-blur: 22px;
+  --rz-shadow: 0 8px 32px rgba(0,0,0,0.45), inset 0 1px 0 rgba(255,255,255,0.06);
+}
 
-/* Aparición al scrollear (visible por defecto) */
-@keyframes rvIn{from{opacity:0;transform:translateY(34px)}to{opacity:1;transform:none}}
-@supports (animation-timeline:view()){.rv{animation:rvIn linear both;animation-timeline:view();animation-range:entry 0% entry 35%}}
-@media(prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}}
+#home-athlete, #home-athlete *{ box-sizing:border-box; }
+#home-athlete{ font-family:'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; color:var(--rz-text); }
+
+.resumenHeader{ display:flex; align-items:center; justify-content:space-between; margin-bottom:18px; }
+.resumenHeader .sectionTitle{ font-family:'Poppins',sans-serif; font-weight:700; font-size:22px; margin:0; color:var(--rz-text); }
+.avatarCircle{
+  width:40px; height:40px; border-radius:50%; flex:0 0 40px;
+  display:flex; align-items:center; justify-content:center;
+  background:linear-gradient(135deg,var(--rz-accent),var(--rz-accent-2));
+  color:#0a0f0d; font-weight:700; font-size:14px; letter-spacing:.5px;
+  box-shadow:var(--rz-shadow);
+}
+
+/* Base "liquid glass": negro translúcido + blur + borde y brillo interno sutil */
+.chartCard, .raceCard, .weekBadgeCard, .lastSessionCard{
+  background: linear-gradient(180deg, var(--rz-card-hi), var(--rz-card));
+  -webkit-backdrop-filter: blur(var(--rz-blur)) saturate(160%);
+  backdrop-filter: blur(var(--rz-blur)) saturate(160%);
+  border: 1px solid var(--rz-border);
+  border-radius: var(--rz-radius);
+  box-shadow: var(--rz-shadow);
+}
+
+.chartCard{ padding:18px 18px 14px; margin-bottom:14px; }
+.chartBars{ display:flex; align-items:flex-end; gap:4px; height:88px; overflow:hidden; }
+.chartBars .bar{
+  flex:1 1 auto; min-width:3px; max-width:10px; border-radius:3px 3px 0 0;
+  background:linear-gradient(180deg,var(--rz-accent-2),var(--rz-accent));
+  opacity:.75; transition:opacity .15s;
+}
+.chartBars .bar.best{ opacity:1; box-shadow:0 0 8px rgba(52,209,168,.6); }
+.chartBars .empty{ font-size:12px; color:var(--rz-text-muted); align-self:center; margin:auto; }
+.chartFoot{ display:flex; justify-content:space-between; margin-top:10px; font-size:12px; color:var(--rz-text-muted); font-weight:600; }
+.chartBestLabel{ font-family:'Share Tech Mono', monospace; color:var(--rz-text); }
+
+.homeRow{ display:flex; gap:14px; margin-bottom:14px; }
+.raceCard, .weekBadgeCard{
+  flex:1; padding:18px; display:flex; flex-direction:column; justify-content:center; min-height:110px;
+}
+.raceCardName{ font-size:12px; font-weight:600; color:var(--rz-text-muted); text-transform:uppercase; letter-spacing:.4px; }
+.raceCardDays{ font-family:'Poppins',sans-serif; font-weight:700; font-size:38px; line-height:1.15; margin:2px 0; color:var(--rz-text); }
+.raceCardDate{ font-size:12px; color:var(--rz-text-muted); }
+
+.weekBadgeCard{ align-items:center; text-align:center; }
+.weekBadge{
+  width:64px; height:64px; border-radius:50%;
+  border:2px solid var(--rz-accent-2);
+  background: rgba(41,161,137,0.12);
+  display:flex; align-items:center; justify-content:center;
+  font-family:'Poppins',sans-serif; font-weight:700; font-size:24px; margin-bottom:8px;
+  color:var(--rz-text);
+}
+.weekBadgeLabel{ font-size:11px; color:var(--rz-text-muted); font-weight:600; text-align:center; }
+
+.lastSessionCard{ padding:18px; margin-bottom:14px; }
+.lastSessionTop{ display:flex; align-items:center; gap:10px; margin-bottom:10px; }
+.catPill{
+  font-size:11px; font-weight:700; text-transform:uppercase; letter-spacing:.4px;
+  background:linear-gradient(135deg,var(--rz-accent),var(--rz-accent-2));
+  color:#0a0f0d; padding:3px 9px; border-radius:20px;
+}
+.lastSessionDesc{ font-size:14px; font-weight:600; color:var(--rz-text); }
+.lastSessionBottom{ display:flex; align-items:baseline; gap:10px; }
+.lastSessionTime{ font-family:'Poppins',sans-serif; font-weight:700; font-size:28px; color:var(--rz-text); }
+.lastSessionDelta{ font-size:13px; font-weight:600; }
+.lastSessionDelta.up{ color:#ef6a61; }
+.lastSessionDelta.down{ color:#34d1a8; }
+
+*{
+    margin:0;
+    padding:0;
+    box-sizing:border-box;
+    font-family:'Inter', Arial, Helvetica, sans-serif;
+}
+
+h1,h2,h3,.sectionTitle,header,.mastLogo{
+    font-family:'Poppins', Arial, Helvetica, sans-serif;
+}
+
+body{
+    background:var(--bg);
+}
+/* ===== Train — Parciales: mismo estilo "liquid glass" negro que Home ===== */
+:root{
+  --rz-card: rgba(255,255,255,0.06);
+  --rz-card-hi: rgba(255,255,255,0.10);
+  --rz-border: rgba(255,255,255,0.14);
+  --rz-text: #f5f6f7;
+  --rz-text-muted: rgba(245,246,247,0.55);
+  --rz-accent: #29a189;
+  --rz-accent-2: #34d1a8;
+  --rz-danger: #ef6161;
+  --rz-radius: 14px;
+  --rz-blur: 18px;
+}
+
+#train, #train *{ box-sizing:border-box; }
+
+.adv-table-header{
+  display:grid;
+  grid-template-columns: 24px 1.3fr 1fr 1fr 0.9fr 28px;
+  gap:6px;
+  padding:0 10px 6px;
+  font-size:11px;
+  font-weight:700;
+  text-transform:uppercase;
+  letter-spacing:.4px;
+  color:var(--rz-text-muted);
+}
+
+#parciales-container{ display:flex; flex-direction:column; gap:8px; margin-bottom:10px; }
+
+.adv-table-row, .parcial-row{
+  display:grid;
+  grid-template-columns: 24px 1.3fr 1fr 1fr 0.9fr 28px;
+  gap:6px;
+  align-items:center;
+  padding:8px 10px;
+  background: linear-gradient(180deg, var(--rz-card-hi), var(--rz-card));
+  -webkit-backdrop-filter: blur(var(--rz-blur)) saturate(160%);
+  backdrop-filter: blur(var(--rz-blur)) saturate(160%);
+  border: 1px solid var(--rz-border);
+  border-radius: var(--rz-radius);
+}
+
+.parcial-row > div:first-child{
+  font-size:12px;
+  font-weight:700;
+  color:var(--rz-text-muted);
+  text-align:center;
+}
+
+.parcial-row input{
+  width:100%;
+  background: rgba(255,255,255,0.04);
+  border: 1px solid var(--rz-border);
+  border-radius:8px;
+  color:var(--rz-text);
+  font-size:13px;
+  padding:6px 6px;
+  text-align:center;
+  font-family:'Share Tech Mono', monospace;
+}
+.parcial-row input::placeholder{ color:var(--rz-text-muted); opacity:.7; }
+.parcial-row input:focus{
+  outline:none;
+  border-color:var(--rz-accent-2);
+  box-shadow:0 0 0 2px rgba(52,209,168,0.25);
+}
+
+.removeParcialBtn {
+  width: 20px; /* Cambia este valor para hacerlo más chico (ej: 18px o 20px) */
+  height: 20px;
+  border-radius: 50%;
+  box-sizing: border-box; /* Asegura que el borde se incluya en la medida */
+  aspect-ratio: 1 / 1; /* Fuerza una proporción 1:1 perfectamente cuadrada/circular */
+  padding: 0; /* Evita espacios internos extra que lo deformen */
+  border: 1px solid var(--rz-border);
+  background: rgba(239, 106, 97, 0.10);
+  color: var(--rz-danger);
+  font-size: 11px; /* Achica también el ícono o texto interno proporcionalmente */
+  line-height: 1;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: background .15s, transform .1s;
+}
+.removeParcialBtn:hover{ background: rgba(239,106,97,0.22); }
+.removeParcialBtn:active{ transform: scale(0.92); }
+
+.addPartialBtn{
+  width:100%;
+  margin: 4px 0 20px;
+  padding:12px;
+  border-radius:var(--rz-radius);
+  border:1px dashed var(--rz-border);
+  background: rgba(41,161,137,0.08);
+  color:var(--rz-accent-2);
+  font-weight:600;
+  font-size:14px;
+  cursor:pointer;
+  transition: background .15s, border-color .15s;
+}
+.addPartialBtn:hover{
+  background: rgba(41,161,137,0.16);
+  border-color: var(--rz-accent-2);
+}
+
+@media (max-width: 380px){
+  .adv-table-header, .adv-table-row, .parcial-row{
+    grid-template-columns: 18px 1.2fr 0.9fr 0.9fr 0.8fr 24px;
+    font-size:11px;
+  }
+  .parcial-row input{ font-size:11px; padding:5px 3px; }
+}
+/* ---------- vidrio: receta base reutilizada en toda la app ---------- */
+
+.card,
+.statCard,
+.graph,
+.bigCard,
+.input,
+.filterSelect,
+.sessionCard,
+.progCard,
+.teamAthleteCard,
+.aiImportBox,
+.settingsBtn,
+.modal,
+.loginBox,
+.apodoRow,
+.splitDetail,
+.raceItem,
+.chip,
+.glass-card{
+    background:linear-gradient(155deg, rgba(255,255,255,.09), rgba(255,255,255,.025));
+    backdrop-filter:blur(var(--glass-blur)) saturate(160%);
+    -webkit-backdrop-filter:blur(var(--glass-blur)) saturate(160%);
+    border:1px solid var(--border-soft);
+    box-shadow:inset 0 1px 0 rgba(255,255,255,.12), var(--shadow-sm);
+}
+
+.app{
+    max-width:430px;
+    margin:auto;
+    background:var(--bg);
+    height:100vh;
+    min-height:100vh;
+    display:flex;
+    flex-direction:column;
+    position:relative;
+    overflow:hidden;
+}
+
+/* blobs de color detrás del vidrio, estilo iOS liquid glass */
+.app::before,
+.app::after{
+    content:"";
+    position:absolute;
+    border-radius:50%;
+    filter:blur(90px);
+    z-index:0;
+    pointer-events:none;
+}
+.app::before{
+    width:280px;height:280px;
+    top:-100px;left:-90px;
+    background:radial-gradient(circle, rgba(198, 255, 92, 0.55), transparent 70%);
+}
+.app::after{
+    width:320px;height:320px;
+    bottom:-130px;right:-110px;
+    background:radial-gradient(circle, rgba(93,209,196,.45), transparent 70%);
+}
+
+.content{
+    display:flex;
+    flex-direction:column;
+    flex:1;
+    min-width:0;
+    min-height:0;
+    position:relative;
+    z-index:1;
+}
+
+header{
+    padding: 22px 20px 20px;
+    text-align:left;
+
+    font-size:26px;
+    font-weight:700;
+    letter-spacing:.02em;
+    color:var(--text);
+    border-bottom:1px solid var(--border-soft);
+    background:linear-gradient(155deg, rgba(255,255,255,.07), rgba(255,255,255,.015));
+    backdrop-filter:blur(var(--glass-blur)) saturate(160%);
+    -webkit-backdrop-filter:blur(var(--glass-blur)) saturate(160%);
+    position:relative;
+    z-index:1;
+}
+
+header .headSub{
+    display:block;
+    font-size:1ch;
+    font-weight:600;
+    letter-spacing:.20em;
+    text-transform:uppercase;
+    color:var(--accent);
+    margin-top:4px;
+}
+
+/* PAGINAS */
+
+.page{
+    display:none;
+    padding:18px;
+    padding-bottom:90px;
+    flex:1;
+    min-height:0;
+    overflow:auto;
+    -webkit-overflow-scrolling:touch;
+    position:relative;
+    z-index:1;
+}
+
+.page.active{
+    display:block;
+}
+
+/* ---------- HOME ---------- */
+
+.stats{
+    display:grid;
+    grid-template-columns:repeat(2,1fr);
+    gap:10px;
+    margin-bottom:18px;
+}
+
+.card{
+    border-radius:16px;
+    padding:16px 15px;
+    text-align:center;
+}
+
+.card h3{
+    font-size:11px;
+    font-weight:600;
+    text-transform:uppercase;
+    letter-spacing:.06em;
+    color:var(--text-muted);
+    margin-bottom:8px;
+}
+
+.card p{
+    font-family:'Poppins',sans-serif;
+    font-size:22px;
+    font-weight:700;
+    color:var(--text);
+}
+
+.statCard{
+    position:relative;
+    text-align:left;
+    padding-top:14px;
+    border-radius:16px;
+}
+
+.statCard h3{margin-bottom:9px;}
+
+.cardIcon{
+    width:28px;
+    height:28px;
+    border-radius:9px;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    font-size:13px;
+    margin-bottom:9px;
+    border:1px solid var(--border-soft);
+}
+
+.statCard.c-dist .cardIcon{background:rgba(255,163,92,.16);color:var(--accent);}
+.statCard.c-sessions .cardIcon{background:rgba(93,209,196,.16);color:#40e220;}
+.statCard.c-split .cardIcon{background:rgba(154,209,110,.16);color:#9AD16E;}
+.statCard.c-best .cardIcon{background:rgba(255,107,91,.16);color:#2bb40f;}
+
+.graph{
+    border-radius:18px;
+    padding:16px;
+    margin-bottom:20px;
+    color:var(--text-muted);
+}
+
+.graphHead{
+    display:flex;
+    align-items:center;
+    justify-content:space-between;
+    gap:10px;
+    margin-bottom:12px;
+}
+
+.graph .graphTitle{
+    font-family:'Poppins',sans-serif;
+    font-size:13px;
+    font-weight:600;
+    color:var(--text);
+    flex:1;
+    min-width:0;
+}
+
+.graph select{
+    flex-shrink:0;
+    width:auto;
+    max-width:46%;
+    background:rgba(255,255,255,.06);
+    border:1px solid var(--border);
+    border-radius:9px;
+    padding:7px 10px;
+    font-size:11.5px;
+    color:var(--text);
+}
+
+.graph canvas{
+    max-height:220px;
+}
+
+.bottomCards{
+    display:grid;
+    grid-template-columns:1fr 1fr;
+    gap:15px;
+}
+
+.bigCard{
+    height:120px;
+    border-radius:18px;
+    background:linear-gradient(160deg, rgba(255,163,92,.22), rgba(255,255,255,.03));
+    display:flex;
+    justify-content:center;
+    align-items:center;
+    text-align:center;
+    font-family:'Poppins',sans-serif;
+    font-weight:600;
+    font-size:16px;
+    color:var(--accent);
+    padding:10px;
+}
+
+/* ---------- TRAIN ---------- */
+
+.sectionTitle{
+    font-family:'Poppins',sans-serif;
+    font-size:21px;
+    font-weight:700;
+    color:var(--text);
+    margin-bottom:16px;
+}
+
+.input{
+    border-radius:12px;
+    padding:13px 14px;
+    margin-bottom:12px;
+}
+
+.input label{
+    display:block;
+    font-size:10px;
+    font-weight:600;
+    color:var(--text-muted);
+    text-transform:uppercase;
+    letter-spacing:.08em;
+    margin-bottom:4px;
+}
+
+.input input,
+.input select{
+    width:100%;
+    border:none;
+    background:transparent;
+    font-size:15px;
+    font-family:'Inter', Arial, Helvetica, sans-serif;
+    font-weight:500;
+    color:var(--text);
+    outline:none;
+}
+
+.input input::placeholder{color:var(--text-faint);}
+
+.row{
+    display:grid;
+    grid-template-columns:1fr 1fr;
+    gap:10px;
+}
+
+.line{
+    height:1px;
+    background:var(--border-soft);
+    margin:20px 0;
+}
+
+/* ---------- NUEVO DISEÑO TRAIN: OPCION 3 ---------- */
+
+.adv-header {
+    font-family: 'Poppins', sans-serif;
+    font-size: 16px;
+    font-weight: 700;
+    color: var(--accent);
+    margin-top: 15px;
+    margin-bottom: 12px;
+    border-bottom: 2px solid var(--border-soft);
+    padding-bottom: 5px;
+}
+
+.adv-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 12px;
+}
+
+.adv-grid .input {
+    margin-bottom: 0;
+}
+
+/* Encabezado de la tabla de parciales */
+.adv-table-header {
+    display: grid;
+    grid-template-columns: 0.8fr 1.2fr 1fr 1fr 1fr 0.45fr;
+    gap: 4px;
+    padding: 8px 4px;
+    font-size: 10px;
+    font-weight: 700;
+    color: var(--text-muted);
+    text-transform: uppercase;
+    letter-spacing: .05em;
+    border-bottom: 1px solid var(--border-soft);
+    margin-bottom: 8px;
+    text-align: center;
+}
+
+.adv-table-header div:first-child { text-align: left; }
+
+/* Filas de parciales */
+.partial {
+    display: grid;
+    grid-template-columns: 0.8fr 1.2fr 1fr 1fr 1fr 0.45fr;
+    gap: 4px;
+    align-items: center;
+    padding: 6px 2px;
+    border-bottom: 1px dashed var(--border-soft);
+}
+
+.partial:last-child {
+    border-bottom: none;
+}
+
+.partial span.tramoLabel {
+    font-family: 'Inter', sans-serif;
+    font-size: 11px;
+    font-weight: 600;
+    color: var(--text-muted);
+    white-space: nowrap;
+}
+
+.partial input {
+    width: 100%;
+    border: 1px solid var(--border-soft);
+    border-radius: 6px;
+    background: rgba(255,255,255,.05);
+    padding: 7px 3px;
+    font-family: 'Share Tech Mono', monospace;
+    font-size: 12px;
+    letter-spacing: .02em;
+    text-align: center;
+    color: var(--text);
+    outline: none;
+    transition: border-color 0.2s, background 0.2s;
+}
+
+.partial input::placeholder {
+    color: var(--text-faint);
+}
+
+.partial input:focus {
+    border-color: var(--accent);
+    background: rgba(255,255,255,.09);
+}
+
+.partial button.removeRow {
+    border: none;
+    background: transparent;
+    color: var(--text-faint);
+    font-size: 15px;
+    cursor: pointer;
+}
+
+.partial button.removeRow:hover {
+    color: var(--danger);
+}
+
+.addPartialBtn {
+    width: 100%;
+    border: 1px dashed var(--border);
+    border-radius: 8px;
+    background: rgba(255,255,255,.02);
+    color: var(--text-muted);
+    padding: 10px;
+    font-family: 'Inter', sans-serif;
+    font-weight: 600;
+    font-size: 12px;
+    cursor: pointer;
+    margin-top: 8px;
+    transition: all 0.2s;
+}
+
+.addPartialBtn:hover {
+    border-color: var(--accent);
+    color: var(--accent);
+    background: var(--accent-soft);
+}
+
+/* Zone Detect */
+.zoneDetectRow {
+    display:flex;
+    justify-content:space-between;
+    align-items:center;
+    margin-top: 8px;
+    margin-bottom: 20px;
+}
+#zone-suggestion {
+    font-size:11px;
+    color:var(--text-faint);
+}
+#zone-suggestion.hasSuggestion {
+    color:var(--accent);
+    font-weight:600;
+}
+.zoneApplyBtn {
+    background:var(--accent-soft);
+    color:var(--accent);
+    border:1px solid var(--border-soft);
+    border-radius:6px;
+    padding:6px 10px;
+    font-size:11px;
+    font-weight:600;
+    cursor:pointer;
+}
+.zoneApplyBtn:hover {
+    background:var(--accent);
+    color:#1a1206;
+}
+
+/* botones */
+
+.trainButtons{
+    margin-top:25px;
+    display:flex;
+    justify-content:center;
+    gap:15px;
+}
+
+button{
+    border:none;
+    border-radius:12px;
+    padding:14px 22px;
+    font-family:'Poppins',sans-serif;
+    font-size:15px;
+    font-weight:600;
+    cursor:pointer;
+    transition:transform .12s ease, box-shadow .12s ease;
+}
+
+.ai{
+    background:linear-gradient(155deg, rgba(255,255,255,.14), rgba(255,255,255,.04));
+    backdrop-filter:blur(var(--glass-blur)) saturate(160%);
+    -webkit-backdrop-filter:blur(var(--glass-blur)) saturate(160%);
+    border:1px solid var(--border);
+    color:var(--text);
+    box-shadow:inset 0 1px 0 rgba(255,255,255,.18);
+}
+
+.ai:hover{
+    box-shadow:inset 0 1px 0 rgba(255,255,255,.25), var(--shadow);
+}
+
+.add{
+    background:linear-gradient(135deg, #065003, var(--accent));
+    color:#1a1206;
+    box-shadow:0 6px 18px rgba(92, 255, 106, 0.35), inset 0 1px 0 rgba(255,255,255,.5);
+}
+
+.add:hover{
+    background:linear-gradient(135deg, #caff99, var(--accent-dark));
+    box-shadow:0 8px 22px rgba(92, 255, 100, 0.45), inset 0 1px 0 rgba(255,255,255,.5);
+}
+
+button:disabled{
+    opacity:.5;
+    cursor:not-allowed;
+    box-shadow:none !important;
+}
+
+/* ---------- HISTORIAL ---------- */
+
+.filterSelect{
+    width:100%;
+    border-radius:12px;
+    padding:12px 14px;
+    font-size:14px;
+    margin-bottom:14px;
+    color:var(--text);
+}
+
+.resultCount{
+    font-size:12px;
+    color:var(--text-muted);
+    margin-bottom:10px;
+}
+
+.sessionCard{
+    position:relative;
+    border-radius:16px;
+    padding:16px 16px 16px 20px;
+    margin-bottom:14px;
+    overflow:hidden;
+    transition:box-shadow .15s ease, border-color .15s ease;
+}
+
+.sessionCard::before{
+    content:"";
+    position:absolute;
+    left:0;
+    top:0;
+    bottom:0;
+    width:5px;
+    background:var(--cat-color, var(--accent));
+    box-shadow:0 0 12px var(--cat-color, var(--accent));
+}
+
+.sessionCard:hover{
+    box-shadow:var(--shadow);
+    border-color:var(--border);
+}
+
+.sessionTop{
+    display:flex;
+    justify-content:space-between;
+    align-items:flex-start;
+    gap:10px;
+    margin-bottom:10px;
+}
+
+.sessionDateRow{
+    display:flex;
+    align-items:baseline;
+    gap:8px;
+    flex-wrap:wrap;
+}
+
+.sessionDate{
+    font-size:11px;
+    font-weight:600;
+    letter-spacing:.03em;
+    color:var(--text-muted);
+}
+
+.sessionType{
+    font-family:'Poppins',sans-serif;
+    font-size:16px;
+    font-weight:600;
+    color:var(--text);
+    margin:0 0 7px;
+    line-height:1.25;
+}
+
+.tag{
+    display:inline-block;
+    padding:3px 10px;
+    border-radius:20px;
+    font-size:9px;
+    font-weight:700;
+    text-transform:uppercase;
+    letter-spacing:.05em;
+    border:1px solid rgba(255,255,255,.12);
+}
+
+.sessionActions{
+    display:flex;
+    gap:6px;
+    flex-shrink:0;
+}
+
+.sessionHeadRow{
+    display:flex;
+    justify-content:space-between;
+    align-items:flex-end;
+    gap:12px;
+    margin-bottom:14px;
+}
+
+.sessionHeadRow .sessionTypeCol{
+    min-width:0;
+}
+
+.sessionSplitBig{
+    flex-shrink:0;
+    text-align:right;
+    line-height:1;
+}
+
+.sessionSplitBig .val{
+    font-family:'Share Tech Mono',monospace;
+    font-size:24px;
+    font-weight:700;
+    color:var(--cat-color, var(--accent));
+    letter-spacing:.01em;
+}
+
+.sessionSplitBig .unit{
+    display:block;
+    font-size:9px;
+    font-weight:600;
+    color:var(--text-faint);
+    text-transform:uppercase;
+    letter-spacing:.06em;
+    margin-top:3px;
+}
+
+.iconBtn{
+    background:rgba(255,255,255,.05);
+    backdrop-filter:blur(14px);
+    -webkit-backdrop-filter:blur(14px);
+    border:1px solid var(--border-soft);
+    color:var(--text-muted);
+    width:32px;
+    height:32px;
+    border-radius:9px;
+    font-size:14px;
+    line-height:1;
+    cursor:pointer;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    padding:0;
+    transition:background .12s ease, color .12s ease, border-color .12s ease;
+}
+
+.editBtn:hover{
+    background:var(--accent-soft);
+    color:var(--accent);
+    border-color:var(--accent);
+}
+
+.delBtn{
+    background:rgba(255,255,255,.05);
+    color:var(--text-faint);
+}
+
+.delBtn:hover{
+    background:var(--danger-soft);
+    color:var(--danger);
+    border-color:var(--danger);
+}
+
+.sessionChips{
+    display:flex;
+    flex-wrap:wrap;
+    gap:7px;
+    margin-bottom:12px;
+}
+
+.chip{
+    display:flex;
+    align-items:baseline;
+    gap:5px;
+    border-radius:20px;
+    padding:6px 12px;
+}
+
+.chip .chipLbl{
+    font-size:9px;
+    font-weight:600;
+    color:var(--text-muted);
+    text-transform:uppercase;
+    letter-spacing:.05em;
+}
+
+.chip .chipVal{
+    font-family:'Share Tech Mono',monospace;
+    font-size:12px;
+    font-weight:600;
+    color:var(--text);
+}
+
+.expandBtn{
+    width:100%;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    gap:6px;
+    border:1px dashed var(--border);
+    background:rgba(255,255,255,.02);
+    border-radius:10px;
+    padding:9px;
+    font-family:'Inter',sans-serif;
+    font-size:12px;
+    font-weight:600;
+    letter-spacing:.02em;
+    color:var(--text-muted);
+    cursor:pointer;
+    transition:background .12s ease, border-color .12s ease, color .12s ease;
+}
+
+.expandBtn:hover{
+    border-color:var(--accent);
+    color:var(--accent);
+}
+
+.expandBtn .chev{
+    display:inline-block;
+    transition:transform .2s ease;
+    font-size:10px;
+}
+
+.expandBtn.open{
+    border-style:solid;
+    border-color:var(--border);
+    background:rgba(255,255,255,.1);
+    color:var(--text);
+}
+
+.expandBtn.open .chev{
+    transform:rotate(180deg);
+}
+
+.sessionExpand{
+    display:grid;
+    grid-template-rows:0fr;
+    transition:grid-template-rows .22s ease;
+}
+
+.sessionExpand.show{
+    grid-template-rows:1fr;
+}
+
+.sessionExpand > div{
+    overflow:hidden;
+}
+
+.splitDetail{
+    margin-top:10px;
+    border-radius:12px;
+    padding:10px;
+}
+
+.splitDetailRow{
+    display:grid;
+    grid-template-columns:0.6fr 1.2fr 1fr 1fr 0.8fr;
+    gap:4px;
+    padding:7px 4px;
+    font-family:'Share Tech Mono',monospace;
+    font-size:11px;
+    color:var(--text);
+    border-bottom:1px solid var(--border-soft);
+}
+
+.splitDetailRow:nth-child(even){
+    background:rgba(255,255,255,.02);
+}
+
+.splitDetailRow.total{
+    font-weight:700;
+    background:var(--accent-soft);
+    border-radius:8px;
+    border-bottom:none;
+    color:var(--accent);
+    margin-top:2px;
+}
+
+.splitDetailHeader{
+    display:grid;
+    grid-template-columns:0.6fr 1.2fr 1fr 1fr 0.8fr;
+    gap:4px;
+    padding:0 4px 7px;
+    font-family:'Inter',sans-serif;
+    font-size:9px;
+    font-weight:700;
+    text-transform:uppercase;
+    letter-spacing:.04em;
+    color:var(--text-faint);
+}
+
+.emptyMsg{
+    text-align:center;
+    color:var(--text-faint);
+    font-style:italic;
+    padding:30px 10px;
+    font-size:13px;
+}
+
+/* ---------- SETTINGS ---------- */
+
+.settingsBtn{
+    width:100%;
+    text-align:left;
+    border-radius:12px;
+    padding:14px;
+    margin-bottom:12px;
+    font-family:'Inter',sans-serif;
+    font-size:14px;
+    font-weight:500;
+    color:var(--text);
+    display:flex;
+    align-items:center;
+    justify-content:space-between;
+    cursor:pointer;
+}
+
+.settingsBtn:hover{
+    background:linear-gradient(155deg, rgba(255,163,92,.14), rgba(255,255,255,.03));
+    border-color:var(--accent);
+}
+
+.settingsBtn.danger{
+    color:var(--danger);
+}
+
+.settingsBtn.danger:hover{
+    background:linear-gradient(155deg, rgba(255,107,91,.16), rgba(255,255,255,.03));
+    border-color:var(--danger);
+}
+
+.settingsStatus{
+    font-size:12px;
+    color:var(--text-muted);
+    text-align:center;
+    margin-top:6px;
+    margin-bottom:20px;
+}
+
+/* ---------- MODAL / TOAST ---------- */
+
+.overlay{
+    display:none;
+    position:fixed;
+    inset:0;
+    background:rgba(0,0,0,.55);
+    backdrop-filter:blur(6px);
+    -webkit-backdrop-filter:blur(6px);
+    z-index:200;
+    align-items:center;
+    justify-content:center;
+}
+
+.overlay.show{
+    display:flex;
+}
+
+.modal{
+    border-radius:20px;
+    padding:26px;
+    max-width:320px;
+    width:85%;
+    box-shadow:var(--shadow);
+    background:linear-gradient(155deg, rgba(30,32,42,.9), rgba(18,20,28,.85));
+    backdrop-filter:blur(var(--glass-blur-lg)) saturate(180%);
+    -webkit-backdrop-filter:blur(var(--glass-blur-lg)) saturate(180%);
+}
+
+.modal h4{
+    font-family:'Poppins',sans-serif;
+    font-size:17px;
+    color:var(--text);
+    margin-bottom:10px;
+}
+
+.modal p{
+    font-size:13px;
+    color:var(--text-muted);
+    line-height:1.6;
+    margin-bottom:20px;
+}
+
+.modalBtns{
+    display:flex;
+    gap:10px;
+    justify-content:flex-end;
+}
+
+.modalBtns button{
+    padding:10px 16px;
+    font-size:13px;
+}
+
+.modalBtns .cancel{
+    background:rgba(255,255,255,.08);
+    color:var(--text);
+    border:1px solid var(--border-soft);
+}
+
+.modalBtns .confirm{
+    background:var(--danger);
+    color:#fff;
+}
+
+.modalBtns .confirm:disabled{
+    background:rgba(255,255,255,.08);
+    color:var(--text-faint);
+    cursor:not-allowed;
+}
+
+.confirmTypeBox{
+    margin-bottom:18px;
+}
+
+.confirmTypeBox label{
+    display:block;
+    font-size:12px;
+    color:var(--text-muted);
+    margin-bottom:8px;
+    line-height:1.5;
+}
+
+.confirmTypeBox input{
+    width:100%;
+    background:rgba(255,255,255,.06);
+    border:1px solid var(--border);
+    border-radius:10px;
+    padding:11px 12px;
+    font-size:14px;
+    font-weight:600;
+    letter-spacing:.04em;
+    color:var(--text);
+    outline:none;
+}
+
+.confirmTypeBox input:focus{
+    border-color:var(--danger);
+}
+
+.toast{
+    position:fixed;
+    bottom:90px;
+    left:50%;
+    transform:translateX(-50%);
+    background:linear-gradient(155deg, rgba(30,32,42,.9), rgba(18,20,28,.82));
+    backdrop-filter:blur(var(--glass-blur)) saturate(160%);
+    -webkit-backdrop-filter:blur(var(--glass-blur)) saturate(160%);
+    border:1px solid var(--border-soft);
+    color:var(--text);
+    padding:12px 20px;
+    border-radius:14px;
+    font-size:13px;
+    font-weight:500;
+    opacity:0;
+    pointer-events:none;
+    transition:opacity .3s;
+    z-index:300;
+    max-width:85%;
+    text-align:center;
+    box-shadow:var(--shadow);
+}
+
+.toast.show{
+    opacity:1;
+}
+
+/* ---------- MENU ---------- */
+
+nav{
+    height:70px;
+    display:flex;
+    position:fixed;
+    left:0;
+    right:0;
+    bottom:14px;
+    max-width:390px;
+    margin:0 auto 0;
+    z-index:100;
+    border-radius:9999px;
+    padding:.35rem;
+    background:linear-gradient(155deg, rgba(255,255,255,.13), rgba(255,255,255,.03));
+    backdrop-filter:blur(var(--glass-blur-lg)) saturate(200%);
+    -webkit-backdrop-filter:blur(var(--glass-blur-lg)) saturate(200%);
+    border:1px solid var(--border);
+    box-shadow:0 20px 45px rgba(0,0,0,.5), inset 0 1px 1px rgba(255,255,255,.2);
+}
+
+nav button{
+    flex:1;
+    border:none;
+    border-radius:9999px;
+    background:transparent;
+    font-family:'Poppins',sans-serif;
+    font-size:13px;
+    font-weight:500;
+    color:var(--text-muted);
+    padding:14px 4px;
+    transition:all .25s cubic-bezier(.25,1,.5,1);
+}
+
+nav button:hover{
+    background:rgba(255,255,255,.06);
+    color:var(--text);
+}
+
+nav button.navActive{
+    background:rgba(255,255,255,.14);
+    color:#fff;
+    box-shadow:inset 0 1px 1px rgba(255,255,255,.35);
+    transform:translateY(-2px) scale(1.02);
+}
+
+/* ---------- LOGIN ---------- */
+
+.loginOverlay{
+    position:fixed;inset:0;background:var(--bg);z-index:500;
+    display:flex;align-items:center;justify-content:center;padding:20px;
+}
+.loginOverlay::before,
+.loginOverlay::after{
+    content:"";position:absolute;border-radius:50%;filter:blur(90px);z-index:0;pointer-events:none;
+}
+.loginOverlay::before{width:280px;height:280px;top:-100px;left:-90px;background:radial-gradient(circle, rgba(255,163,92,.5), transparent 70%);}
+.loginOverlay::after{width:320px;height:320px;bottom:-120px;right:-100px;background:radial-gradient(circle, rgba(93,209,196,.4), transparent 70%);}
+.loginOverlay.hide{display:none;}
+.loginBox{
+    border-radius:20px;
+    padding:30px 26px;max-width:340px;width:100%;
+    position:relative;z-index:1;
+}
+.loginBox h2{font-family:'Poppins',sans-serif;font-size:22px;color:var(--text);margin-bottom:4px;text-align:center;}
+.loginBox .loginSub{text-align:center;font-size:12px;color:var(--text-muted);margin-bottom:20px;}
+.loginBox .input{margin-bottom:14px;}
+.loginBox button{width:100%;margin-top:6px;}
+.loginErr{color:var(--danger);font-size:12px;text-align:center;margin-top:10px;min-height:14px;}
+
+.loginSwitch{text-align:center;font-size:12px;margin-top:14px;color:var(--text-muted);}
+.loginSwitch a{color:var(--accent);text-decoration:underline;cursor:pointer;}
+.roleTag{
+    display:inline-block;padding:3px 10px;border-radius:20px;font-size:9px;font-weight:700;
+    text-transform:uppercase;letter-spacing:.05em;background:var(--accent-soft);color:var(--accent);
+    border:1px solid var(--border-soft);
+    margin-left:8px;vertical-align:middle;
+}
+.userBar{display:flex;align-items:center;justify-content:space-between;padding:0 2px 14px;}
+.userBar .who{font-size:13px;font-weight:600;color:var(--text);}
+
+/* ---------- PROGRESO DIARIO ---------- */
+
+.homeSectionLabel{
+    font-family:'Poppins',sans-serif;
+    font-size:11px;
+    font-weight:700;
+    text-transform:uppercase;
+    letter-spacing:.08em;
+    color:var(--text-muted);
+    margin-bottom:2px;
+}
+
+.progressCards{display:grid;grid-template-columns:1fr 1fr;gap:15px;margin-top:15px;}
+.progCard{
+    border-radius:18px;
+    padding:14px 13px;min-height:120px;
+}
+.progCard .progTitle{
+    font-family:'Poppins',sans-serif;font-size:10px;font-weight:700;text-transform:uppercase;
+    letter-spacing:.06em;color:var(--text-muted);margin-bottom:8px;
+}
+.progCard .progType{font-size:13px;font-weight:600;color:var(--text);margin-bottom:6px;line-height:1.3;}
+.progCard .progVal{font-family:'Share Tech Mono',monospace;font-size:17px;font-weight:600;color:var(--accent);}
+.progCard .progDiff{font-size:12px;font-weight:600;margin-top:4px;}
+.progCard .progDiff.better{color:var(--good);}
+.progCard .progDiff.worse{color:var(--danger);}
+.progCard .progEmpty{font-size:12px;color:var(--text-faint);font-style:italic;}
+
+/* ---------- HISTORIAL COMPACTO ---------- */
+
+.sessionCard.compact{padding:14px 14px 14px 18px;margin-bottom:10px;border-radius:15px;}
+.sessionCard.compact .sessionTop{margin-bottom:6px;gap:8px;}
+.sessionCard.compact .sessionHeadRow{margin-bottom:11px;}
+.sessionCard.compact .sessionType{font-size:14px;margin:0 0 4px;}
+.sessionCard.compact .sessionDate{font-size:10px;}
+.sessionCard.compact .sessionSplitBig .val{font-size:20px;}
+.sessionCard.compact .chip{padding:5px 10px;}
+.sessionCard.compact .chip .chipVal{font-size:11px;}
+.sessionCard.compact .iconBtn{width:27px;height:27px;font-size:12px;border-radius:7px;}
+.sessionCard.compact .tag{padding:2px 8px;font-size:8px;}
+.sessionCard.compact .expandBtn{padding:6px;font-size:11px;}
+.sessionOwner{font-size:9px;color:var(--text-faint);text-transform:uppercase;letter-spacing:.04em;}
+
+/* ---------- REGATAS ---------- */
+
+.raceItem{
+    display:flex;align-items:center;justify-content:space-between;
+    border-radius:12px;padding:11px 13px;margin-bottom:8px;
+}
+.raceItem .raceInfo .raceName{font-size:13px;font-weight:600;color:var(--text);}
+.raceItem .raceInfo .raceDate{font-size:11px;color:var(--text-muted);}
+.raceItem .raceDays{font-family:'Share Tech Mono',monospace;font-size:13px;color:var(--accent);font-weight:600;}
+.raceItem .delBtn{width:28px;height:28px;font-size:12px;margin-left:8px;}
+
+@media (min-width:900px){
+    .progressCards{grid-template-columns:1fr 1fr 1fr 1fr;}
+}
+
+/* ============================================================
+   HOME DEL ATLETA — saludo y tarjeta destacada de próxima regata
+   ============================================================ */
+
+.homeGreeting{margin-bottom:16px;}
+
+.homeGreeting .hi{
+    font-family:'Poppins',sans-serif;
+    font-size:21px;
+    font-weight:700;
+    color:var(--text);
+}
+
+.homeGreeting .sub{
+    font-size:12px;
+    color:var(--text-muted);
+    margin-top:3px;
+    text-transform:capitalize;
+}
+
+.raceHero{
+    position:relative;
+    overflow:hidden;
+    border-radius:20px;
+    padding:18px 20px 17px;
+    margin-bottom:18px;
+    color:#fff;
+    background:linear-gradient(135deg, rgba(255,138,61,.85), rgba(255,163,92,.7) 65%, rgba(220,156,92,.55));
+    backdrop-filter:blur(var(--glass-blur)) saturate(160%);
+    -webkit-backdrop-filter:blur(var(--glass-blur)) saturate(160%);
+    border:1px solid rgba(255,255,255,.22);
+    box-shadow:var(--shadow), inset 0 1px 0 rgba(255,255,255,.3);
+}
+
+.raceHero::after{
+    content:"";
+    position:absolute;
+    right:-34px;
+    top:-34px;
+    width:130px;
+    height:130px;
+    border-radius:50%;
+    background:rgba(255,255,255,.12);
+}
+
+.raceHero::before{
+    content:"🏁";
+    position:absolute;
+    right:14px;
+    bottom:10px;
+    font-size:34px;
+    opacity:.2;
+}
+
+.raceHeroTop{
+    display:flex;
+    align-items:center;
+    justify-content:space-between;
+    margin-bottom:11px;
+    position:relative;
+    z-index:1;
+}
+
+.raceHeroLabel{
+    font-family:'Inter',sans-serif;
+    font-size:10px;
+    font-weight:700;
+    text-transform:uppercase;
+    letter-spacing:.12em;
+    opacity:.9;
+}
+
+.raceHeroDays{
+    font-family:'Share Tech Mono',monospace;
+    font-size:12px;
+    font-weight:600;
+    background:rgba(255,255,255,.22);
+    padding:4px 11px;
+    border-radius:20px;
+}
+
+.raceHeroName{
+    font-family:'Poppins',sans-serif;
+    font-size:19px;
+    font-weight:700;
+    line-height:1.25;
+    margin-bottom:4px;
+    position:relative;
+    z-index:1;
+}
+
+.raceHeroDate{
+    font-size:12px;
+    opacity:.9;
+    position:relative;
+    z-index:1;
+}
+
+.raceHero.empty{
+    background:linear-gradient(155deg, rgba(255,255,255,.07), rgba(255,255,255,.02));
+    color:var(--text-muted);
+    border:1px dashed var(--border);
+    box-shadow:none;
+}
+
+.raceHero.empty::after,
+.raceHero.empty::before{display:none;}
+
+.raceHero.empty .raceHeroName{
+    color:var(--text);
+    font-weight:600;
+    font-size:15px;
+}
+
+.raceHero.empty .raceHeroDays{display:none;}
+
+.raceHero.today{
+    background:linear-gradient(135deg, rgba(255,107,91,.85), rgba(217,105,79,.7) 65%, rgba(230,146,111,.55));
+}
+
+.bottomCards.single{grid-template-columns:1fr;}
+.bottomCards.single .bigCard{height:auto;padding:16px;}
+
+body.role-coach{
+    --accent:#5ED9C7;
+    --accent-dark:#3DBFAC;
+    --accent-soft:rgba(93,217,199,.16);
+}
+
+body.role-coach header{
+    background:linear-gradient(155deg, rgba(93,217,199,.1), rgba(255,255,255,.015));
+}
+
+/* ---------- HOME DEL ENTRENADOR (panel de equipo) ---------- */
+
+#home-coach{display:none;}
+
+.coachSummary{
+    display:grid;
+    grid-template-columns:repeat(2,1fr);
+    gap:10px;
+    margin-bottom:18px;
+}
+
+.teamList{margin-top:2px;}
+
+.teamAthleteCard{
+    border-radius:14px;
+    padding:13px 15px;
+    margin-bottom:10px;
+    display:flex;
+    justify-content:space-between;
+    align-items:center;
+    gap:10px;
+    cursor:pointer;
+    transition:box-shadow .12s ease, border-color .12s ease;
+}
+
+.teamAthleteCard:hover{
+    box-shadow:var(--shadow-sm);
+    border-color:var(--accent);
+}
+
+.teamAthleteCard .name{
+    font-family:'Poppins',sans-serif;
+    font-weight:600;
+    font-size:14px;
+    color:var(--text);
+}
+
+.teamAthleteCard .meta{
+    font-size:11px;
+    color:var(--text-muted);
+    margin-top:3px;
+}
+
+.teamAthleteCard .lastSession{
+    font-size:11px;
+    color:var(--text-faint);
+    margin-top:2px;
+}
+
+.teamAthleteCard .goBtn{
+    font-family:'Poppins',sans-serif;
+    font-size:11px;
+    font-weight:700;
+    color:var(--accent);
+    white-space:nowrap;
+    flex-shrink:0;
+}
+
+/* ============================================================
+   CARGA DESDE FOTO CON IA — rediseño en pasos
+   ============================================================ */
+
+.aiImportBox{
+    border-radius:16px;
+    padding:16px;
+    margin-bottom:20px;
+}
+
+.aiImportHeader{
+    display:flex;
+    align-items:center;
+    justify-content:space-between;
+    gap:10px;
+    margin-bottom:12px;
+}
+
+.aiImportHeader span{
+    font-family:'Poppins',sans-serif;
+    font-size:14px;
+    font-weight:600;
+    color:var(--text);
+}
+
+.aiCopyBtn{
+    background:linear-gradient(135deg, #FFC685, var(--accent));
+    color:#1a1206;
+    border:none;
+    border-radius:9px;
+    padding:9px 13px;
+    font-family:'Inter',sans-serif;
+    font-size:11.5px;
+    font-weight:600;
+    cursor:pointer;
+    white-space:nowrap;
+    transition:background .12s ease, transform .12s ease;
+}
+
+.aiCopyBtn:hover{background:linear-gradient(135deg, #FFD199, var(--accent-dark));}
+
+.aiCopyBtn.copied{background:var(--good);color:#0c2016;}
+
+.aiImportSteps{
+    display:flex;
+    flex-direction:column;
+    gap:8px;
+    margin-bottom:14px;
+}
+
+.aiImportStep{
+    display:flex;
+    gap:10px;
+    align-items:flex-start;
+    font-size:12.5px;
+    color:var(--text-muted);
+    line-height:1.45;
+}
+
+.aiImportStep .num{
+    flex-shrink:0;
+    width:19px;
+    height:19px;
+    border-radius:50%;
+    background:var(--accent-soft);
+    color:var(--accent);
+    font-family:'Poppins',sans-serif;
+    font-size:10px;
+    font-weight:700;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    margin-top:1px;
+    border:1px solid var(--border-soft);
+}
+
+.aiImportHelp{display:none;}
+
+.aiTextareaWrap{position:relative;}
+
+#ai-code-input{
+    width:100%;
+    min-height:96px;
+    background:rgba(255,255,255,.05);
+    border:1px solid var(--border);
+    border-radius:10px;
+    padding:12px 13px;
+    font-family:'Share Tech Mono',monospace;
+    font-size:12px;
+    line-height:1.5;
+    color:var(--text);
+    resize:vertical;
+    outline:none;
+    margin-bottom:10px;
+}
+
+#ai-code-input::placeholder{color:var(--text-faint);}
+
+#ai-code-input:focus{border-color:var(--accent);box-shadow:0 0 0 1px var(--accent) inset;}
+
+.aiLoadBtn{
+    width:100%;
+    background:linear-gradient(155deg, rgba(255,255,255,.16), rgba(255,255,255,.04));
+    backdrop-filter:blur(var(--glass-blur)) saturate(160%);
+    -webkit-backdrop-filter:blur(var(--glass-blur)) saturate(160%);
+    color:var(--text);
+    border:1px solid var(--border);
+    border-radius:10px;
+    padding:13px;
+    font-family:'Poppins',sans-serif;
+    font-size:13.5px;
+    font-weight:600;
+    cursor:pointer;
+    transition:box-shadow .12s ease;
+}
+
+.aiLoadBtn:hover{box-shadow:var(--shadow);}
+
+.aiPhotoRow{
+    display:flex;
+    gap:10px;
+}
+
+.aiPhotoBtn{
+    flex:1;
+    background:linear-gradient(155deg, rgba(255,255,255,.16), rgba(255,255,255,.04));
+    backdrop-filter:blur(var(--glass-blur)) saturate(160%);
+    -webkit-backdrop-filter:blur(var(--glass-blur)) saturate(160%);
+    color:var(--text);
+    border:1px solid var(--border);
+    border-radius:10px;
+    padding:13px 8px;
+    font-family:'Poppins',sans-serif;
+    font-size:13px;
+    font-weight:600;
+    cursor:pointer;
+    transition:box-shadow .12s ease, transform .12s ease;
+}
+
+.aiPhotoBtn:hover{box-shadow:var(--shadow);}
+
+.aiPhotoBtn.add{
+    background:linear-gradient(135deg, #FFC685, var(--accent));
+    color:#1a1206;
+    border:none;
+}
+
+.aiPhotoBtn.add:hover{background:linear-gradient(135deg, #FFD199, var(--accent-dark));}
+
+.aiPhotoBtn:disabled{opacity:.55;cursor:default;transform:none;}
+
+.aiPhotoStatus{
+    margin-top:10px;
+    font-family:'Inter',sans-serif;
+    font-size:12px;
+    color:var(--text-muted);
+    min-height:14px;
+}
+
+/* ============================================================
+   APODOS → USUARIOS (mapeo para importar Excel del entrenador)
+   ============================================================ */
+
+.apodoRow{
+    display:grid;
+    grid-template-columns:1fr 1fr auto;
+    gap:8px;
+    align-items:center;
+    border-radius:11px;
+    padding:9px 10px;
+    margin-bottom:8px;
+}
+
+.apodoRow .apodoNick{
+    font-size:12.5px;
+    font-weight:600;
+    color:var(--text);
+    overflow:hidden;
+    text-overflow:ellipsis;
+    white-space:nowrap;
+}
+
+.apodoRow select{
+    width:100%;
+    border:1px solid var(--border);
+    border-radius:8px;
+    background:rgba(255,255,255,.06);
+    padding:7px 8px;
+    font-size:12px;
+    color:var(--text);
+}
+
+.apodoRow .delBtn{
+    width:28px;
+    height:28px;
+    font-size:12px;
+    flex-shrink:0;
+}
+
+/* ---------- vidrio líquido genérico (clases sueltas ya usadas en el proyecto) ---------- */
+
+.glass-card {
+    border-radius: 1.5rem;
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+.glass-card:active {
+    transform: scale(0.98);
+}
+
+/* Bar Charts */
+.bar-container {
+    display: flex;
+    align-items: flex-end;
+    justify-content: space-between;
+    height: 60px;
+    gap: 3px;
+    width: 100%;
+}
+.bar {
+    flex: 1;
+    background: rgba(255, 255, 255, 0.16);
+    border-radius: 4px 4px 0 0;
+    min-height: 10%;
+    transition: height 0.5s ease-out, background 0.3s ease;
+}
+.bar.active {
+    background: var(--accent);
+    box-shadow: 0 0 10px rgba(255, 163, 92, 0.5);
+}
+
+/* Circular Progress Ring */
+.progress-ring-container {
+    position: relative;
+    width: 80px;
+    height: 80px;
+    border-radius: 50%;
+    background: conic-gradient(var(--accent) 65%, rgba(255, 255, 255, 0.1) 0);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+.progress-ring-inner {
+    width: 66px;
+    height: 66px;
+    border-radius: 50%;
+    background: rgba(10, 11, 16, 0.92);
+    backdrop-filter: blur(10px);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    box-shadow: inset 0 2px 10px rgba(0,0,0,0.5);
+}
+
+/* Glass Input & Buttons */
+.glass-input {
+    background: rgba(255, 255, 255, 0.05);
+    border: 1px solid rgba(255, 255, 255, 0.15);
+    border-radius: 0.75rem;
+    color: white;
+    outline: none;
+    transition: border 0.3s ease, background 0.3s ease;
+}
+.glass-input:focus {
+    border-color: rgba(255, 255, 255, 0.4);
+    background: rgba(255, 255, 255, 0.1);
+}
+
+.glass-action-btn {
+    background: rgba(255, 255, 255, 0.1);
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    box-shadow: inset 0 1px 1px rgba(255, 255, 255, 0.1);
+    border-radius: 1rem;
+    transition: all 0.2s ease;
+}
+.glass-action-btn:active {
+    background: rgba(255, 255, 255, 0.2);
+    transform: scale(0.97);
+}
+
+/* Taskbar */
+.taskbar-wrapper {
+    position: fixed;
+    bottom: 0;
+    left: 0;
+    width: 100%;
+    display: flex;
+    justify-content: center;
+    padding-bottom: 1.5rem;
+    z-index: 50;
+    background: linear-gradient(to top, rgba(5,5,10,0.9) 10%, transparent 100%);
+    pointer-events: none;
+}
+
+.glass-taskbar-container {
+    pointer-events: auto;
+    width: 90%;
+    max-width: 400px;
+    background: rgba(20, 20, 30, 0.4);
+    backdrop-filter: blur(40px) saturate(200%);
+    -webkit-backdrop-filter: blur(40px) saturate(200%);
+    border: 1px solid rgba(255, 255, 255, 0.15);
+    box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5), inset 0 1px 1px rgba(255, 255, 255, 0.2);
+    border-radius: 9999px;
+    padding: 0.35rem;
+    display: flex;
+    justify-content: space-between;
+}
+
+.glass-btn {
+    flex: 1;
+    background: transparent;
+    color: rgba(255, 255, 255, 0.5);
+    border-radius: 9999px;
+    transition: all 0.3s cubic-bezier(0.25, 1, 0.5, 1);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 0.6rem 0;
+    gap: 0.2rem;
+    border: 1px solid transparent;
+}
+
+.glass-btn.active {
+    background: rgba(255, 255, 255, 0.15);
+    color: #ffffff;
+    border: 1px solid rgba(255, 255, 255, 0.25);
+    box-shadow: inset 0 1px 1px rgba(255, 255, 255, 0.4);
+    transform: scale(1.02) translateY(-2px);
+}
+
+/* View transitions */
+.view-section {
+    display: none;
+    animation: fadeIn 0.4s ease-out forwards;
+}
+.view-section.active {
+    display: flex;
+}
+
+@keyframes fadeIn {
+    from { opacity: 0; transform: translateY(10px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+
+/* ============================================================
+  ADAPTACIÓN A PANTALLAS GRANDES (PC / TABLET APAISADA)
+   ============================================================ */
+
+@media (min-width:900px){
+
+    body{
+        display:flex;
+        justify-content:center;
+        padding:36px 20px;
+    }
+
+    .app{
+        max-width:1080px;
+        width:100%;
+        height:auto;
+        min-height:auto;
+        flex-direction:row;
+        border-radius:24px;
+        overflow:hidden;
+        box-shadow:var(--shadow);
+        border:1px solid var(--border-soft);
+    }
+
+    .content{
+        order:2;
+        min-height:82vh;
+    }
+
+    nav{
+        order:1;
+        position:static;
+        flex-direction:column;
+        width:210px;
+        height:auto;
+        border-radius:22px;
+        background:linear-gradient(155deg, rgba(255,255,255,.07), rgba(255,255,255,.02));
+        padding:26px 14px;
+        gap:6px;
+        justify-content:flex-start;
+        margin:26px 0 26px 26px;
+        box-shadow:inset 0 1px 0 rgba(255,255,255,.1);
+    }
+
+    nav button{
+        flex:none;
+        width:100%;
+        text-align:left;
+        border-radius:10px;
+        padding:13px 16px;
+        background:transparent;
+    }
+
+    nav button:hover{
+        background:var(--accent-soft);
+    }
+
+    nav button.navActive{
+        background:linear-gradient(135deg, #FFC685, var(--accent));
+        color:#1a1206;
+        transform:none;
+        box-shadow:none;
+    }
+
+    header{
+        text-align:left;
+        padding:28px 40px 22px;
+    }
+
+    .page{
+        padding:32px 40px 50px;
+    }
+
+    .stats{
+        grid-template-columns:repeat(4,1fr);
+    }
+
+    .bottomCards{
+        grid-template-columns:1fr 1fr;
+    }
+
+    .row{
+        grid-template-columns:1fr 1fr 1fr;
+    }
+
+    .sessionCard{
+        display:grid;
+        grid-template-columns:1fr 2fr;
+        gap:16px;
+        align-items:start;
+    }
+
+    .sessionHeadRow{
+        grid-column:1 / -1;
+    }
+
+    .sessionChips{
+        grid-column:1 / -1;
+    }
+
+    .sessionExpand{
+        grid-column:1 / -1;
+    }
+
+    .expandBtn{
+        grid-column:1 / -1;
+    }
+}
+/* Para navegadores basados en WebKit (Chrome, Safari, Opera) */
+::-webkit-scrollbar {
+  display: none;
+}
+
+/* Para Firefox */
+* {
+  scrollbar-width: none;
+}
+ .mesh-bg {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100vw;
+            height: 100vh;
+            z-index: -1;
+            background: radial-gradient(circle at 15% 50%, rgba(29, 38, 113, 0.35), transparent 50%),
+                        radial-gradient(circle at 85% 30%, rgba(195, 55, 100, 0.25), transparent 50%),
+                        radial-gradient(circle at 50% 80%, rgba(11, 83, 148, 0.35), transparent 50%);
+            background-color: #05050a;
+            filter: blur(40px);
+            animation: meshFlow 15s ease-in-out infinite alternate;
+        }
+
+        @keyframes meshFlow {
+            0% { transform: scale(1) translate(0, 0); }
+            50% { transform: scale(1.1) translate(2%, 3%); }
+            100% { transform: scale(1) translate(-2%, -3%); }
+        }
+
+        /* Core Glassmorphism Class */
+        .glass-card {
+            background: rgba(255, 255, 255, 0.04);
+            backdrop-filter: blur(25px) saturate(150%);
+            -webkit-backdrop-filter: blur(25px) saturate(150%);
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.3);
+            border-radius: 1.5rem;
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+        }
+
+        .glass-card:active {
+            transform: scale(0.98);
+        }
+
+        /* Bar Charts */
+        .bar-container {
+            display: flex;
+            align-items: flex-end;
+            justify-content: space-between;
+            height: 60px;
+            gap: 3px;
+            width: 100%;
+        }
+        .bar {
+            flex: 1;
+            background: rgba(255, 255, 255, 0.2);
+            border-radius: 4px 4px 0 0;
+            min-height: 10%;
+            transition: height 0.5s ease-out, background 0.3s ease;
+        }
+        .bar.active {
+            background: rgba(255, 255, 255, 0.85);
+            box-shadow: 0 0 8px rgba(255, 255, 255, 0.4);
+        }
+
+        /* Circular Progress Ring */
+        .progress-ring-container {
+            position: relative;
+            width: 80px;
+            height: 80px;
+            border-radius: 50%;
+            background: conic-gradient(rgba(255, 255, 255, 0.9) 65%, rgba(255, 255, 255, 0.1) 0);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        .progress-ring-inner {
+            width: 66px;
+            height: 66px;
+            border-radius: 50%;
+            background: rgba(20, 20, 30, 0.9);
+            backdrop-filter: blur(10px);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            box-shadow: inset 0 2px 10px rgba(0,0,0,0.5);
+        }
+
+        /* Glass Input & Buttons */
+        .glass-input {
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid rgba(255, 255, 255, 0.15);
+            border-radius: 0.75rem;
+            color: white;
+            outline: none;
+            transition: border 0.3s ease, background 0.3s ease;
+        }
+        .glass-input:focus {
+            border-color: rgba(255, 255, 255, 0.4);
+            background: rgba(255, 255, 255, 0.1);
+        }
+
+        .glass-action-btn {
+            background: rgba(255, 255, 255, 0.1);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            box-shadow: inset 0 1px 1px rgba(255, 255, 255, 0.1);
+            border-radius: 1rem;
+            transition: all 0.2s ease;
+        }
+        .glass-action-btn:active {
+            background: rgba(255, 255, 255, 0.2);
+            transform: scale(0.97);
+        }
+
+        /* Taskbar */
+        .taskbar-wrapper {
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            width: 100%;
+            display: flex;
+            justify-content: center;
+            padding-bottom: 1.5rem;
+            z-index: 50;
+            background: linear-gradient(to top, rgba(5,5,10,0.9) 10%, transparent 100%);
+            pointer-events: none; /* Let clicks pass through the gradient */
+        }
+
+        .glass-taskbar-container {
+            pointer-events: auto; /* Enable clicks on the actual bar */
+            width: 90%;
+            max-width: 400px;
+            background: rgba(20, 20, 30, 0.4);
+            backdrop-filter: blur(40px) saturate(200%);
+            -webkit-backdrop-filter: blur(40px) saturate(200%);
+            border: 1px solid rgba(255, 255, 255, 0.15);
+            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5), inset 0 1px 1px rgba(255, 255, 255, 0.2);
+            border-radius: 9999px;
+            padding: 0.35rem;
+            display: flex;
+            justify-content: space-between;
+        }
+
+        .glass-btn {
+            flex: 1;
+            background: transparent;
+            color: rgba(255, 255, 255, 0.5);
+            border-radius: 9999px;
+            transition: all 0.3s cubic-bezier(0.25, 1, 0.5, 1);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            padding: 0.6rem 0;
+            gap: 0.2rem;
+            border: 1px solid transparent;
+        }
+
+        .glass-btn.active {
+            background: rgba(255, 255, 255, 0.15);
+            color: #ffffff;
+            border: 1px solid rgba(255, 255, 255, 0.25);
+            box-shadow: inset 0 1px 1px rgba(255, 255, 255, 0.4);
+            transform: scale(1.02) translateY(-2px);
+        }
+
+        /* View transitions */
+        .view-section {
+            display: none;
+            animation: fadeIn 0.4s ease-out forwards;
+        }
+        .view-section.active {
+            display: flex;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+/* =====================================================================
+   v2 — correcciones + diseños de los bocetos (Train / Sesiones) y Home
+   Este bloque va al final a propósito: pisa las reglas duplicadas de arriba.
+   ===================================================================== */
+
+:root{
+  --danger:#ff6b5b;            /* antes era verde (#5bff76): los errores se veían verdes */
+  --zc-z1:#6fb7ff;
+  --zc-z2:#34d1a8;
+  --zc-watts:#ffc857;
+  --zc-sprint:#ff6b5b;
+  --zc-test:#c58bff;
+}
+
+/* alto real en celulares (la barra del navegador no tapa el contenido) */
+.app{ height:100vh; height:100dvh; min-height:100vh; min-height:100dvh; }
+.page{ padding-bottom:120px; }
+select option{ background:#12151d; color:#f2f4f7; }
+input[type="date"]{ color-scheme:dark; }
+button:focus-visible, input:focus-visible, select:focus-visible, textarea:focus-visible{
+  outline:2px solid var(--zc-z2); outline-offset:2px;
+}
+
+/* ---------- barra de navegación (los íconos no tenían tamaño) ---------- */
+.glass-btn svg{ width:22px; height:22px; flex:none; }
+.glass-btn span{ font-size:10px; font-weight:500; letter-spacing:.06em; text-transform:uppercase; }
+
+/* ---------- encabezados ---------- */
+.avatarCircle{
+  padding:0; border:none; cursor:pointer;
+  font-family:'Poppins',sans-serif;
+}
+.resumenHeader.center{
+  display:grid; grid-template-columns:40px 1fr 40px; align-items:center; gap:10px;
+}
+.resumenHeader.center .sectionTitle{ text-align:center; letter-spacing:.12em; text-transform:uppercase; font-size:20px; }
+.headerIconBtn{
+  width:40px; height:40px; padding:0; border-radius:50%;
+  display:flex; align-items:center; justify-content:center;
+  background:rgba(255,255,255,.06);
+  border:1px solid var(--border);
+  color:var(--text);
+}
+.headerIconBtn svg{ width:18px; height:18px; }
+.headerIconBtn.on{ background:rgba(52,209,168,.18); border-color:var(--zc-z2); color:var(--zc-z2); }
+
+/* ---------- círculo de zona (Train, Sesiones y Home) ---------- */
+.cat-circle{
+  --zc:#98A2AE;
+  border:2px solid var(--zc);
+  color:var(--zc);
+  background:color-mix(in srgb, var(--zc) 13%, transparent);
+  padding:0;
+  line-height:1;
+}
+button.cat-circle{ cursor:pointer; font-size:16px; border-radius:50%; }
+button.cat-circle:active{ transform:scale(.93); }
+.cat-circle.z-z1{ --zc:var(--zc-z1); }
+.cat-circle.z-z2{ --zc:var(--zc-z2); }
+.cat-circle.z-watts{ --zc:var(--zc-watts); }
+.cat-circle.z-sprint{ --zc:var(--zc-sprint); }
+.cat-circle.z-test{ --zc:var(--zc-test); }
+.session-mini-card .cat-circle{ font-size:15px; }
+
+/* ---------- TRAIN ---------- */
+.editBanner{
+  display:flex; align-items:center; justify-content:space-between; gap:10px;
+  padding:10px 14px; margin-bottom:14px; border-radius:12px;
+  background:rgba(255,200,87,.12); border:1px solid rgba(255,200,87,.35);
+  color:var(--zc-watts); font-size:13px; font-weight:600;
+}
+.editBanner button{ padding:6px 12px; font-size:12px; background:rgba(255,255,255,.08); color:var(--text); border-radius:8px; }
+
+.trainMeta{ display:grid; grid-template-columns:1fr 1fr; gap:10px; }
+.trainMeta .input{ padding:9px 12px; margin-bottom:12px; min-width:0; }
+.histFilters .trainMeta .input{ margin-bottom:10px; }
+
+.train-summary-card{ min-width:0; }
+.title-input{ min-width:0; width:100%; }
+.train-summary-card .summary-stats{ flex:none; }
+.stat-input.split{ width:92px; }
+.stat-input.spm{ width:34px; }
+
+/* tabla de parciales: encabezado y filas con la MISMA grilla (antes estaban desalineados) */
+.table-box{ padding:12px 10px 10px; }
+.table-box .adv-table-header{
+  display:grid; grid-template-columns:24px 1.3fr 1fr 1fr .9fr 28px; gap:6px;
+  padding:0 11px 8px; margin:0 0 6px;
+  border-bottom:1px dashed var(--border-soft);
+  text-align:center; font-size:10px;
+}
+.table-box .adv-table-header div:first-child{ text-align:center; }
+.table-box .parcial-row{
+  background:rgba(255,255,255,.035);
+  -webkit-backdrop-filter:none; backdrop-filter:none;
+  border:1px solid var(--border-soft);
+  padding:7px 10px;
+}
+.table-box .addPartialBtn{ margin:2px 0 12px; padding:10px; font-size:13px; }
+.tableFoot{ display:grid; grid-template-columns:1fr 1fr; gap:8px; }
+.tableFoot input{
+  width:100%; min-width:0; padding:9px 8px; text-align:center;
+  background:rgba(255,255,255,.04); border:1px solid var(--rz-border); border-radius:8px;
+  color:var(--text); font-family:'Share Tech Mono',monospace; font-size:13px;
+}
+.tableFoot input::placeholder{ color:var(--text-faint); font-size:11px; font-family:'Inter',sans-serif; }
+.aiCopyBtn.copied{ background:var(--good); }
+.btn-guardar{ font-family:'Poppins',sans-serif; }
+
+/* ---------- SESIONES ---------- */
+.resultCount{ font-size:12px; color:var(--text-muted); margin:-4px 4px 12px; }
+.resultCount:empty{ display:none; }
+.emptyMsg{ text-align:center; padding:40px 20px; color:var(--text-muted); font-size:14px; line-height:1.6; }
+.histFilters{ padding:14px; margin-bottom:14px; border-radius:16px; }
+.clearFiltersBtn{
+  width:100%; padding:10px; font-size:13px; font-family:'Inter',sans-serif; font-weight:600;
+  background:rgba(255,255,255,.06); color:var(--text-muted); border:1px solid var(--border-soft);
+}
+
+.week-label{ font-family:'Poppins',sans-serif; font-weight:600; letter-spacing:.08em; }
+.session-item{ margin-bottom:10px; }
+.session-item .session-mini-card{ margin-bottom:0; cursor:pointer; }
+.session-item .session-title{ min-width:0; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
+.session-item .session-mini-card .split{ letter-spacing:.02em; }
+
+.session-detail{
+  display:none;
+  margin:-6px 8px 0; padding:16px 14px 14px;
+  background:rgba(255,255,255,.035);
+  border:1px solid var(--border-soft); border-top:none;
+  border-radius:0 0 16px 16px;
+}
+.session-item.open .session-detail{ display:block; }
+.session-item.open .session-mini-card{ border-bottom-left-radius:12px; border-bottom-right-radius:12px; }
+
+.sd-grid{ display:grid; grid-template-columns:1fr 1fr; gap:10px 14px; margin-bottom:12px; }
+.sd-k{ display:block; font-size:10px; font-weight:600; color:var(--text-muted); text-transform:uppercase; letter-spacing:.08em; }
+.sd-v{ display:block; font-size:14px; font-weight:500; color:var(--text); font-family:'Share Tech Mono',monospace; }
+.sd-table{ margin-bottom:14px; }
+.sd-row{
+  display:grid; grid-template-columns:22px 1.2fr 1fr 1fr .8fr; gap:6px;
+  padding:6px 0; border-bottom:1px solid rgba(255,255,255,.06);
+  font-family:'Share Tech Mono',monospace; font-size:13px; text-align:center; color:var(--text);
+}
+.sd-row:last-child{ border-bottom:none; }
+.sd-row span:first-child{ color:var(--text-muted); }
+.sd-head{ font-family:'Inter',sans-serif; font-size:10px; font-weight:700; text-transform:uppercase; letter-spacing:.06em; color:var(--text-muted); }
+.sd-actions{ display:flex; gap:8px; }
+.sd-btn{
+  flex:1; padding:10px; font-size:13px; font-family:'Inter',sans-serif; font-weight:600;
+  background:rgba(255,255,255,.08); color:var(--text); border:1px solid var(--border-soft);
+}
+.sd-btn.danger{ color:var(--danger); background:rgba(255,107,91,.1); border-color:rgba(255,107,91,.3); }
+
+/* ---------- HOME ---------- */
+.chartCard{ --cc:var(--zc-z2); padding:16px 18px 14px; }
+.chartCard.z1{ --cc:var(--zc-z1); }
+.chartCard.z2{ --cc:var(--zc-z2); }
+.chartCard .chartBars{ height:104px; gap:5px; }
+.chartCard .chartBars .bar{
+  max-width:16px; min-width:5px; border-radius:4px 4px 0 0; cursor:pointer;
+  background:linear-gradient(180deg, var(--cc), color-mix(in srgb, var(--cc) 55%, transparent));
+  opacity:.6;
+}
+.chartCard .chartBars .bar.best{ opacity:1; box-shadow:0 0 10px color-mix(in srgb, var(--cc) 70%, transparent); }
+.chartCard .chartBars .bar.sel{ opacity:1; outline:1.5px solid #fff; outline-offset:1px; }
+.chartCard .chartZoneLabel{ display:flex; align-items:center; gap:7px; }
+.chartCard .chartZoneLabel::before{ content:""; width:8px; height:8px; border-radius:50%; background:var(--cc); }
+
+.lastSessionCard{ cursor:pointer; padding:14px 16px 16px; }
+.lastSessionLabel{ font-size:12px; font-weight:600; color:var(--rz-text-muted); margin-bottom:10px; }
+.lastSessionRow{ display:flex; align-items:center; gap:14px; }
+.lastSessionInfo{ flex:1; min-width:0; }
+.lastSessionDesc{ font-family:'Poppins',sans-serif; font-size:18px; font-weight:600; text-transform:uppercase; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
+.lastSessionMeta{ font-size:11px; color:var(--rz-text-muted); text-transform:uppercase; letter-spacing:.08em; margin-top:2px; }
+.lastSessionRight{ text-align:right; }
+.lastSessionTime{ font-family:'Share Tech Mono',monospace; font-size:22px; font-weight:700; }
+.lastSessionDelta{ font-family:'Share Tech Mono',monospace; font-size:12px; min-height:16px; }
+
+.raceCardDays small{ font-family:'Inter',sans-serif; font-size:13px; font-weight:600; color:var(--rz-text-muted); margin-left:6px; }
+.raceRow{ display:flex; justify-content:space-between; align-items:center; margin-bottom:10px; padding:12px 14px; }
+.muted{ color:var(--text-muted); font-size:12px; }
+
+@media (prefers-reduced-motion: reduce){
+  *{ animation:none !important; transition:none !important; }
+}
+
+/* ---------- SESIONES: texto en blanco ---------- */
+#historial .week-label,
+#historial .resultCount,
+#historial .session-mini-card .session-title,
+#historial .session-mini-card .split,
+#historial .session-mini-card .day,
+#historial .session-mini-card .cat-circle,
+#historial .sd-k,
+#historial .sd-v,
+#historial .sd-row,
+#historial .sd-row span:first-child,
+#historial .sd-head,
+#historial .emptyMsg{
+  color:#fff;
+}
+/* el borde del círculo conserva el color de la zona */
+
+/* =====================================================================
+   v3 — lista desplegable de zonas + trabajos en agua resaltados
+   ===================================================================== */
+:root{ --water:#00e5ff; }
+
+/* ---------- lista desplegable de zona (Train) ---------- */
+.train-summary-card{ position:relative; z-index:6; }   /* para que la lista quede por encima de la tabla */
+.zoneWrap{ position:relative; flex:none; }
+.zoneCaret{
+  position:absolute; right:-4px; bottom:-3px; width:17px; height:17px; border-radius:50%;
+  display:flex; align-items:center; justify-content:center;
+  background:#1b1e27; border:1px solid var(--border); color:var(--text);
+  font-size:9px; pointer-events:none;
+}
+.zoneBadge{
+  display:none; position:absolute; top:-8px; left:50%; transform:translateX(-50%);
+  padding:1px 6px; border-radius:8px; pointer-events:none;
+  background:var(--zc-z2); color:#04130f;
+  font-size:8px; font-weight:700; letter-spacing:.08em; text-transform:uppercase;
+}
+.zoneWrap.auto .zoneBadge{ display:block; }
+.zoneMenu{
+  display:none; position:absolute; top:calc(100% + 10px); left:0; z-index:30;
+  min-width:200px; padding:6px; border-radius:14px;
+  background:rgba(22,24,32,.97);
+  -webkit-backdrop-filter:blur(24px); backdrop-filter:blur(24px);
+  border:1px solid var(--border); box-shadow:var(--shadow);
+}
+.zoneMenu.show{ display:block; }
+.zoneItem{
+  display:flex; align-items:center; gap:10px; width:100%;
+  padding:11px 12px; border-radius:10px; background:transparent; color:var(--text);
+  font-family:'Inter',sans-serif; font-size:14px; font-weight:500; text-align:left;
+}
+.zoneItem:hover, .zoneItem.active{ background:rgba(255,255,255,.09); }
+.zoneItem.active::after{ content:"✓"; margin-left:auto; color:var(--zc-z2); }
+.zdot{ width:12px; height:12px; border-radius:50%; flex:none; background:var(--zc,#98A2AE); }
+.zdot.z-z1{ --zc:var(--zc-z1); }
+.zdot.z-z2{ --zc:var(--zc-z2); }
+.zdot.z-watts{ --zc:var(--zc-watts); }
+.zdot.z-sprint{ --zc:var(--zc-sprint); }
+.zdot.z-test{ --zc:var(--zc-test); }
+.zdot.auto{ background:conic-gradient(var(--zc-z1), var(--zc-z2), var(--zc-watts), var(--zc-sprint), var(--zc-test), var(--zc-z1)); }
+
+/* ---------- AGUA: se distingue del ergo ---------- */
+.waterTag{
+  display:inline-flex; align-items:center; align-self:flex-start;
+  padding:2px 9px; border-radius:20px; margin-top:4px;
+  background:rgba(0,229,255,.14); border:1px solid rgba(0,229,255,.55);
+  color:#fff; font-size:10px; font-weight:700; letter-spacing:.08em; text-transform:uppercase;
+}
+.session-main{ flex:1; min-width:0; display:flex; flex-direction:column; }
+.session-item .session-main .session-title{ flex:none; }
+
+/* Sesiones */
+.session-item.agua .session-mini-card{
+  border-left:4px solid var(--water);
+  background:linear-gradient(90deg, rgba(0,229,255,.20), rgba(255,255,255,.04) 65%);
+  box-shadow:inset 0 1px 0 rgba(255,255,255,.12), 0 0 18px rgba(0,229,255,.14);
+}
+.session-item.agua .session-detail{ border-color:rgba(0,229,255,.28); }
+
+/* Home: última sesión */
+.lastSessionCard.agua{
+  border-color:rgba(0,229,255,.5);
+  background:linear-gradient(135deg, rgba(0,229,255,.18), rgba(255,255,255,.04) 60%);
+}
+.lastSessionMeta .waterTag{ margin:0 0 0 6px; }
+
+/* Home: barras de trabajos en agua (rayadas, no dependen solo del color) */
+.chartCard .chartBars .bar.agua{
+  background:
+    repeating-linear-gradient(135deg, rgba(255,255,255,.55) 0 3px, transparent 3px 7px),
+    linear-gradient(180deg, var(--water), color-mix(in srgb, var(--water) 50%, transparent));
+  opacity:.9;
+}
+
+/* Train: la tarjeta se marca cuando el medio es agua */
+.train-summary-card.is-agua{
+  border-color:rgba(0,229,255,.6);
+  box-shadow:inset 0 0 0 1px rgba(0,229,255,.25), 0 0 18px rgba(0,229,255,.16);
+}
+
+/* =====================================================================
+   v4 — gráficos de 2K y de Agua en Resumen
+   ===================================================================== */
+.chartCard.k2{ --cc:var(--zc-test); }
+.chartCard.agua{ --cc:var(--water); }
+.chartCard.agua .chartBars .bar{
+  background:
+    repeating-linear-gradient(135deg, rgba(255,255,255,.55) 0 3px, transparent 3px 7px),
+    linear-gradient(180deg, var(--water), color-mix(in srgb, var(--water) 50%, transparent));
+  opacity:.9;
+}
+
+/* =====================================================================
+   v5 — sin zoom, pantalla completa en celular
+   ===================================================================== */
+html{
+  -webkit-text-size-adjust:100%;
+  text-size-adjust:100%;
+  touch-action:pan-x pan-y;          /* bloquea pellizco y doble toque para zoom */
+  overscroll-behavior:none;
+  background:var(--bg);
+}
+body{
+  touch-action:pan-x pan-y;
+  -webkit-tap-highlight-color:transparent;
+  min-height:100vh; min-height:100dvh;
+}
+button, nav, .glass-btn{ touch-action:manipulation; }
+
+/* iOS hace zoom automático al enfocar un campo con letra menor a 16px */
+@media (max-width:899px){
+  input, select, textarea,
+  .input input, .input select,
+  .parcial-row input, .tableFoot input,
+  .title-input, .stat-input, .stat-input.split, .stat-input.spm,
+  .confirmTypeBox input, #ai-code-input, .filterSelect, .graph select{
+    font-size:16px !important;
+  }
+  .parcial-row input{ padding:6px 2px; }
+
+  /* ocupa todo el ancho del celular */
+  .app{ max-width:none; width:100%; }
+
+  /* respeta notch y barra inferior */
+  .page{
+    padding-top:calc(18px + env(safe-area-inset-top));
+    padding-left:calc(18px + env(safe-area-inset-left));
+    padding-right:calc(18px + env(safe-area-inset-right));
+    padding-bottom:calc(120px + env(safe-area-inset-bottom));
+  }
+  .taskbar-wrapper{ padding-bottom:calc(1.5rem + env(safe-area-inset-bottom)); }
+}
+
+/* =====================================================================
+   v6 — trabajos no completados (rojo) + tiempo total como título
+   ===================================================================== */
+:root{ --incompleto:#ff3b3b; }
+
+/* ---------- interruptor en Train ---------- */
+.incompleteToggle{
+  position:relative; display:flex; align-items:center; gap:12px;
+  padding:12px 14px; margin:0 0 15px; border-radius:12px; cursor:pointer;
+  background:rgba(255,255,255,.04); border:1px solid var(--border-soft);
+  transition:background .15s, border-color .15s, box-shadow .15s;
+  -webkit-user-select:none; user-select:none;
+}
+.incompleteToggle input{ position:absolute; opacity:0; width:0; height:0; pointer-events:none; }
+.incBox{
+  width:24px; height:24px; border-radius:50%; flex:none;
+  border:2px solid var(--incompleto);
+  display:flex; align-items:center; justify-content:center;
+  color:#fff; font-size:12px; font-weight:700; line-height:1;
+}
+.incompleteToggle.on .incBox{ background:var(--incompleto); }
+.incompleteToggle.on .incBox::after{ content:"✕"; }
+.incText{ display:flex; flex-direction:column; gap:2px; min-width:0; }
+.incText strong{ font-size:14px; font-weight:600; color:var(--text); }
+.incText small{ font-size:11px; color:var(--text-muted); line-height:1.35; }
+.incompleteToggle.on{
+  background:rgba(255,59,59,.12); border-color:rgba(255,59,59,.7);
+  box-shadow:0 0 18px rgba(255,59,59,.18);
+}
+.timeHint{ margin-top:10px; font-size:11px; line-height:1.4; color:var(--text-muted); text-align:center; }
+.timeHint b{ color:var(--text); font-family:'Share Tech Mono',monospace; font-weight:600; }
+.incompleteToggle:has(input:focus-visible){ outline:2px solid var(--incompleto); outline-offset:2px; }
+
+/* tarjeta de resumen en Train */
+.train-summary-card.is-incompleto{
+  border-color:rgba(255,59,59,.7);
+  box-shadow:inset 0 0 0 1px rgba(255,59,59,.3), 0 0 18px rgba(255,59,59,.18);
+}
+
+/* ---------- etiqueta roja ---------- */
+.incTag{
+  display:inline-flex; align-items:center; align-self:flex-start;
+  padding:2px 9px; border-radius:20px;
+  background:rgba(255,59,59,.15); border:1px solid rgba(255,59,59,.65);
+  color:#fff; font-size:10px; font-weight:700; letter-spacing:.08em; text-transform:uppercase;
+}
+.tagRow{ display:flex; flex-wrap:wrap; gap:6px; margin-top:4px; }
+.tagRow .waterTag{ margin-top:0; }
+.lastSessionMeta .incTag{ margin-left:6px; }
+
+/* ---------- Sesiones: contorno rojo ---------- */
+.session-item.incompleto .session-mini-card{
+  border:1px solid rgba(255,59,59,.7);
+  border-left:4px solid var(--incompleto);
+  background:linear-gradient(90deg, rgba(255,59,59,.20), rgba(255,255,255,.04) 65%);
+  box-shadow:inset 0 0 0 1px rgba(255,59,59,.15), 0 0 18px rgba(255,59,59,.16);
+}
+.session-item.incompleto .session-detail{ border-color:rgba(255,59,59,.3); }
+
+/* ---------- Sesiones: tiempo total como título (agua y 2K) ---------- */
+.session-item.totalTitle .session-title{
+  font-family:'Share Tech Mono',monospace; letter-spacing:.02em;
+}
+.session-item .session-main .session-sub{
+  font-size:11px; color:#fff; opacity:.6;
+  text-transform:uppercase; letter-spacing:.06em; margin-top:1px;
+  overflow:hidden; text-overflow:ellipsis; white-space:nowrap;
+}
+
+/* ---------- Home ---------- */
+.lastSessionCard.incompleto{
+  border-color:rgba(255,59,59,.7);
+  background:linear-gradient(135deg, rgba(255,59,59,.18), rgba(255,255,255,.04) 60%);
+}
+.chartCard .chartBars .bar.incompleto{
+  background:
+    repeating-linear-gradient(135deg, rgba(255,255,255,.5) 0 3px, transparent 3px 7px),
+    linear-gradient(180deg, var(--incompleto), rgba(255,59,59,.5));
+  opacity:.95;
+}
+
 </style>
 </head>
+
 <body>
 
-<header class="top" id="top">
-  <div class="bar">
-    <div class="left">
-      <button class="burger" id="burger" aria-label="Abrir menú"><span></span><span></span><span></span></button>
-      <a href="#" class="logo">Mate<span>Club</span></a>
-      <div class="tagline">#ELRITUALDELMATE</div>
-    </div>
-    <button class="cartbtn" id="openCart">Carrito <b id="count">0</b></button>
-  </div>
-</header>
+<!-- ================= LOGIN ================= -->
+<div class="loginOverlay" id="login-overlay">
+  <div class="loginBox">
+    <h2>Remo — Training Log</h2>
 
-<div id="menu">
-  <nav>
-    <a href="#productos">Productos</a>
-    <a href="#como">Cómo comprar</a>
-    <a href="#novedades">Novedades</a>
-    <a href="#contacto">Contacto</a>
-  </nav>
-  <div class="soc" id="soc"></div>
+    <div id="login-mode">
+      <div class="loginSub">Iniciá sesión para continuar</div>
+      <div class="input">
+        <label>Usuario</label>
+        <input type="text" id="login-user" autocomplete="username" placeholder="ej: juan.perez">
+      </div>
+      <div class="input">
+        <label>Contraseña</label>
+        <input type="password" id="login-pass" autocomplete="current-password" placeholder="••••••••">
+      </div>
+      <button class="add" onclick="doLogin()">Ingresar</button>
+      <div class="loginErr" id="login-err"></div>
+      <div class="loginSwitch"><a href="javascript:void(0)" onclick="showRegisterMode()">¿No tenés cuenta? Creá una</a></div>
+    </div>
+
+    <div id="register-mode" style="display:none;">
+      <div class="loginSub">Creá tu cuenta</div>
+      <div class="input">
+        <label>Elegí un usuario</label>
+        <input type="text" id="reg-user" autocomplete="username" placeholder="ej: juan.perez">
+      </div>
+      <div class="input">
+        <label>Elegí una contraseña</label>
+        <input type="password" id="reg-pass" autocomplete="new-password" placeholder="mínimo 4 caracteres">
+      </div>
+      <div class="input">
+        <label>Repetí la contraseña</label>
+        <input type="password" id="reg-pass2" autocomplete="new-password" placeholder="••••••••">
+      </div>
+      <button class="add" onclick="doRegister()">Crear cuenta</button>
+      <div class="loginErr" id="register-err"></div>
+      <div class="loginSwitch"><a href="javascript:void(0)" onclick="showLoginMode()">Ya tengo cuenta, volver</a></div>
+    </div>
+  </div>
 </div>
 
-<section class="hero">
-  <div class="wrap">
-    <h1 class="disp">#El ritual<br><span class="o">del</span> <span class="g">mate</span></h1>
-    <p>Mates de calabaza, madera y cerámica, bombillas, yerberas y sets. Hechos para acompañarte todos los días.</p>
-    <div class="cta"><a class="btn" href="#productos"><span>Ver productos</span><span>Ver productos</span></a></div>
+<div class="app">
+
+<!-- ================= HOME ================= -->
+<section class="page active" id="home">
+
+  <div class="resumenHeader">
+    <div class="sectionTitle">Resumen</div>
+    <button type="button" class="avatarCircle" onclick="navigateTo('settings')" id="home-avatar" aria-label="Ajustes">--</button>
   </div>
-  <div class="floaty" id="floaty">
-    <svg viewBox="0 0 200 200" aria-hidden="true">
-      <ellipse cx="100" cy="182" rx="56" ry="8" fill="rgba(0,0,0,.35)"/>
-      <path d="M50 80C36 132 58 178 100 178s64-46 50-98z" fill="#8a5a2b"/>
-      <path d="M62 96C56 130 72 166 100 168M138 96C144 130 128 166 100 168M100 96V168" stroke="#5e3b17" stroke-width="1.6" fill="none" stroke-dasharray="4 4" opacity=".8"/>
-      <ellipse cx="100" cy="80" rx="50" ry="15" fill="#d9d4c8"/>
-      <ellipse cx="100" cy="80" rx="42" ry="10" fill="#3f5d2c"/>
-      <ellipse cx="100" cy="79" rx="30" ry="6" fill="#2a3d1d"/>
-      <line x1="112" y1="80" x2="152" y2="14" stroke="#d6dadd" stroke-width="5" stroke-linecap="round"/>
-      <ellipse cx="154" cy="12" rx="8" ry="5" fill="#d6dadd" transform="rotate(-30 154 12)"/>
-    </svg>
-  </div>
-  <div class="mouse"><i></i></div>
-</section>
 
-<div class="marqwrap"><div class="marq"><div class="tr" id="marq"></div></div></div>
+  <div id="home-athlete">
 
-<section class="prods" id="productos">
-  <div class="wrap">
-    <h2 class="disp"><small>Conocé nuestros</small><span class="o">Productos</span></h2>
-    <div id="cats"><div class="state">Cargando productos…</div></div>
-  </div>
-</section>
-
-<section class="how" id="como">
-  <div class="wrap">
-    <h2 class="disp rv">Comprar es<br><span class="g">fácil</span></h2>
-    <div class="steps">
-      <div class="step rv"><b>1</b><h4>Elegí</h4><p>Recorré las categorías y sumá al carrito lo que te guste. El stock se ve en cada producto.</p></div>
-      <div class="step rv"><b>2</b><h4>Armá tu pedido</h4><p>Revisá cantidades y dejá tu nombre y dirección o un comentario.</p></div>
-      <div class="step rv"><b>3</b><h4>Coordinamos</h4><p>Tocá Contactar y tu pedido llega armado por WhatsApp o Instagram. Ahí acordamos pago y envío o retiro.</p></div>
-    </div>
-  </div>
-</section>
-
-<section class="news" id="novedades">
-  <div class="mosaic" id="mosaic"></div>
-  <div class="wrap"><div class="ncols" id="ncols"></div></div>
-</section>
-
-<footer id="contacto">
-  <div class="wrap">
-    <div class="ftop">
-      <h2 class="disp big rv">Seguí<br>conociéndonos<br><span class="g" id="igTxt">@tu_usuario</span></h2>
-      <div class="fnav">
-        <div><a href="#productos">Productos</a><a href="#como">Cómo comprar</a><a href="#novedades">Novedades</a></div>
-        <div><a href="#" id="waLink" target="_blank" rel="noopener">WhatsApp</a><a href="#" id="igLink" target="_blank" rel="noopener">Instagram</a><a href="#como">Envíos a todo el país</a></div>
+    <div class="chartCard z1">
+      <div class="chartBars" id="chart-z1"></div>
+      <div class="chartFoot">
+        <span class="chartZoneLabel">Zona 1</span>
+        <span class="chartBestLabel" id="chart-z1-best">--</span>
       </div>
     </div>
-    <div class="fbot"><span>© <span id="year"></span> <span id="fname">MateClub</span>. Todos los derechos reservados.</span><span>Transferencia · Efectivo · Link de pago</span></div>
-  </div>
-</footer>
 
-<div class="ov" id="ov"></div>
-<aside id="cart" aria-label="Carrito">
-  <div class="ch"><h3>Tu pedido</h3><button id="closeCart" aria-label="Cerrar carrito">×</button></div>
-  <div id="items"></div>
-  <div class="cf">
-    <div class="tot"><span>Total</span><span id="total">$0</span></div>
-    <input id="nombre" placeholder="Tu nombre">
-    <input id="nota" placeholder="Dirección o comentario (opcional)">
-    <button class="btn dark" id="send" type="button"><span>Contactar por WhatsApp</span><span>Contactar por WhatsApp</span></button>
-    <button class="btn line" id="sendIg" type="button"><span>Contactar por Instagram</span><span>Contactar por Instagram</span></button>
-    <p class="cnote" id="cnote">En Instagram el pedido se copia solo: pegalo en el chat. El pago se coordina con el vendedor.</p>
-  </div>
-</aside>
-<div class="toast" id="toast" role="status"></div>
+    <div class="lastSessionCard" onclick="navigateTo('historial', 'historial', $('nav-historial'))">
+      <div class="lastSessionLabel">Última sesión</div>
+      <div class="lastSessionRow">
+        <div class="cat-circle" id="last-session-cat">--</div>
+        <div class="lastSessionInfo">
+          <div class="lastSessionDesc" id="last-session-desc">Sin sesiones todavía</div>
+          <div class="lastSessionMeta" id="last-session-meta">Cargá tu primer entreno en Train</div>
+        </div>
+        <div class="lastSessionRight">
+          <div class="lastSessionTime" id="last-session-time">--:--</div>
+          <div class="lastSessionDelta" id="last-session-delta"></div>
+        </div>
+      </div>
+    </div>
 
+    <div class="homeRow">
+      <div class="raceCard">
+        <div class="raceCardName" id="race-card-name">Sin regatas</div>
+        <div class="raceCardDays" id="race-card-days">--</div>
+        <div class="raceCardDate" id="race-card-date">&nbsp;</div>
+      </div>
+      <div class="weekBadgeCard">
+        <div class="weekBadge" id="week-badge-num">--</div>
+        <div class="weekBadgeLabel">Semana de carga</div>
+      </div>
+    </div>
+
+    <div class="chartCard z2">
+      <div class="chartBars" id="chart-z2"></div>
+      <div class="chartFoot">
+        <span class="chartZoneLabel">Zona 2</span>
+        <span class="chartBestLabel" id="chart-z2-best">--</span>
+      </div>
+    </div>
+
+    <div class="chartCard k2">
+      <div class="chartBars" id="chart-2k"></div>
+      <div class="chartFoot">
+        <span class="chartZoneLabel">2K</span>
+        <span class="chartBestLabel" id="chart-2k-best">--</span>
+      </div>
+    </div>
+
+    <div class="chartCard agua">
+      <div class="chartBars" id="chart-agua"></div>
+      <div class="chartFoot">
+        <span class="chartZoneLabel">Agua</span>
+        <span class="chartBestLabel" id="chart-agua-best">--</span>
+      </div>
+    </div>
+
+  </div>
+</section>
+
+<!-- ================= TRAIN ================= -->
+<section class="page" id="train">
+  <div class="resumenHeader">
+    <div class="sectionTitle">Train</div>
+    <button type="button" class="avatarCircle" id="train-avatar" onclick="navigateTo('settings')" aria-label="Ajustes">--</button>
+  </div>
+
+  <!-- Aviso cuando se edita una sesión guardada -->
+  <div class="editBanner" id="edit-banner" style="display:none;">
+    <span>Editando una sesión guardada</span>
+    <button type="button" onclick="cancelEdit()">Cancelar</button>
+  </div>
+
+  <!-- 1. Bloque IA -->
+  <div class="aiImportBox glass-card sketch-box">
+    <div class="aiImportHeader">
+      <span>🤖 Reconocimiento con IA</span>
+    </div>
+    <div class="aiPhotoRow">
+      <button type="button" class="aiPhotoBtn add" onclick="triggerAiPhoto('camera')">📷 Sacar foto</button>
+      <button type="button" class="aiPhotoBtn" onclick="triggerAiPhoto('gallery')">🖼️ Subir fotos</button>
+    </div>
+    <div class="aiPhotoStatus" id="ai-photo-status"></div>
+    <input type="file" id="ai-photo-input-camera" accept="image/*" capture="environment" style="display:none" onchange="handleAiPhoto(event)">
+    <input type="file" id="ai-photo-input-gallery" accept="image/*" multiple style="display:none" onchange="handleAiPhoto(event)">
+  </div>
+
+  <!-- 2. Fecha y medio -->
+  <div class="trainMeta">
+    <div class="input">
+      <label for="f-date">Fecha</label>
+      <input type="date" id="f-date">
+    </div>
+    <div class="input">
+      <label for="f-medium">Medio</label>
+      <select id="f-medium" onchange="toggleWaterOptions()">
+        <option value="ergo">Ergómetro</option>
+        <option value="agua">Agua</option>
+      </select>
+    </div>
+  </div>
+  <div class="trainMeta" id="water-options" style="display:none;">
+    <div class="input">
+      <label for="f-boat">Bote</label>
+      <select id="f-boat">
+        <option value="Single">Single</option>
+        <option value="Doble">Doble</option>
+        <option value="Cuadruple">Cuádruple</option>
+        <option value="Dos sin">Dos sin</option>
+        <option value="Cuatro sin">Cuatro sin</option>
+        <option value="Ocho">Ocho</option>
+      </select>
+    </div>
+    <div class="input">
+      <label for="f-percentage">Porcentaje</label>
+      <input type="text" id="f-percentage" placeholder="88.2" inputmode="decimal" autocomplete="off">
+    </div>
+  </div>
+
+  <!-- 3. Resumen principal (tocá el círculo para cambiar la zona) -->
+  <div class="train-summary-card glass-card sketch-box">
+    <div class="zoneWrap auto" id="zone-wrap">
+      <button type="button" class="cat-circle" id="f-cat-btn" onclick="toggleMenuZona(event)" aria-haspopup="true" aria-label="Elegir zona">Z1</button>
+      <span class="zoneCaret">▾</span>
+      <span class="zoneBadge">auto</span>
+      <div class="zoneMenu" id="zone-menu"></div>
+    </div>
+    <input type="hidden" id="f-cat" value="z1">
+    <input type="text" id="f-type" class="title-input" placeholder="6x8:00" autocomplete="off">
+    <div class="summary-stats">
+      <input type="text" id="f-split" placeholder="2:04.2" class="stat-input split" inputmode="decimal">
+      <div class="spm-row">
+        <input type="number" id="f-spm" placeholder="18" class="stat-input spm" inputmode="numeric"> <span>spm</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- 4. Tabla de parciales -->
+  <div class="sketch-box glass-card table-box">
+    <div class="adv-table-header">
+      <div>#</div>
+      <div>Tiempo</div>
+      <div>Metros</div>
+      <div>/500m</div>
+      <div>SPM</div>
+      <div></div>
+    </div>
+    <div id="parciales-container"></div>
+    <button type="button" class="addPartialBtn" onclick="addParcialRow()">+ Agregar parcial</button>
+    <div class="tableFoot">
+      <input type="text" id="f-totaltime" placeholder="Tiempo total (auto)" inputmode="decimal">
+      <input type="number" id="f-meters" placeholder="Metros totales (auto)" inputmode="numeric">
+    </div>
+    <div class="timeHint">Los tiempos se escriben solo con números: <b>7123</b> → 7:12.3 · <b>8000</b> → 8:00.0</div>
+  </div>
+
+  <!-- 5. Trabajo no completado -->
+  <label class="incompleteToggle" id="incomplete-toggle">
+    <input type="checkbox" id="f-incomplete" onchange="toggleIncomplete()">
+    <span class="incBox"></span>
+    <span class="incText">
+      <strong>No se completó</strong>
+      <small>No se pudo terminar o no salió como querías</small>
+    </span>
+  </label>
+
+  <!-- 6. Guardar -->
+  <div class="trainButtons">
+    <button class="add btn-guardar" id="btn-add-session" onclick="addSession()">GUARDAR</button>
+  </div>
+</section>
+
+<!-- ================= SESIONES ================= -->
+<section class="page" id="historial">
+  <div class="resumenHeader center">
+    <button type="button" class="headerIconBtn" id="hist-filter-btn" onclick="toggleHistFilters()" aria-label="Filtros">
+      <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.6" stroke="currentColor">
+        <path stroke-linecap="round" stroke-linejoin="round" d="M12 3c2.755 0 5.455.232 8.083.678.533.09.917.556.917 1.096v1.044a2.25 2.25 0 01-.659 1.591l-5.432 5.432a2.25 2.25 0 00-.659 1.591v2.927a2.25 2.25 0 01-1.244 2.013L9.75 21v-6.568a2.25 2.25 0 00-.659-1.591L3.659 7.409A2.25 2.25 0 013 5.818V4.774c0-.54.384-1.006.917-1.096A48.32 48.32 0 0112 3z" />
+      </svg>
+    </button>
+    <div class="sectionTitle">Sesiones</div>
+    <button type="button" class="avatarCircle" id="hist-avatar" onclick="navigateTo('settings')" aria-label="Ajustes">--</button>
+  </div>
+
+  <div class="histFilters glass-card" id="hist-filters" style="display:none;">
+    <div class="input">
+      <label for="table-filter-select">Zona</label>
+      <select id="table-filter-select" onchange="setTableFilter(this.value)"></select>
+    </div>
+    <div class="trainMeta">
+      <div class="input">
+        <label for="hist-date-from">Desde</label>
+        <input type="date" id="hist-date-from" onchange="setDateFilter()">
+      </div>
+      <div class="input">
+        <label for="hist-date-to">Hasta</label>
+        <input type="date" id="hist-date-to" onchange="setDateFilter()">
+      </div>
+    </div>
+    <button type="button" class="clearFiltersBtn" onclick="clearHistFilters()">Limpiar filtros</button>
+  </div>
+
+  <div class="resultCount" id="result-count"></div>
+
+  <div id="rows"></div>
+</section>
+
+<!-- ================= SETTINGS ================= -->
+<section class="page" id="settings">
+
+  <div class="sectionTitle">Settings</div>
+  <div class="settingsStatus" id="settings-user" style="text-align:left;margin:-8px 0 14px;"></div>
+
+  <div class="input">
+    <label>Inicio bloque de carga</label>
+    <input type="date" id="load-start-input">
+  </div>
+
+  <button class="settingsBtn" onclick="saveDatesConfig()">
+    <span>Guardar bloque de carga</span><span>📅</span>
+  </button>
+
+  <div class="settingsStatus" id="dates-status">Configurá el inicio del bloque para ver la semana de carga en Home.</div>
+
+  <div class="line"></div>
+
+  <div class="sectionTitle" style="font-size:16px;margin-bottom:10px;">Regatas próximas</div>
+
+  <div id="races-list"></div>
+
+  <div class="row" id="race-add-row">
+    <div class="input">
+      <label>Nombre de la regata</label>
+      <input type="text" id="race-name-input" placeholder="ej: Regata Metropolitana">
+    </div>
+    <div class="input">
+      <label>Fecha</label>
+      <input type="date" id="race-date-new-input">
+    </div>
+  </div>
+  <button class="settingsBtn" id="race-add-btn" onclick="addRace()">
+    <span>Agregar regata</span><span>🏁</span>
+  </button>
+
+  <div class="settingsStatus" id="races-status"></div>
+
+  <div class="line"></div>
+
+  <button class="settingsBtn" onclick="syncNow()">
+    <span>Sincronizar ahora</span><span>⟳</span>
+  </button>
+
+  <div class="settingsStatus" id="api-status">Conectado a Supabase.</div>
+
+  <div class="line"></div>
+
+  <button class="settingsBtn" onclick="exportJSON()">
+    <span>Guardar .json</span><span>⭳</span>
+  </button>
+
+  <button class="settingsBtn" onclick="document.getElementById('import-input').click()">
+    <span>Cargar .json</span><span>⭱</span>
+  </button>
+
+  <button class="settingsBtn" onclick="document.getElementById('import-rowcoach-input').click()">
+    <span>Cargar backup RowCoach</span><span>⭱</span>
+  </button>
+
+  <div id="excel-import-wrap">
+    <button class="settingsBtn" onclick="document.getElementById('import-excel-input').click()">
+      <span>Cargar Excel del entrenador</span><span>📊</span>
+    </button>
+
+    <div class="settingsStatus" id="excel-import-status">Subí el Excel del entreno (el nombre del archivo tiene que traer la fecha, ej "22-07").</div>
+
+    <div id="apodo-section">
+      <div class="sectionTitle" style="font-size:15px;margin:16px 0 6px;">Apodos → Usuarios</div>
+      <div id="apodo-list"></div>
+    </div>
+  </div>
+
+  <div class="line"></div>
+
+  <button class="settingsBtn" onclick="exportCSV()">
+    <span>Exportar CSV</span><span>⭳</span>
+  </button>
+
+  <div id="reset-db-wrap">
+    <button class="settingsBtn danger" onclick="showClearConfirm()">
+      <span>Borrar todas mis sesiones</span><span>✕</span>
+    </button>
+  </div>
+
+  <button class="settingsBtn danger" id="logout-btn" onclick="logout()">
+    <span>Cerrar sesión</span><span>⎋</span>
+  </button>
+
+  <input type="file" id="import-input" accept=".json" style="display:none" onchange="importJSON(event)">
+  <input type="file" id="import-rowcoach-input" accept=".json" style="display:none" onchange="importRowCoachJSON(event)">
+  <input type="file" id="import-excel-input" accept=".xlsx,.xls,.csv" style="display:none" onchange="importExcel(event)">
+
+  <div class="settingsStatus" id="db-status">Cargando…</div>
+
+</section>
+
+<!-- ================= NAV ================= -->
+<div class="taskbar-wrapper">
+  <nav class="glass-taskbar-container" id="taskbar">
+
+    <button class="glass-btn active" id="nav-home" onclick="navigateTo('home', 'resumen', this)">
+      <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">
+        <path stroke-linecap="round" stroke-linejoin="round" d="M10.5 6a7.5 7.5 0 107.5 7.5h-7.5V6z" />
+        <path stroke-linecap="round" stroke-linejoin="round" d="M13.5 10.5H21A7.5 7.5 0 0013.5 3v7.5z" />
+      </svg>
+      <span>Home</span>
+    </button>
+
+    <button class="glass-btn" id="nav-train" onclick="navigateTo('train', 'train', this)">
+      <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">
+        <path stroke-linecap="round" stroke-linejoin="round" d="M15.362 5.214A8.252 8.252 0 0112 21 8.25 8.25 0 016.038 7.048 8.287 8.287 0 009 9.6a8.983 8.983 0 013.361-6.867 8.21 8.21 0 003 2.48z" />
+        <path stroke-linecap="round" stroke-linejoin="round" d="M12 18a3.75 3.75 0 00.495-7.467 5.99 5.99 0 00-1.925 3.546 5.974 5.974 0 01-2.133-1A3.75 3.75 0 0012 18z" />
+      </svg>
+      <span>Train</span>
+    </button>
+
+    <button class="glass-btn" id="nav-historial" onclick="navigateTo('historial', 'historial', this)">
+      <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">
+        <path stroke-linecap="round" stroke-linejoin="round" d="M8.25 6.75h12M8.25 12h12m-12 5.25h12M3.75 6.75h.007v.008H3.75V6.75zm.375 0a.375.375 0 11-.75 0 .375.375 0 01.75 0zM3.75 12h.007v.008H3.75V12zm.375 0a.375.375 0 11-.75 0 .375.375 0 01.75 0zm-.375 5.25h.007v.008H3.75v-.008zm.375 0a.375.375 0 11-.75 0 .375.375 0 01.75 0z" />
+      </svg>
+      <span>Sesiones</span>
+    </button>
+
+  </nav>
+</div>
+</div>
+
+<!-- ================= MODALES ================= -->
+<div class="overlay" id="clear-overlay">
+  <div class="modal">
+    <h4>Borrar todas mis sesiones</h4>
+    <p>Esto elimina de forma permanente todas tus sesiones guardadas. Guardá el .json antes si querés conservar una copia.</p>
+    <div class="modalBtns">
+      <button class="cancel" onclick="document.getElementById('clear-overlay').classList.remove('show')">Cancelar</button>
+      <button class="confirm" onclick="clearDB()">Sí, borrar todo</button>
+    </div>
+  </div>
+</div>
+
+<div class="overlay" id="delete-session-overlay">
+  <div class="modal">
+    <h4>Eliminar sesión</h4>
+    <p>Vas a eliminar <strong id="delete-session-desc">esta sesión</strong> de forma permanente. Esta acción no se puede deshacer.</p>
+    <div class="confirmTypeBox">
+      <label for="delete-confirm-input">Escribí <strong>ELIMINAR</strong> para confirmar</label>
+      <input type="text" id="delete-confirm-input" placeholder="ELIMINAR" autocomplete="off" oninput="checkDeleteConfirmInput()">
+    </div>
+    <div class="modalBtns">
+      <button class="cancel" onclick="cancelDeleteSession()">Cancelar</button>
+      <button class="confirm" id="delete-confirm-btn" onclick="confirmDeleteSession()" disabled>Sí, eliminar</button>
+    </div>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
 <script>
-/* =====================================================
-   CONFIGURACIÓN  ← EDITÁ ESTO
-   ===================================================== */
-const CONFIG = {
-  SUPABASE_URL: "https://bpclsyvvwsdybicddmee.supabase.co",          // Project URL de Supabase. Vacío = modo demo
-  SUPABASE_KEY: "sb_publishable_1tWdx70gALNUqj38Hh75UQ_s2I4fgf1",          // clave "anon" / "publishable" (pública)
-  NEGOCIO: "MateClub",       // Se cambian desde el panel (admin.html → Tienda)
-  LEMA: "#ELRITUALDELMATE",
-  WHATSAPP: "5492233403055",              // con código de país, sin signos. Ej: 5492231234567
-  INSTAGRAM: "",             // usuario sin @
-  MONEDA: "$"
-};
+/* ============================================================
+   REMO — Index.js
+   Conexión a Supabase + lógica de la app (login, Train, Sesiones, Home)
+   Alcance: atleta individual (sin panel de entrenador, Excel ni apodos).
+   ============================================================ */
 
-const demo = !CONFIG.SUPABASE_URL;
+const SUPABASE_URL = 'https://bpclsyvvwsdybicddmee.supabase.co';
+const SUPABASE_KEY = 'sb_publishable_1tWdx70gALNUqj38Hh75UQ_s2I4fgf1';
 
-const DEMO_P = [
-  {id:"1",nombre:"Mate Imperial",descripcion:"Calabaza forrada en cuero, virola de alpaca.",precio:38000,stock:8,categoria:"Mates"},
-  {id:"2",nombre:"Mate Camionero",descripcion:"Calabaza grande, ideal para todo el día.",precio:29000,stock:2,categoria:"Mates"},
-  {id:"3",nombre:"Mate de algarrobo",descripcion:"Tallado a mano, no necesita curado.",precio:22000,stock:0,categoria:"Mates"},
-  {id:"4",nombre:"Mate de cerámica verde",descripcion:"Esmaltado, liviano y fácil de limpiar.",precio:18000,stock:10,categoria:"Mates"},
-  {id:"5",nombre:"Mate de cerámica terracota",descripcion:"Mismo molde, esmalte cálido.",precio:18000,stock:7,categoria:"Mates"},
-  {id:"6",nombre:"Mate de palo santo",descripcion:"Madera aromática, calabaza de 250 ml.",precio:26500,stock:4,categoria:"Mates"},
-  {id:"7",nombre:"Bombilla pico de loro",descripcion:"Acero inoxidable, filtro desmontable.",precio:9500,stock:20,categoria:"Bombillas"},
-  {id:"8",nombre:"Bombilla de alpaca",descripcion:"Resorte flexible y cuerpo de alpaca.",precio:16500,stock:6,categoria:"Bombillas"},
-  {id:"9",nombre:"Bombilla con resorte",descripcion:"Filtro fino, no se tapa con yerba molida.",precio:7800,stock:3,categoria:"Bombillas"},
-  {id:"10",nombre:"Set matero completo",descripcion:"Mate, bombilla, yerbera y azucarera en bolso.",precio:64000,stock:3,categoria:"Sets"},
-  {id:"11",nombre:"Set viajero",descripcion:"Termo de 1 litro, mate y bombilla en funda.",precio:72500,stock:5,categoria:"Sets"},
-  {id:"12",nombre:"Kit de iniciación",descripcion:"Mate curado, bombilla y paquete de yerba.",precio:31000,stock:12,categoria:"Sets"},
-  {id:"13",nombre:"Termo acero 1 L",descripcion:"Mantiene el agua caliente hasta 24 horas.",precio:42000,stock:9,categoria:"Accesorios"},
-  {id:"14",nombre:"Yerbera de cuero",descripcion:"Cuero vacuno con cierre hermético.",precio:12000,stock:12,categoria:"Accesorios"},
-  {id:"15",nombre:"Azucarera de cuero",descripcion:"Hace juego con la yerbera.",precio:11000,stock:0,categoria:"Accesorios"}
-];
-const DEMO_N = [
-  {etiqueta:"Lanzamiento",titulo:"Mates de cerámica en tres colores",texto:"Livianos, esmaltados y listos para usar desde el primer mate.",arte:"mate cerámica"},
-  {etiqueta:"Tip",titulo:"Cómo curar tu mate",texto:"Yerba usada, agua tibia y 24 horas de paciencia. Te dejamos el paso a paso.",arte:"mate calabaza"},
-  {etiqueta:"Promo",titulo:"Sets con envío gratis",texto:"En todos los sets completos, durante el mes.",arte:"set matero"}
-];
-const PALETA = ["#f2d48a","#cfe3a0","#f1c3a0","#e6d3b3","#b7d2c4","#e9b8a8","#d9c98a","#cdbfe3"];
-const TONOS = ["#5f8f7a","#c8793f","#4b6a8a","#b0566a","#7a6aa8","#3f5d2c"];
+// Clave única de Google Gemini para el reconocimiento por foto en Train.
+// La sacás gratis (sin tarjeta) en https://aistudio.google.com/apikey y la pegás acá una sola vez.
+// Vale para los ~12 usuarios de la app; no hace falta que cada uno tenga la suya.
+const GEMINI_API_KEY = 'AQ.Ab8RN6Jdr8rwWrFeAPDcWsfkltuwM0KyLXwNubzFl3OEVGVlpg';
 
-/* ---------- Ilustraciones (si el producto no tiene foto) ---------- */
-const SH = '<ellipse cx="100" cy="184" rx="50" ry="7" fill="rgba(0,0,0,.22)"/>';
-const STRAW = (x1,y1,x2,y2)=>`<line x1="${x1}" y1="${y1}" x2="${x2}" y2="${y2}" stroke="#d6dadd" stroke-width="5" stroke-linecap="round"/>`;
-function hash(s){let h=0;for(const c of s)h=(h*31+c.charCodeAt(0))>>>0;return h;}
-function ilustrar(p){
-  const k=(String(p.nombre||"")+" "+String(p.categoria||"")).toLowerCase();
-  const t=/terracota/.test(k)?TONOS[1]:/verde/.test(k)?TONOS[0]:TONOS[hash(k)%TONOS.length];
-  let g;
-  if(/bombilla/.test(k)) g=`<g transform="rotate(20 100 100)"><rect x="95" y="10" width="10" height="150" rx="5" fill="#d6dadd"/><rect x="97" y="10" width="3" height="150" rx="1.5" fill="#fff" opacity=".7"/><ellipse cx="100" cy="12" rx="9" ry="6" fill="#aab1b6"/><path d="M84 162c0-8 6-14 16-14s16 6 16 14c0 14-8 22-16 22s-16-8-16-22z" fill="#c4cace"/><path d="M90 158l20 22M110 158l-20 22M90 170l14 12M110 170l-14 12" stroke="#7e868c" stroke-width="1.4"/></g>`;
-  else if(/termo/.test(k)) g=`${SH}<rect x="66" y="48" width="68" height="134" rx="16" fill="${t}"/><rect x="66" y="92" width="68" height="10" fill="rgba(255,255,255,.18)"/><rect x="66" y="150" width="68" height="8" fill="rgba(0,0,0,.18)"/><rect x="74" y="26" width="52" height="26" rx="8" fill="#1b1d1a"/><rect x="84" y="14" width="32" height="14" rx="6" fill="#2b2e29"/><rect x="74" y="60" width="8" height="100" rx="4" fill="rgba(255,255,255,.22)"/>`;
-  else if(/yerbera|azucarera/.test(k)) g=`${SH}<rect x="52" y="74" width="96" height="108" rx="14" fill="#a9702f"/><path d="M60 92h80M60 164h80" stroke="#6b4519" stroke-width="2" stroke-dasharray="5 4"/><rect x="48" y="58" width="104" height="22" rx="8" fill="#3a2a18"/><circle cx="100" cy="128" r="21" fill="#f1e6cc"/><circle cx="100" cy="128" r="9" fill="#3f5d2c"/>`;
-  else if(/\bset\b|kit/.test(k)) g=`<path d="M64 100C64 52 136 52 136 100" fill="none" stroke="#4a3320" stroke-width="7" stroke-linecap="round"/><path d="M70 82c-4 24 8 38 30 38s34-14 30-38z" fill="#8a5a2b"/><ellipse cx="100" cy="82" rx="30" ry="9" fill="#3f5d2c"/>${STRAW(108,82,140,20)}<rect x="136" y="46" width="16" height="44" rx="5" fill="#2f4a3a"/><rect x="38" y="104" width="124" height="78" rx="14" fill="#6b4a2a"/><path d="M48 118h104M48 168h104" stroke="#3f2a14" stroke-width="2" stroke-dasharray="5 4"/><rect x="84" y="128" width="32" height="22" rx="5" fill="#d8bf8f"/>${SH.replace('cy="184"','cy="186"')}`;
-  else if(/cer[aá]mica/.test(k)) g=`${SH}<path d="M54 84C48 140 68 180 100 180s52-40 46-96z" fill="${t}"/><path d="M64 100C62 140 74 168 90 174" stroke="rgba(255,255,255,.35)" stroke-width="5" fill="none" stroke-linecap="round"/><ellipse cx="100" cy="84" rx="46" ry="13" fill="#f3efe6"/><ellipse cx="100" cy="85" rx="38" ry="9" fill="#3f5d2c"/><ellipse cx="100" cy="84" rx="26" ry="5" fill="#2a3d1d"/>${STRAW(114,85,150,26)}`;
-  else if(/madera|algarrobo|palo santo/.test(k)) g=`${SH}<path d="M50 78C40 134 60 182 100 182s60-48 50-104z" fill="#b98349"/><path d="M62 96c4 30 2 56 14 76M86 100c3 28 0 52 6 76M114 100c-3 28 0 52-6 76M138 96c-4 30-2 56-14 76" stroke="#8a5d2d" stroke-width="2.2" fill="none" opacity=".7"/><ellipse cx="100" cy="78" rx="52" ry="15" fill="#6f4a22"/><ellipse cx="100" cy="79" rx="42" ry="10" fill="#3f5d2c"/><ellipse cx="100" cy="78" rx="30" ry="6" fill="#2a3d1d"/>${STRAW(112,79,150,18)}`;
-  else g=`${SH}<path d="M52 80C40 132 60 180 100 180s60-48 48-100z" fill="#8a5a2b"/><path d="M64 96c-5 34 8 68 36 72M136 96c5 34-8 68-36 72M100 96v72" stroke="#5e3b17" stroke-width="1.6" fill="none" stroke-dasharray="4 4"/><ellipse cx="100" cy="80" rx="48" ry="14" fill="#d9d4c8"/><ellipse cx="100" cy="80" rx="40" ry="9" fill="#3f5d2c"/><ellipse cx="100" cy="79" rx="28" ry="5" fill="#2a3d1d"/>${STRAW(112,80,150,18)}`;
-  return `<svg viewBox="0 0 200 200" aria-hidden="true">${g}</svg>`;
+let sb = null;
+let currentUser = null;
+let entrenamientosCache = [];
+let editingSessionId = null;
+let pendingDeleteId = null;
+let tableFilterValue = '';
+let regatasCache = [];      // regatas del usuario (tabla `regatas` en Supabase)
+let inicioBloque = null;    // inicio del bloque de carga (tabla `configuracion`)
+let zonaManual = false;     // true = el usuario eligió la zona a mano; false = automática
+let configDBLista = true;
+// Umbrales para reconocer la zona automáticamente por SPM (ajustalos al plan del entrenador).
+// hasta z1Max → Z1 · hasta z2Max → Z2 · hasta wattsMax → Watts · más → Sprint
+const ZONA_SPM = { z1Max: 19, z2Max: 23, wattsMax: 30 };
+const DOMINIO_INTERNO = 'remo.local';
+const N_PARCIALES_MAX = 10;
+
+// Zonas: el orden es el que recorre el círculo al tocarlo en Train.
+const CATEGORIAS = ['z1', 'z2', 'watts', 'sprint', 'test'];
+const CAT_LABEL = { z1: 'Z1', z2: 'Z2', watts: 'W', sprint: 'SP', test: 'TS' };
+const CAT_NOMBRE = { z1: 'Zona 1', z2: 'Zona 2', watts: 'Watts', sprint: 'Sprint', test: 'Test' };
+const DIAS = ['Domingo', 'Lunes', 'Martes', 'Miércoles', 'Jueves', 'Viernes', 'Sábado'];
+
+const $ = (id) => document.getElementById(id);
+
+/* ---------------- Utilidades ---------------- */
+
+function esc(v) {
+  return String(v ?? '')
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;')
+    .replace(/"/g, '&quot;');
 }
 
-/* ---------- Datos ---------- */
-const $ = s => document.querySelector(s);
-const fmt = n => CONFIG.MONEDA + Number(n).toLocaleString("es-AR");
-const esc = s => String(s??"").replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
-let productos = [];
-let carrito = {};
-try{ carrito = JSON.parse(localStorage.getItem("carritoMates")||"{}"); }catch(e){}
+function toast(msg) {
+  const t = $('toast');
+  if (!t) return;
+  t.textContent = msg;
+  t.classList.add('show');
+  clearTimeout(toast._h);
+  toast._h = setTimeout(() => t.classList.remove('show'), 2600);
+}
 
-async function sb(path){
-  const r=await fetch(CONFIG.SUPABASE_URL.replace(/\/$/,"")+"/rest/v1/"+path,{cache:"no-store",headers:{apikey:CONFIG.SUPABASE_KEY,Authorization:"Bearer "+CONFIG.SUPABASE_KEY}});
-  if(!r.ok)throw new Error(r.status);return r.json();
+// Fechas siempre en hora LOCAL (toISOString() devuelve UTC y en Argentina
+// después de las 21 h daba el día siguiente).
+function isoDeFecha(d) {
+  return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`;
 }
-function demoLeer(k,def){try{const d=JSON.parse(localStorage.getItem(k));if(Array.isArray(d))return d;}catch(e){}return def;}
-function textoPara(hex){
-  const h=(hex||"#fff").replace("#","");const n=parseInt(h.length===3?h.replace(/./g,"$&$&"):h,16);
-  return (0.299*(n>>16)+0.587*((n>>8)&255)+0.114*(n&255))>150?"#1b1d1a":"#f6efe2";
+function hoyISO() { return isoDeFecha(new Date()); }
+function fechaDesdeISO(iso) {
+  const [y, m, d] = iso.split('-').map(Number);
+  return new Date(y, m - 1, d);
 }
-function aplicarMarca(a){
-  if(a)for(const k of ["negocio","lema","whatsapp","instagram"])if(a[k])CONFIG[k.toUpperCase()]=String(a[k]);
-  if(demo){CONFIG.WHATSAPP=CONFIG.WHATSAPP||"5492230000000";CONFIG.INSTAGRAM=CONFIG.INSTAGRAM||"tu_usuario";}
-  const n=CONFIG.NEGOCIO,m=n.match(/^(.+?)([A-Z][^A-Z\s]*)$/),wa=CONFIG.WHATSAPP,ig=CONFIG.INSTAGRAM;
-  $(".logo").innerHTML=m?esc(m[1])+"<span>"+esc(m[2])+"</span>":esc(n);
-  $(".tagline").textContent=CONFIG.LEMA;document.title=n;$("#fname").textContent=n;
-  $("#waLink").href=wa?`https://wa.me/${wa}`:"#";$("#waLink").hidden=!wa;
-  $("#igLink").href=ig?`https://instagram.com/${ig}`:"#";$("#igLink").hidden=!ig;
-  $("#igTxt").textContent=ig?"@"+ig:n;
-  $("#soc").innerHTML=(ig?`<a href="https://instagram.com/${esc(ig)}" target="_blank" rel="noopener">Instagram @${esc(ig)}</a>`:"")+(wa?`<a href="https://wa.me/${esc(wa)}" target="_blank" rel="noopener">WhatsApp</a>`:"");
-  $("#send").hidden=!wa;$("#sendIg").hidden=!ig;$("#cnote").hidden=!ig;
+function diasEntre(aISO, bISO) {
+  return Math.round((fechaDesdeISO(bISO) - fechaDesdeISO(aISO)) / 86400000);
 }
-async function cargar(){
-  if(demo){
-    productos=demoLeer("mateclub_demo_p",DEMO_P).filter(p=>p.activo!==false);
-    renderNews(demoLeer("mateclub_demo_n",DEMO_N).filter(n=>n.activo!==false));
-    try{aplicarMarca(JSON.parse(localStorage.getItem("mateclub_demo_a")||"null"));}catch(e){}
+function fechaLegible(iso) {
+  if (!iso) return '';
+  const [y, m, d] = iso.split('-');
+  return `${d}/${m}/${y}`;
+}
+function fechaCorta(iso) {
+  if (!iso) return '';
+  const [, m, d] = iso.split('-');
+  return `${d}/${m}`;
+}
+function nombreDia(iso) {
+  return DIAS[fechaDesdeISO(iso).getDay()];
+}
+
+// "mm:ss", "mm:ss.s", "mm:ss,s" o "hh:mm:ss(.s)" -> segundos (float). Acepta coma decimal.
+function parseTiempoASegundos(str) {
+  if (!str) return null;
+  const partes = String(str).trim().replace(',', '.').split(':').map((p) => parseFloat(p));
+  if (partes.some((n) => isNaN(n))) return null;
+  if (partes.length === 2) return partes[0] * 60 + partes[1];
+  if (partes.length === 3) return partes[0] * 3600 + partes[1] * 60 + partes[2];
+  return null;
+}
+
+function segundosATiempo(seg) {
+  if (seg === null || seg === undefined || isNaN(seg)) return '';
+  const s = Math.round(seg * 10) / 10;
+  const m = Math.floor(s / 60);
+  const rest = s - m * 60;
+  const restStr = rest < 10 ? '0' + rest.toFixed(1) : rest.toFixed(1);
+  return m + ':' + restStr;
+}
+
+// "123.4" -> "123,4" (para mostrar como en el diseño)
+function conComa(str) {
+  return str == null ? '' : String(str).replace('.', ',');
+}
+
+function normTiempo(str) {
+  const t = String(str ?? '').trim().replace(',', '.');
+  return t || null;
+}
+
+function descargar(blob, nombre) {
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url;
+  a.download = nombre;
+  document.body.appendChild(a);
+  a.click();
+  a.remove();
+  URL.revokeObjectURL(url);
+}
+
+/* ---------------- Supabase / Auth ---------------- */
+
+function initSupabase() {
+  if (!window.supabase) {
+    console.error('No se pudo cargar la librería de Supabase.');
+    toast('No se pudo conectar con Supabase. Revisá tu conexión.');
     return;
   }
-  try{
-    const rows=await sb("productos?select=*&activo=eq.true&order=categoria.asc,nombre.asc");
-    productos=rows.map(o=>({...o,id:String(o.id),precio:Number(o.precio)||0,stock:Number(o.stock)||0}));
-  }catch(e){
-    console.error(e);
-    $("#cats").innerHTML='<div class="state">No se pudieron cargar los productos. Probá de nuevo en unos minutos.</div>';
-  }
-  try{renderNews(await sb("novedades?select=*&activo=eq.true&order=creado.desc"));}catch(e){renderNews([]);}
-  try{const a=await sb("ajustes?select=*&id=eq.1");aplicarMarca(a[0]);}catch(e){}
+  sb = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
 }
 
-/* ---------- Render ---------- */
-function renderCats(){
-  if(!productos.length)return;
-  const cats=[...new Set(productos.map(p=>p.categoria||"Productos"))];
-  let k=0;
-  $("#cats").innerHTML=cats.map((c,ci)=>{
-    const lista=productos.filter(p=>(p.categoria||"Productos")===c);
-    return `<div class="cat"><div class="cat-h"><i></i><h3>${esc(c)}</h3>
-      <div class="arrows"><button class="arr" data-s="${ci}" data-d="-1" aria-label="Anterior">←</button><button class="arr" data-s="${ci}" data-d="1" aria-label="Siguiente">→</button></div></div>
-      <div class="slider" data-i="${ci}">${lista.map(p=>{
-        const col=p.color||PALETA[k++%PALETA.length],t=textoPara(col),sin=p.stock<=0,poco=!sin&&p.stock<=3;
-        return `<article class="pcard"><div class="pimg">${p.imagen?`<img src="${esc(p.imagen)}" alt="${esc(p.nombre)}" loading="lazy" draggable="false">`:ilustrar(p)}
-          <span class="stag ${sin?"out":poco?"low":""}">${sin?"Sin stock":poco?"Últimas "+p.stock:"Disponible"}</span></div>
-          <div class="pdesc" style="--c:${esc(col)};--t:${t}"><strong>${esc(p.nombre)}</strong><p>${esc(p.descripcion)}</p>
-          <div class="pfoot"><span class="price">${fmt(p.precio)}</span><button class="add" data-id="${esc(p.id)}" ${sin?"disabled":""} aria-label="Agregar ${esc(p.nombre)} al carrito">+</button></div></div></article>`;}).join("")}</div></div>`;
-  }).join("");
-  document.querySelectorAll(".add").forEach(b=>b.onclick=()=>agregar(b.dataset.id));
-  document.querySelectorAll(".arr").forEach(b=>b.onclick=()=>{document.querySelector(`.slider[data-i="${b.dataset.s}"]`).scrollBy({left:+b.dataset.d*310,behavior:"smooth"});});
-  document.querySelectorAll(".slider").forEach(s=>{
-    let down=false,sx=0,sl=0;
-    s.addEventListener("pointerdown",e=>{if(e.pointerType!=="mouse"||e.target.closest("button"))return;down=true;sx=e.pageX;sl=s.scrollLeft;s.classList.add("drag");});
-    addEventListener("pointerup",()=>{down=false;s.classList.remove("drag");});
-    s.addEventListener("pointermove",e=>{if(down)s.scrollLeft=sl-(e.pageX-sx);});
+async function checkSession() {
+  if (!sb) return;
+  const { data } = await sb.auth.getSession();
+  if (data.session) onLoggedIn(data.session.user);
+}
+
+function showRegisterMode() {
+  $('login-mode').style.display = 'none';
+  $('register-mode').style.display = '';
+  $('register-err').textContent = '';
+}
+
+function showLoginMode() {
+  $('register-mode').style.display = 'none';
+  $('login-mode').style.display = '';
+  $('login-err').textContent = '';
+}
+
+async function doLogin() {
+  const usuario = $('login-user').value.trim().toLowerCase();
+  const pass = $('login-pass').value;
+  $('login-err').textContent = '';
+  if (!usuario || !pass) {
+    $('login-err').textContent = 'Completá usuario y contraseña.';
+    return;
+  }
+  const email = usuario.includes('@') ? usuario : `${usuario}@${DOMINIO_INTERNO}`;
+  const { data, error } = await sb.auth.signInWithPassword({ email, password: pass });
+  if (error) {
+    $('login-err').textContent = 'Usuario o contraseña incorrectos.';
+    return;
+  }
+  onLoggedIn(data.user);
+}
+
+async function doRegister() {
+  const usuario = $('reg-user').value.trim().toLowerCase();
+  const pass = $('reg-pass').value;
+  const pass2 = $('reg-pass2').value;
+  $('register-err').textContent = '';
+
+  if (!usuario || !pass) {
+    $('register-err').textContent = 'Completá usuario y contraseña.';
+    return;
+  }
+  if (!/^[a-z0-9._-]+$/.test(usuario)) {
+    $('register-err').textContent = 'El usuario solo puede tener letras, números, punto, guion o guion bajo.';
+    return;
+  }
+  if (pass.length < 4) {
+    $('register-err').textContent = 'La contraseña tiene que tener al menos 4 caracteres.';
+    return;
+  }
+  if (pass !== pass2) {
+    $('register-err').textContent = 'Las contraseñas no coinciden.';
+    return;
+  }
+
+  const email = `${usuario}@${DOMINIO_INTERNO}`;
+  const { data, error } = await sb.auth.signUp({ email, password: pass });
+  if (error) {
+    $('register-err').textContent = error.message.toLowerCase().includes('already registered')
+      ? 'Ese usuario ya existe, probá con otro o iniciá sesión.'
+      : 'Error: ' + error.message;
+    return;
+  }
+  if (data.session) {
+    onLoggedIn(data.user);
+  } else {
+    toast('Cuenta creada. Iniciá sesión.');
+    showLoginMode();
+  }
+}
+
+async function logout() {
+  if (sb) await sb.auth.signOut();
+  currentUser = null;
+  entrenamientosCache = [];
+  regatasCache = [];
+  inicioBloque = null;
+  editingSessionId = null;
+  $('login-overlay').style.display = '';
+  showLoginMode();
+  $('login-user').value = '';
+  $('login-pass').value = '';
+  navigateTo('home', 'resumen', $('nav-home'));
+}
+
+function onLoggedIn(user) {
+  currentUser = user;
+  $('login-overlay').style.display = 'none';
+  setAvatarInitials(user.email);
+  const usuario = (user.email || '').split('@')[0];
+  if ($('settings-user')) $('settings-user').textContent = `Sesión iniciada como ${usuario}`;
+  if (!$('f-date').value) $('f-date').value = hoyISO();
+  cargarConfigDB();
+  cargarEntrenamientos();
+}
+
+/* ---------------- Navegación ---------------- */
+
+function navigateTo(pageId, label, btnEl) {
+  document.querySelectorAll('.page').forEach((p) => p.classList.remove('active'));
+  const page = $(pageId);
+  if (page) page.classList.add('active');
+  document.querySelectorAll('.glass-btn').forEach((b) => b.classList.remove('active'));
+  if (btnEl) btnEl.classList.add('active');
+  if (pageId === 'historial') renderHistorial();
+  if (page) page.scrollTop = 0;
+}
+
+/* ---------------- Train: medio / zona / parciales ---------------- */
+
+function toggleWaterOptions() {
+  const esAgua = $('f-medium').value === 'agua';
+  $('water-options').style.display = esAgua ? '' : 'none';
+  const card = document.querySelector('.train-summary-card');
+  if (card) card.classList.toggle('is-agua', esAgua);
+}
+
+// Marca la sesión como "no completada" (borde rojo).
+// (a prueba de que falte el interruptor en el HTML: nunca rompe el guardado ni la IA)
+function esIncompleto() {
+  const c = $('f-incomplete');
+  return !!(c && c.checked);
+}
+
+function toggleIncomplete() {
+  const on = esIncompleto();
+  const t = $('incomplete-toggle');
+  if (t) t.classList.toggle('on', on);
+  const card = document.querySelector('.train-summary-card');
+  if (card) card.classList.toggle('is-incompleto', on);
+}
+
+function setIncompleto(valor) {
+  const c = $('f-incomplete');
+  if (c) c.checked = !!valor;
+  toggleIncomplete();
+}
+
+// Porcentaje del agua: acepta décimas con punto o coma (88.2 / 88,2).
+function leerPorcentaje() {
+  const v = String($('f-percentage').value).trim().replace(',', '.');
+  if (!v) return null;
+  const n = Number(v);
+  return isNaN(n) ? null : Math.round(n * 10) / 10;
+}
+
+function setCategoria(cat) {
+  const c = CATEGORIAS.includes(cat) ? cat : 'z1';
+  $('f-cat').value = c;
+  const btn = $('f-cat-btn');
+  btn.textContent = CAT_LABEL[c];
+  btn.className = 'cat-circle z-' + c;
+  btn.title = CAT_NOMBRE[c] + (zonaManual ? '' : ' (automática)');
+  $('zone-wrap').classList.toggle('auto', !zonaManual);
+  const activo = zonaManual ? c : 'auto';
+  document.querySelectorAll('#zone-menu .zoneItem').forEach((b) => b.classList.toggle('active', b.dataset.zona === activo));
+}
+
+// Lista desplegable de zonas (primera opción: automática).
+function construirMenuZona() {
+  const m = $('zone-menu');
+  m.innerHTML =
+    `<button type="button" class="zoneItem" data-zona="auto"><span class="zdot auto"></span><span>Automática</span></button>` +
+    CATEGORIAS.map((c) =>
+      `<button type="button" class="zoneItem" data-zona="${c}"><span class="zdot z-${c}"></span><span>${CAT_NOMBRE[c]}</span></button>`).join('');
+  m.querySelectorAll('.zoneItem').forEach((b) =>
+    b.addEventListener('click', () => { elegirZona(b.dataset.zona); cerrarMenuZona(); }));
+}
+
+function toggleMenuZona(ev) {
+  if (ev) ev.stopPropagation();
+  $('zone-menu').classList.toggle('show');
+}
+
+function cerrarMenuZona() {
+  $('zone-menu').classList.remove('show');
+}
+
+function elegirZona(z) {
+  if (z === 'auto') {
+    zonaManual = false;
+    autoZona();
+  } else {
+    zonaManual = true;
+    setCategoria(z);
+  }
+}
+
+// Reconoce la zona a partir de nombre del trabajo, SPM y parciales (sirve para el formulario y para la carga por IA).
+function zonaDeDatos({ tipo, spm, metros, n }) {
+  const t = String(tipo || '').trim().toLowerCase();
+  if (/\btest\b/.test(t) || /^(2000\s*m?|2\s*k(m)?)$/.test(t)) return 'test';
+  if (n <= 1 && metros === 2000) return 'test';
+  if (/sprint/.test(t)) return 'sprint';
+  if (/watt/.test(t)) return 'watts';
+  if (!spm) return null;
+  if (spm <= ZONA_SPM.z1Max) return 'z1';
+  if (spm <= ZONA_SPM.z2Max) return 'z2';
+  if (spm <= ZONA_SPM.wattsMax) return 'watts';
+  return 'sprint';
+}
+
+// Reconoce la zona con lo que hay cargado en el formulario.
+function detectarZona() {
+  const tot = calcularTotales();
+  return zonaDeDatos({
+    tipo: $('f-type').value,
+    spm: Number($('f-spm').value) || tot.spm,
+    metros: tot.metros || Number($('f-meters').value) || 0,
+    n: tot.n,
   });
 }
-function renderNews(list){
-  const sec=$("#novedades");
-  if(!list.length){sec.hidden=true;return;}
-  $("#mosaic").innerHTML=Array(14).fill("NUEVO!").map(t=>`<span>${t}</span>`).join("");
-  $("#ncols").innerHTML=list.slice(0,3).map((n,i)=>`<article class="ncard"><div class="tg"><i></i><span>${esc(n.etiqueta||"Novedad")}</span></div>
-    <h4>${esc(n.titulo)}</h4><p>${esc(n.texto)}</p>
-    <div class="nimg" style="background:${PALETA[(i*2+1)%PALETA.length]}">${n.imagen?`<img src="${esc(n.imagen)}" alt="${esc(n.titulo)}" loading="lazy">`:`<div>${ilustrar({nombre:n.arte||n.titulo})}</div>`}</div></article>`).join("");
+
+function autoZona() {
+  if (zonaManual) return;
+  setCategoria(detectarZona() || $('f-cat').value);
 }
 
-/* ---------- Carrito ---------- */
-function guardar(){try{localStorage.setItem("carritoMates",JSON.stringify(carrito));}catch(e){}renderCarrito();}
-function toast(m){const t=$("#toast");t.textContent=m;t.classList.add("on");clearTimeout(toast.h);toast.h=setTimeout(()=>t.classList.remove("on"),1800);}
-function agregar(id){
-  const p=productos.find(x=>String(x.id)===String(id));if(!p)return;
-  const a=carrito[id]||0;
-  if(a>=p.stock){toast("No hay más stock de este producto");return;}
-  carrito[id]=a+1;guardar();toast(p.nombre+" agregado al carrito");
-}
-function cambiar(id,d){
-  const p=productos.find(x=>String(x.id)===String(id));const n=(carrito[id]||0)+d;
-  if(n<=0)delete carrito[id];else if(p&&n<=p.stock)carrito[id]=n;guardar();
-}
-function lineas(){return Object.keys(carrito).map(id=>{const p=productos.find(x=>String(x.id)===id);return p&&p.stock>0?{p,q:Math.min(carrito[id],p.stock),id}:null;}).filter(Boolean);}
-function mensaje(){
-  const L=lineas(),total=L.reduce((a,l)=>a+l.p.precio*l.q,0);
-  const n=$("#nombre").value.trim(),nt=$("#nota").value.trim();
-  return `Hola! Quiero hacer un pedido:\n\n${L.map(l=>`• ${l.q} x ${l.p.nombre} — ${fmt(l.p.precio*l.q)}`).join("\n")}\n\nTotal: ${fmt(total)}`+(n?`\nNombre: ${n}`:"")+(nt?`\nNota: ${nt}`:"")+"\n\n¿Cómo coordinamos el pago y la entrega?";
-}
-function renderCarrito(){
-  const L=lineas();let total=0,cant=0;
-  $("#items").innerHTML=L.length?L.map(({p,q,id})=>{total+=p.precio*q;cant+=q;
-    return `<div class="it"><div class="th" style="--c:${esc(p.color||"#e6d3b3")}">${p.imagen?`<img src="${esc(p.imagen)}" alt="">`:ilustrar(p)}</div>
-    <div class="n">${esc(p.nombre)}<small>${fmt(p.precio)} c/u</small></div>
-    <div class="qty"><button onclick="cambiar('${esc(id)}',-1)" aria-label="Quitar uno">−</button><span>${q}</span><button onclick="cambiar('${esc(id)}',1)" aria-label="Sumar uno">+</button></div></div>`;}).join(""):'<div class="empty">Tu carrito está vacío.</div>';
-  $("#total").textContent=fmt(total);$("#count").textContent=cant;
-}
-const abrir=()=>{$("#cart").classList.add("on");$("#ov").classList.add("on");};
-const cerrar=()=>{$("#cart").classList.remove("on");$("#ov").classList.remove("on");};
-
-/* ---------- Contactar (el sitio no cobra: el pedido sale por chat) ---------- */
-function ir(url){const w=window.open(url,"_blank","noopener");if(!w)location.href=url;}
-function enviar(canal){
-  if(!lineas().length){toast("El carrito está vacío");return;}
-  const msg=mensaje();
-  if(canal==="wa"){ir(`https://wa.me/${CONFIG.WHATSAPP}?text=${encodeURIComponent(msg)}`);return;}
-  try{navigator.clipboard.writeText(msg).then(()=>toast("Pedido copiado: pegalo en el chat")).catch(()=>{});}catch(e){}
-  ir(`https://ig.me/m/${CONFIG.INSTAGRAM}`);
+function addParcialRow(data) {
+  const cont = $('parciales-container');
+  if (cont.children.length >= N_PARCIALES_MAX) {
+    toast(`Máximo ${N_PARCIALES_MAX} parciales.`);
+    return;
+  }
+  const idx = cont.children.length + 1;
+  const row = document.createElement('div');
+  row.className = 'adv-table-row parcial-row';
+  row.innerHTML = `
+    <div>${idx}</div>
+    <div><input type="text" class="p-tiempo" placeholder="8:00" inputmode="decimal" value="${esc(data?.tiempo)}"></div>
+    <div><input type="number" class="p-metros" placeholder="2381" inputmode="numeric" value="${esc(data?.metros)}"></div>
+    <div><input type="text" class="p-pace" placeholder="1:59.3" inputmode="decimal" value="${esc(data?.pace)}"></div>
+    <div><input type="number" class="p-spm" placeholder="18" inputmode="numeric" value="${esc(data?.spm)}"></div>
+    <div><button type="button" class="removeParcialBtn" aria-label="Quitar parcial" onclick="this.closest('.parcial-row').remove(); renumerarParciales();">✕</button></div>
+  `;
+  cont.appendChild(row);
 }
 
-/* ---------- UI ---------- */
-const burger=$("#burger"),menu=$("#menu");
-function toggleMenu(f){const on=f??!menu.classList.contains("on");menu.classList.toggle("on",on);burger.classList.toggle("x",on);burger.setAttribute("aria-label",on?"Cerrar menú":"Abrir menú");document.body.style.overflow=on?"hidden":"";}
-burger.onclick=()=>toggleMenu();
-menu.querySelectorAll("a").forEach(a=>a.onclick=()=>toggleMenu(false));
-$("#openCart").onclick=abrir;$("#closeCart").onclick=cerrar;$("#ov").onclick=cerrar;
-$("#send").onclick=()=>enviar("wa");$("#sendIg").onclick=()=>enviar("ig");
-$("#year").textContent=new Date().getFullYear();
-const mq=["Mates","✦","Bombillas","✦","Yerberas","✦","Sets","✦","Accesorios","✦"].map(t=>`<span>${t}</span>`).join("");
-$("#marq").innerHTML=mq.repeat(4);
-const top_=$("#top"),fl=$("#floaty");
-addEventListener("scroll",()=>{const y=scrollY;top_.classList.toggle("solid",y>60);fl.style.transform=`translateY(calc(-50% + ${Math.min(y,700)*.16}px))`;},{passive:true});
-aplicarMarca();
-(async()=>{await cargar();renderCats();renderCarrito();})();
+function renumerarParciales() {
+  [...$('parciales-container').children].forEach((row, i) => {
+    row.firstElementChild.textContent = i + 1;
+  });
+  autoTotalesForm();
+}
+
+/* ---------- Cálculo automático (en el agua solo se ve el tiempo total) ---------- */
+
+// Un campo es "libre" si está vacío o si lo llenó la app sola (no lo escribió el usuario).
+function esLibre(input) {
+  return !input.value.trim() || input.dataset.auto === '1';
+}
+
+// Dentro de un parcial: con tiempo + metros calcula el /500m; con tiempo + /500m calcula los metros.
+function recalcularFila(row) {
+  const iT = row.querySelector('.p-tiempo');
+  const iM = row.querySelector('.p-metros');
+  const iP = row.querySelector('.p-pace');
+  const t = parseTiempoASegundos(iT.value);
+  const m = Number(iM.value);
+  const p = parseTiempoASegundos(iP.value);
+  if (t && m > 0 && esLibre(iP)) {
+    iP.value = segundosATiempo((t / m) * 500);
+    iP.dataset.auto = '1';
+  } else if (t && p && esLibre(iM)) {
+    iM.value = Math.round((t / p) * 500);
+    iM.dataset.auto = '1';
+  }
+}
+
+// Totales del formulario: suma de parciales y /500m promedio, mientras el usuario no los escriba a mano.
+// Si no hay parciales, con tiempo total + metros calcula igual el /500m.
+function autoTotalesForm() {
+  const tot = calcularTotales();
+  const iT = $('f-totaltime');
+  const iM = $('f-meters');
+  const iS = $('f-split');
+  if (esLibre(iT)) {
+    if (tot.segundos) { iT.value = segundosATiempo(tot.segundos); iT.dataset.auto = '1'; }
+    else { iT.value = ''; delete iT.dataset.auto; }
+  }
+  if (esLibre(iM)) {
+    if (tot.metros) { iM.value = tot.metros; iM.dataset.auto = '1'; }
+    else { iM.value = ''; delete iM.dataset.auto; }
+  }
+  const seg = parseTiempoASegundos(iT.value);
+  const m = Number(iM.value);
+  if (esLibre(iS)) {
+    if (seg && m > 0) { iS.value = segundosATiempo((seg / m) * 500); iS.dataset.auto = '1'; }
+    else { iS.value = ''; delete iS.dataset.auto; }
+  }
+}
+
+function limpiarAutoTotales() {
+  ['f-meters', 'f-totaltime', 'f-split'].forEach((id) => delete $(id).dataset.auto);
+}
+
+/* ---------- Campos de tiempo: el teclado numérico del celular no tiene ":" ----------
+   Se escriben solo los números y la app pone ":" y "." sola, como un cronómetro:
+   7123 → 7:12.3 · 2042 → 2:04.2 · 8000 → 8:00.0 · 35000 → 35:00.0
+   Si alguien escribe ":" o "." a mano (teclado completo), se respeta lo que escribió. */
+
+function esCampoTiempo(el) {
+  return !!el && (el.classList.contains('p-tiempo') || el.classList.contains('p-pace') ||
+    el.id === 'f-totaltime' || el.id === 'f-split');
+}
+
+function formatearDigitosATiempo(digitos) {
+  const d = String(digitos).replace(/^0+/, '').slice(0, 7);
+  if (!d) return '';
+  const s = d.padStart(3, '0');
+  return `${s.slice(0, -3) || '0'}:${s.slice(-3, -1)}.${s.slice(-1)}`;
+}
+
+function autoFormatoTiempo(input, ev) {
+  // Escribió un separador a mano: modo manual hasta que vacíe el campo.
+  if (ev && /^[:.,]$/.test(ev.data || '')) input.dataset.manual = '1';
+  if (!input.value.trim()) { delete input.dataset.manual; return; }
+  if (input.dataset.manual === '1') return;
+  const formateado = formatearDigitosATiempo(input.value.replace(/\D/g, ''));
+  if (formateado !== input.value) input.value = formateado;
+}
+
+/* ---------- Guardado en Supabase con respaldo si la base todavía no está actualizada ---------- */
+
+function sinCampo(r, campo) {
+  const f = (o) => { const c = { ...o }; delete c[campo]; return c; };
+  return Array.isArray(r) ? r.map(f) : f(r);
+}
+
+function redondearEnteros(r) {
+  const f = (o) => {
+    const c = { ...o };
+    ['tiempo_segundos', 'porcentaje', 'distancia_metros', 'spm_general'].forEach((k) => {
+      if (c[k] != null) c[k] = Math.round(Number(c[k]));
+    });
+    return c;
+  };
+  return Array.isArray(r) ? r.map(f) : f(r);
+}
+
+// op(registro) -> { error }. Devuelve { error, aviso }.
+async function guardarConRespaldo(op, registro) {
+  let res = await op(registro);
+  let aviso = '';
+  if (res.error && /completado/i.test(res.error.message || '')) {
+    registro = sinCampo(registro, 'completado');
+    res = await op(registro);
+    aviso = ' Falta ejecutar supabase_cambios.sql para guardar "no completado".';
+  }
+  if (res.error && /integer/i.test(res.error.message || '')) {
+    registro = redondearEnteros(registro);
+    res = await op(registro);
+    aviso = ' Se guardó redondeado: ejecutá supabase_cambios.sql en Supabase para guardar décimas.';
+  }
+  if (res.error && /check constraint/i.test(res.error.message || '')) {
+    res.error = { ...res.error, message: 'la base no admite esta zona. Ejecutá supabase_cambios.sql en Supabase (SQL Editor).' };
+  }
+  return { error: res.error, aviso };
+}
+
+function limpiarParciales() {
+  $('parciales-container').innerHTML = '';
+}
+
+// Junta los parciales en {tramo_1..tramo_10} (jsonb) para guardar en Supabase.
+function collectParciales() {
+  const filas = [...$('parciales-container').children];
+  const out = {};
+  for (let i = 1; i <= N_PARCIALES_MAX; i++) out[`tramo_${i}`] = null;
+  filas.forEach((row, i) => {
+    if (i >= N_PARCIALES_MAX) return;
+    const tiempo = normTiempo(row.querySelector('.p-tiempo').value);
+    const metros = row.querySelector('.p-metros').value.trim();
+    let pace = normTiempo(row.querySelector('.p-pace').value);
+    const spm = row.querySelector('.p-spm').value.trim();
+    if (!tiempo && !metros && !pace && !spm) return;
+    // Si falta el /500m pero hay tiempo y metros, se calcula.
+    const seg = parseTiempoASegundos(tiempo);
+    if (!pace && seg && Number(metros) > 0) pace = segundosATiempo((seg / Number(metros)) * 500);
+    out[`tramo_${i + 1}`] = {
+      tiempo,
+      metros: metros ? Number(metros) : null,
+      pace,
+      spm: spm ? Number(spm) : null,
+    };
+  });
+  return out;
+}
+
+function parcialesDesdeEntreno(entreno) {
+  const arr = [];
+  for (let i = 1; i <= N_PARCIALES_MAX; i++) {
+    const t = entreno[`tramo_${i}`];
+    if (t) arr.push(t);
+  }
+  return arr;
+}
+
+// Totales calculados a partir de los parciales cargados.
+function calcularTotales() {
+  let metros = 0, segundos = 0, spmSum = 0, spmN = 0, n = 0;
+  [...$('parciales-container').children].forEach((row) => {
+    const m = Number(row.querySelector('.p-metros').value);
+    const s = parseTiempoASegundos(row.querySelector('.p-tiempo').value);
+    const spm = Number(row.querySelector('.p-spm').value);
+    if (m > 0 || s) n++;
+    if (m > 0) metros += m;
+    if (s) segundos += s;
+    if (spm > 0) { spmSum += spm; spmN++; }
+  });
+  return { metros, segundos, spm: spmN ? Math.round(spmSum / spmN) : null, n };
+}
+
+/* ---------------- Train: importar desde fotos con IA (Google Gemini, gratis) ---------------- */
+
+// Modelo principal y respaldos: si el principal está saturado (error 503 "alta demanda"),
+// se prueba con el siguiente. Cada modelo tiene su propia capacidad y su propia cuota.
+const GEMINI_MODELOS = ['gemini-3.8-flash', 'gemini-flash-latest', 'gemini-2.5-flash', 'gemini-flash-lite-latest', 'gemini-2.5-flash-lite'];
+const GEMINI_REINTENTOS = 3;        // intentos por modelo antes de pasar al siguiente
+const GEMINI_ESPERA_BASE_MS = 2000; // espera inicial; se duplica en cada reintento (2s → 4s → 8s)
+const AI_MAX_FOTOS = 8;     // máximo de fotos por tanda
+const AI_MAX_LADO = 1280;   // las fotos se reducen a este tamaño (px) antes de enviarse
+
+const AI_PROMPT_FOTO = `Te paso una o más fotos de pantallas del monitor PM5 (Concept2) de un ergómetro de remo.
+Devolvé las sesiones de entrenamiento que veas, siguiendo el esquema JSON pedido.
+Reglas:
+- Si varias fotos son del MISMO entrenamiento (ej: pantalla de resumen + pantalla de parciales/splits), unilas en UNA sola sesión.
+- Si las fotos son de entrenamientos DISTINTOS, devolvé una sesión por cada uno.
+- "type": texto corto del trabajo, ej "4x8:00", "6x2000m", "2000m", "30:00".
+- "split": promedio /500m de toda la sesión, ej "1:57.9". "totaltime": tiempo total, ej "35:00.0".
+- En "parciales" va un elemento por cada intervalo/parcial, en orden. "pace" es el /500m del parcial.
+- Si algún dato no se ve en la pantalla, poné null. No inventes datos.`;
+
+const AI_SCHEMA = {
+  type: 'OBJECT',
+  properties: {
+    sesiones: {
+      type: 'ARRAY',
+      items: {
+        type: 'OBJECT',
+        properties: {
+          date: { type: 'STRING', nullable: true, description: 'AAAA-MM-DD si se ve en la pantalla' },
+          type: { type: 'STRING', nullable: true },
+          meters: { type: 'NUMBER', nullable: true },
+          split: { type: 'STRING', nullable: true },
+          totaltime: { type: 'STRING', nullable: true },
+          spm: { type: 'NUMBER', nullable: true },
+          parciales: {
+            type: 'ARRAY',
+            items: {
+              type: 'OBJECT',
+              properties: {
+                tiempo: { type: 'STRING', nullable: true },
+                metros: { type: 'NUMBER', nullable: true },
+                pace: { type: 'STRING', nullable: true },
+                spm: { type: 'NUMBER', nullable: true },
+              },
+            },
+          },
+        },
+      },
+    },
+  },
+  required: ['sesiones'],
+};
+
+function getGeminiKey() {
+  return GEMINI_API_KEY;
+}
+
+function triggerAiPhoto(modo) {
+  if (!getGeminiKey() || getGeminiKey() === 'PEGÁ_ACÁ_TU_CLAVE_DE_GEMINI') {
+    toast('Falta configurar la clave de Gemini en el código de la app (GEMINI_API_KEY en Index.js).');
+    return;
+  }
+  const input = modo === 'camera' ? $('ai-photo-input-camera') : $('ai-photo-input-gallery');
+  input.value = '';
+  input.click();
+}
+
+// Reduce la foto (lado máx. AI_MAX_LADO) y la devuelve como JPEG en base64: sube más rápido y gasta menos cuota.
+async function fotoABase64(file) {
+  try {
+    const bmp = await createImageBitmap(file);
+    const k = Math.min(1, AI_MAX_LADO / Math.max(bmp.width, bmp.height));
+    const canvas = document.createElement('canvas');
+    canvas.width = Math.round(bmp.width * k);
+    canvas.height = Math.round(bmp.height * k);
+    canvas.getContext('2d').drawImage(bmp, 0, 0, canvas.width, canvas.height);
+    if (bmp.close) bmp.close();
+    return { mime: 'image/jpeg', data: canvas.toDataURL('image/jpeg', 0.85).split(',')[1] };
+  } catch (e) {
+    // Si el navegador no puede decodificarla (ej. HEIC), se manda tal cual.
+    return new Promise((resolve, reject) => {
+      const reader = new FileReader();
+      reader.onload = () => resolve({ mime: file.type || 'image/jpeg', data: String(reader.result).split(',')[1] || '' });
+      reader.onerror = () => reject(new Error('No se pudo leer la imagen.'));
+      reader.readAsDataURL(file);
+    });
+  }
+}
+
+async function handleAiPhoto(event) {
+  let files = [...(event.target.files || [])];
+  event.target.value = '';
+  if (!files.length) return;
+  if (files.length > AI_MAX_FOTOS) {
+    toast(`Se analizan las primeras ${AI_MAX_FOTOS} fotos.`);
+    files = files.slice(0, AI_MAX_FOTOS);
+  }
+  const statusEl = $('ai-photo-status');
+  const botones = document.querySelectorAll('.aiPhotoBtn');
+  botones.forEach((b) => (b.disabled = true));
+  if (statusEl) statusEl.textContent = `Analizando ${files.length} foto${files.length === 1 ? '' : 's'}…`;
+  try {
+    const fotos = await Promise.all(files.map(fotoABase64));
+    const sesiones = await analizarFotosConGemini(fotos);
+    if (!sesiones.length) throw new Error('no se detectó ningún entrenamiento en las fotos.');
+    if (sesiones.length === 1) {
+      aplicarDatosIA(sesiones[0]);
+      toast('Datos cargados desde las fotos. Revisalos y guardá.');
+    } else {
+      if (statusEl) statusEl.textContent = `Guardando ${sesiones.length} sesiones…`;
+      await guardarSesionesIA(sesiones);
+    }
+  } catch (e) {
+    console.error(e);
+    toast('No se pudo analizar: ' + (e.message || 'error desconocido'));
+  } finally {
+    if (statusEl) statusEl.textContent = '';
+    botones.forEach((b) => (b.disabled = false));
+  }
+}
+
+// Envía todas las fotos en una sola consulta y pide salida JSON estructurada (responseSchema).
+async function analizarFotosConGemini(fotos) {
+  const key = getGeminiKey();
+  if (!key) throw new Error('falta la clave de Gemini');
+  const statusEl = $('ai-photo-status');
+  const esperar = (ms) => new Promise((r) => setTimeout(r, ms));
+  const armarBody = (modelo) => {
+    const generationConfig = { responseMimeType: 'application/json', responseSchema: AI_SCHEMA };
+    // thinkingLevel solo lo entienden los modelos Gemini 3; los 2.5 lo rechazarían.
+    if (/gemini-3/.test(modelo)) generationConfig.thinkingConfig = { thinkingLevel: 'low' };
+    return JSON.stringify({
+      contents: [{
+        parts: [
+          { text: AI_PROMPT_FOTO },
+          ...fotos.map((f) => ({ inline_data: { mime_type: f.mime, data: f.data } })),
+        ],
+      }],
+      generationConfig,
+    });
+  };
+
+  let data = null;
+  let ultimoError = 'Gemini no respondió.';
+  const registroIA = [];
+  modelos:
+  for (let m = 0; m < GEMINI_MODELOS.length; m++) {
+    const modelo = GEMINI_MODELOS[m];
+    const url = `https://generativelanguage.googleapis.com/v1beta/models/${modelo}:generateContent`;
+    const body = armarBody(modelo);
+    for (let intento = 1; intento <= GEMINI_REINTENTOS; intento++) {
+      let res;
+      try {
+        res = await fetch(url, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json', 'x-goog-api-key': key },
+          body,
+        });
+      } catch (e) {
+        // Error de red: se reintenta igual.
+        ultimoError = 'no hay conexión con Gemini.';
+        if (intento < GEMINI_REINTENTOS) { await esperar(GEMINI_ESPERA_BASE_MS * 2 ** (intento - 1)); continue; }
+        continue modelos;
+      }
+      if (res.ok) { data = await res.json(); break modelos; }
+
+      let detalle = '';
+      try { detalle = (await res.json()).error?.message || ''; } catch (e) { /* ignore */ }
+      console.warn(`Gemini ${modelo} (intento ${intento}): HTTP ${res.status} — ${detalle}`);
+      registroIA.push(`${modelo}: ${res.status}`);
+      // Errores que no se arreglan reintentando: se cortan acá.
+      if (res.status === 400 && /api key/i.test(detalle)) throw new Error('la clave de Gemini no es válida.');
+      if (res.status === 403) throw new Error('la clave de Gemini no tiene permiso (revisá restricciones de la clave).');
+
+      if (res.status === 429) {
+        // Cuota agotada: esperar poco sirve, mejor pasar directo al siguiente modelo.
+        ultimoError = 'se alcanzó el límite gratuito por ahora, probá en un minuto.';
+        continue modelos;
+      }
+      if (res.status === 503 || res.status === 500 || res.status === 504) {
+        // Saturado / error temporal: reintento con espera creciente (+ azar para no chocar con otros usuarios).
+        ultimoError = 'los servidores de la IA están con mucha demanda, probá de nuevo en un rato.';
+        if (intento < GEMINI_REINTENTOS) {
+          if (statusEl) statusEl.textContent = `IA con mucha demanda, reintentando (${intento}/${GEMINI_REINTENTOS - 1})…`;
+          await esperar(GEMINI_ESPERA_BASE_MS * 2 ** (intento - 1) + Math.random() * 500);
+          continue;
+        }
+        if (m < GEMINI_MODELOS.length - 1 && statusEl) statusEl.textContent = 'Probando con otro modelo de IA…';
+        continue modelos;
+      }
+      // Modelo inexistente u otro error: se prueba el siguiente modelo.
+      ultimoError = detalle || `Gemini respondió ${res.status}`;
+      continue modelos;
+    }
+  }
+  if (!data) {
+    // Se muestra qué respondió cada modelo (ej: "gemini-3.8-flash: 503") para saber dónde falla.
+    const resumen = [...new Set(registroIA)].join(' · ');
+    throw new Error(ultimoError + (resumen ? ` [${resumen}]` : ''));
+  }
+  const texto = (data.candidates?.[0]?.content?.parts || []).map((p) => p.text || '').join('');
+  const ini = texto.indexOf('{');
+  const fin = texto.lastIndexOf('}');
+  if (ini === -1 || fin <= ini) throw new Error('la IA no devolvió datos legibles, probá con otras fotos.');
+  let obj;
+  try {
+    obj = JSON.parse(texto.slice(ini, fin + 1));
+  } catch (e) {
+    throw new Error('la IA no devolvió un JSON válido.');
+  }
+  return Array.isArray(obj.sesiones) ? obj.sesiones : [];
+}
+
+// Aplica al formulario de Train una sesión devuelta por la IA.
+function aplicarDatosIA(obj) {
+  limpiarAutoTotales();
+  ['f-meters', 'f-totaltime', 'f-split', 'f-spm'].forEach((id) => { $(id).value = ''; });
+  setIncompleto(false);
+  if (obj.date && /^\d{4}-\d{2}-\d{2}$/.test(obj.date)) $('f-date').value = obj.date;
+  if (obj.type) $('f-type').value = obj.type;
+  if (obj.meters !== undefined && obj.meters !== null) $('f-meters').value = obj.meters;
+  if (obj.split) $('f-split').value = obj.split;
+  if (obj.totaltime) $('f-totaltime').value = obj.totaltime;
+  if (obj.spm !== undefined && obj.spm !== null) $('f-spm').value = obj.spm;
+  limpiarParciales();
+  (obj.parciales || []).slice(0, N_PARCIALES_MAX).forEach((p) => addParcialRow(p));
+  if (!$('parciales-container').children.length) addParcialRow();
+  autoTotalesForm();
+  zonaManual = false;
+  autoZona();
+}
+
+// Convierte una sesión de la IA en el registro de la tabla `entrenamientos`.
+function registroDesdeIA(obj) {
+  const parciales = (obj.parciales || []).slice(0, N_PARCIALES_MAX);
+  const tramos = {};
+  for (let i = 1; i <= N_PARCIALES_MAX; i++) tramos[`tramo_${i}`] = null;
+  let sumM = 0, sumS = 0, spmSum = 0, spmN = 0;
+  parciales.forEach((p, i) => {
+    const tiempo = normTiempo(p.tiempo);
+    const metros = p.metros != null ? Number(p.metros) : null;
+    let pace = normTiempo(p.pace);
+    const seg = parseTiempoASegundos(tiempo);
+    if (!pace && seg && metros > 0) pace = segundosATiempo((seg / metros) * 500);
+    if (!tiempo && !metros && !pace && p.spm == null) return;
+    tramos[`tramo_${i + 1}`] = { tiempo, metros, pace, spm: p.spm != null ? Number(p.spm) : null };
+    if (metros > 0) sumM += metros;
+    if (seg) sumS += seg;
+    if (p.spm > 0) { spmSum += Number(p.spm); spmN++; }
+  });
+  const metros = obj.meters != null ? Number(obj.meters) : (sumM || null);
+  let tiempoSeg = parseTiempoASegundos(obj.totaltime);
+  if (tiempoSeg === null && sumS) tiempoSeg = sumS;
+  let pace = normTiempo(obj.split);
+  if (!pace && metros && tiempoSeg) pace = segundosATiempo((tiempoSeg / metros) * 500);
+  const spm = obj.spm != null ? Number(obj.spm) : (spmN ? Math.round(spmSum / spmN) : null);
+  const tipo = (obj.type || '').trim() || (metros ? `${metros}m` : 'Sesión');
+  const fecha = /^\d{4}-\d{2}-\d{2}$/.test(obj.date || '') ? obj.date : hoyISO();
+  const zona = zonaDeDatos({ tipo, spm, metros, n: parciales.length }) || 'z1';
+  return {
+    usuario_id: currentUser.id,
+    fecha,
+    tipo,
+    categoria: zona,
+    medio: 'ergo',
+    bote: null,
+    porcentaje: null,
+    completado: true,
+    distancia_metros: metros,
+    tiempo_segundos: tiempoSeg,
+    pace_500m: pace,
+    spm_general: spm,
+    ...tramos,
+  };
+}
+
+// Varias sesiones detectadas en las fotos: se guardan todas directamente.
+async function guardarSesionesIA(sesiones) {
+  if (!currentUser) { toast('Iniciá sesión primero.'); return; }
+  const registros = sesiones.map(registroDesdeIA);
+  const { error, aviso } = await guardarConRespaldo((r) => sb.from('entrenamientos').insert(r), registros);
+  if (error) throw new Error('error al guardar: ' + error.message);
+  toast(`${registros.length} sesiones guardadas desde las fotos.${aviso}`);
+  await cargarEntrenamientos();
+}
+
+/* ---------------- Train: guardar / editar sesión ---------------- */
+
+function resetTrainForm() {
+  $('f-type').value = '';
+  $('f-boat').value = 'Single';
+  $('f-percentage').value = '';
+  $('f-meters').value = '';
+  $('f-totaltime').value = '';
+  $('f-split').value = '';
+  $('f-spm').value = '';
+  limpiarAutoTotales();
+  setIncompleto(false);
+  $('f-medium').value = 'ergo';
+  zonaManual = false;
+  setCategoria('z1');
+  toggleWaterOptions();
+  limpiarParciales();
+  addParcialRow();
+  $('f-date').value = hoyISO();
+}
+
+function cancelEdit() {
+  editingSessionId = null;
+  $('edit-banner').style.display = 'none';
+  resetTrainForm();
+}
+
+async function addSession() {
+  if (!currentUser) { toast('Iniciá sesión primero.'); return; }
+  if (!$('f-date').value) { toast('Falta la fecha.'); return; }
+  if (!$('f-type').value.trim()) { toast('Falta el nombre del trabajo (ej: 6x8:00).'); return; }
+
+  autoZona();
+  const esAgua = $('f-medium').value === 'agua';
+  const tot = calcularTotales();
+  const tramos = collectParciales();
+
+  const metros = $('f-meters').value ? Number($('f-meters').value) : (tot.metros || null);
+  let tiempoSeg = parseTiempoASegundos($('f-totaltime').value);
+  if (tiempoSeg === null && tot.segundos) tiempoSeg = tot.segundos;
+  let pace = normTiempo($('f-split').value);
+  if (!pace && metros && tiempoSeg) pace = segundosATiempo((tiempoSeg / metros) * 500);
+  const spm = $('f-spm').value ? Number($('f-spm').value) : tot.spm;
+
+  const registro = {
+    usuario_id: currentUser.id,
+    fecha: $('f-date').value,
+    tipo: $('f-type').value.trim(),
+    categoria: $('f-cat').value,
+    medio: $('f-medium').value,
+    bote: esAgua ? $('f-boat').value : null,
+    porcentaje: esAgua ? leerPorcentaje() : null,
+    completado: !esIncompleto(),
+    distancia_metros: metros,
+    tiempo_segundos: tiempoSeg,
+    pace_500m: pace,
+    spm_general: spm,
+    ...tramos,
+  };
+
+  const btn = $('btn-add-session');
+  btn.disabled = true;
+  const eraEdicion = !!editingSessionId;
+  const idEdicion = editingSessionId;
+  const { error, aviso } = await guardarConRespaldo(
+    (r) => (eraEdicion
+      ? sb.from('entrenamientos').update(r).eq('id', idEdicion)
+      : sb.from('entrenamientos').insert(r)),
+    registro,
+  );
+  btn.disabled = false;
+
+  if (error) {
+    toast('Error al guardar: ' + error.message);
+    return;
+  }
+  toast((eraEdicion ? 'Sesión actualizada.' : 'Entrenamiento guardado.') + aviso);
+  cancelEdit();
+  await cargarEntrenamientos();
+  if (eraEdicion) navigateTo('historial', 'historial', $('nav-historial'));
+}
+
+function editSession(id) {
+  const e = entrenamientosCache.find((x) => x.id === id);
+  if (!e) return;
+  editingSessionId = id;
+  $('edit-banner').style.display = 'flex';
+  $('f-date').value = e.fecha;
+  $('f-type').value = e.tipo || '';
+  zonaManual = true; // se respeta la zona guardada
+  setCategoria((e.categoria || 'z1').toLowerCase());
+  $('f-medium').value = e.medio || 'ergo';
+  toggleWaterOptions();
+  $('f-boat').value = e.bote || 'Single';
+  $('f-percentage').value = e.porcentaje ?? '';
+  $('f-meters').value = e.distancia_metros ?? '';
+  $('f-totaltime').value = e.tiempo_segundos != null ? segundosATiempo(e.tiempo_segundos) : '';
+  $('f-split').value = e.pace_500m || '';
+  $('f-spm').value = e.spm_general ?? '';
+  limpiarAutoTotales();
+  setIncompleto(e.completado === false);
+  limpiarParciales();
+  parcialesDesdeEntreno(e).forEach((p) => addParcialRow(p));
+  if (!$('parciales-container').children.length) addParcialRow();
+  navigateTo('train', 'train', $('nav-train'));
+}
+
+/* ---------------- Cargar entrenamientos ---------------- */
+
+async function cargarEntrenamientos() {
+  if (!currentUser || !sb) return;
+  const { data, error } = await sb
+    .from('entrenamientos')
+    .select('*')
+    .eq('usuario_id', currentUser.id)
+    .order('fecha', { ascending: false })
+    .order('created_at', { ascending: false });
+  if (error) {
+    toast('Error al cargar entrenamientos: ' + error.message);
+    if ($('db-status')) $('db-status').textContent = 'No se pudieron cargar las sesiones.';
+    return;
+  }
+  entrenamientosCache = data || [];
+  if ($('db-status')) {
+    const n = entrenamientosCache.length;
+    $('db-status').textContent = `${n} sesión${n === 1 ? '' : 'es'} guardada${n === 1 ? '' : 's'}.`;
+  }
+  poblarFiltroTipos();
+  renderHome();
+  renderHistorial();
+}
+
+/* ---------------- Home ---------------- */
+
+function setAvatarInitials(email) {
+  const user = (email || '').split('@')[0];
+  const partes = user.split(/[._-]/).filter(Boolean);
+  const iniciales = partes.length >= 2 ? partes[0][0] + partes[1][0] : user.slice(0, 2);
+  document.querySelectorAll('.avatarCircle').forEach((el) => {
+    el.textContent = iniciales.toUpperCase() || '--';
+  });
+}
+
+function renderHome() {
+  // Los trabajos en agua van aparte: no entran en los gráficos de zona ni de 2K.
+  renderChart(chartSesiones((e) => esErgo(e) && catDe(e) === 'z1'), 'chart-z1', 'chart-z1-best', 'pace');
+  renderChart(chartSesiones((e) => esErgo(e) && catDe(e) === 'z2'), 'chart-z2', 'chart-z2-best', 'pace');
+  renderChart(chartSesiones(es2K), 'chart-2k', 'chart-2k-best', 'tiempo');
+  renderChart(chartSesiones((e) => e.medio === 'agua'), 'chart-agua', 'chart-agua-best', 'pace');
+  renderRaceCard();
+  renderWeekBadge();
+  renderLastSessionCard();
+}
+
+function catDe(e) { return (e.categoria || '').toLowerCase(); }
+function esErgo(e) { return e.medio !== 'agua'; }
+// 2K = test de 2000 m en ergómetro (por categoría test o por distancia exacta).
+function es2K(e) {
+  return esErgo(e) && Number(e.distancia_metros) === 2000 && (catDe(e) === 'test' || /2\s*k|2000/i.test(e.tipo || ''));
+}
+
+function paceDeSesion(e) {
+  if (e.pace_500m) {
+    const p = parseTiempoASegundos(e.pace_500m);
+    if (p !== null) return p;
+  }
+  if (e.tiempo_segundos && e.distancia_metros) return (e.tiempo_segundos / e.distancia_metros) * 500;
+  return null;
+}
+
+// Tiempo total del 2K (si no está guardado, se deduce del /500m).
+function tiempoDeSesion(e) {
+  if (e.tiempo_segundos) return Number(e.tiempo_segundos);
+  const p = paceDeSesion(e);
+  return p !== null && e.distancia_metros ? p * Number(e.distancia_metros) / 500 : null;
+}
+
+function chartSesiones(filtro) {
+  return entrenamientosCache.filter(filtro).slice().sort((a, b) => a.fecha.localeCompare(b.fecha)).slice(-20);
+}
+
+// Barras: la más alta es la más rápida (menor valor). Tocá una barra para ver su fecha y valor.
+// modo 'pace' → /500m · modo 'tiempo' → tiempo total (2K).
+function renderChart(lista, contId, bestId, modo) {
+  const cont = $(contId);
+  const bestEl = $(bestId);
+  if (!cont) return;
+  const valor = modo === 'tiempo' ? tiempoDeSesion : paceDeSesion;
+  const sesiones = lista.filter((e) => valor(e) !== null);
+
+  cont.innerHTML = '';
+  if (!sesiones.length) {
+    cont.innerHTML = '<div class="empty">Sin sesiones todavía</div>';
+    if (bestEl) bestEl.textContent = '--';
+    return;
+  }
+
+  const vals = sesiones.map(valor);
+  const min = Math.min(...vals);
+  const max = Math.max(...vals);
+  // El "mejor" ignora los trabajos que no se completaron (salvo que sean los únicos).
+  const completas = vals.filter((_, i) => sesiones[i].completado !== false);
+  const mejor = completas.length ? Math.min(...completas) : min;
+  const mejorTexto = 'Mejor ' + conComa(segundosATiempo(mejor));
+  if (bestEl) bestEl.textContent = mejorTexto;
+
+  sesiones.forEach((e, i) => {
+    const p = vals[i];
+    const alto = max === min ? 60 : 22 + 78 * ((max - p) / (max - min));
+    const incompleta = e.completado === false;
+    const bar = document.createElement('div');
+    bar.className = 'bar' + (p === mejor && !incompleta ? ' best' : '') + (incompleta ? ' incompleto' : '');
+    bar.style.height = alto.toFixed(0) + '%';
+    bar.title = `${fechaLegible(e.fecha)} — ${conComa(segundosATiempo(p))}${modo === 'tiempo' ? '' : '/500m'}`;
+    bar.addEventListener('click', () => {
+      const ya = bar.classList.contains('sel');
+      cont.querySelectorAll('.bar').forEach((b) => b.classList.remove('sel'));
+      if (ya) {
+        if (bestEl) bestEl.textContent = mejorTexto;
+        return;
+      }
+      bar.classList.add('sel');
+      if (bestEl) bestEl.textContent = `${fechaCorta(e.fecha)} · ${conComa(segundosATiempo(p))}`;
+    });
+    cont.appendChild(bar);
+  });
+}
+
+function renderRaceCard() {
+  const hoy = hoyISO();
+  const proxima = getRaces().filter((r) => r.fecha >= hoy).sort((a, b) => a.fecha.localeCompare(b.fecha))[0];
+  if (!proxima) {
+    $('race-card-name').textContent = 'Sin regatas';
+    $('race-card-days').textContent = '--';
+    $('race-card-date').innerHTML = '&nbsp;';
+    return;
+  }
+  const dias = diasEntre(hoy, proxima.fecha);
+  $('race-card-name').textContent = proxima.nombre;
+  $('race-card-days').innerHTML = dias === 0 ? 'Hoy' : `${dias}<small>${dias === 1 ? 'día' : 'días'}</small>`;
+  $('race-card-date').textContent = fechaLegible(proxima.fecha);
+}
+
+function getLoadStart() {
+  return inicioBloque;
+}
+
+function renderWeekBadge() {
+  const inicio = getLoadStart();
+  if (!inicio) { $('week-badge-num').textContent = '--'; return; }
+  const dias = diasEntre(inicio, hoyISO());
+  $('week-badge-num').textContent = dias < 0 ? '--' : Math.floor(dias / 7) + 1;
+}
+
+function renderLastSessionCard() {
+  const circle = $('last-session-cat');
+  const ultima = entrenamientosCache[0];
+  if (!ultima) {
+    circle.textContent = '--';
+    circle.className = 'cat-circle';
+    $('last-session-desc').textContent = 'Sin sesiones todavía';
+    $('last-session-meta').textContent = 'Cargá tu primer entreno en Train';
+    document.querySelector('.lastSessionCard').classList.remove('agua', 'incompleto');
+    $('last-session-time').textContent = '--:--';
+    $('last-session-delta').textContent = '';
+    return;
+  }
+  const cat = (ultima.categoria || '').toLowerCase();
+  circle.textContent = CAT_LABEL[cat] || '--';
+  circle.className = 'cat-circle z-' + cat;
+  $('last-session-desc').textContent = ultima.tipo || '';
+  const esAgua = ultima.medio === 'agua';
+  const incompletaUlt = ultima.completado === false;
+  document.querySelector('.lastSessionCard').classList.toggle('agua', esAgua);
+  document.querySelector('.lastSessionCard').classList.toggle('incompleto', incompletaUlt);
+  $('last-session-meta').innerHTML = esc(`${nombreDia(ultima.fecha)} ${fechaCorta(ultima.fecha)}`) +
+    (esAgua ? ` <span class="waterTag">≈ AGUA${ultima.bote ? ' · ' + esc(ultima.bote) : ''}</span>` : '') +
+    (incompletaUlt ? ' <span class="incTag">NO COMPLETADO</span>' : '');
+  const paceUltima = paceDeSesion(ultima);
+  $('last-session-time').textContent = paceUltima !== null ? conComa(segundosATiempo(paceUltima)) : '--:--';
+
+  const deltaEl = $('last-session-delta');
+  deltaEl.textContent = '';
+  deltaEl.className = 'lastSessionDelta';
+  const anterior = entrenamientosCache
+    .slice(1)
+    .find((e) => (e.categoria || '').toLowerCase() === cat && esAgua === (e.medio === 'agua') && paceDeSesion(e) !== null);
+  if (!anterior || paceUltima === null) return;
+  // Menor /500m = más rápido: ↓ verde es mejorar, ↑ rojo es empeorar.
+  const delta = paceUltima - paceDeSesion(anterior);
+  if (Math.abs(delta) < 0.05) return;
+  deltaEl.textContent = `${conComa(segundosATiempo(Math.abs(delta)))} ${delta > 0 ? '↑' : '↓'}`;
+  deltaEl.className = 'lastSessionDelta ' + (delta > 0 ? 'up' : 'down');
+}
+
+/* ---------------- Sesiones (agrupadas por semana) ---------------- */
+
+function poblarFiltroTipos() {
+  const sel = $('table-filter-select');
+  if (!sel) return;
+  // Las zonas filtran solo ergómetro; "Agua" es un filtro aparte.
+  const tipos = CATEGORIAS.filter((c) => entrenamientosCache.some((e) => esErgo(e) && catDe(e) === c));
+  const hayAgua = entrenamientosCache.some((e) => e.medio === 'agua');
+  const opciones = [...tipos, ...(hayAgua ? ['agua'] : [])];
+  const actual = tableFilterValue;
+  sel.innerHTML = '<option value="">Todas</option>' +
+    tipos.map((t) => `<option value="${t}">${CAT_NOMBRE[t]}</option>`).join('') +
+    (hayAgua ? '<option value="agua">Agua</option>' : '');
+  sel.value = opciones.includes(actual) ? actual : '';
+  tableFilterValue = sel.value;
+}
+
+function setTableFilter(value) {
+  tableFilterValue = value;
+  renderHistorial();
+}
+
+function setDateFilter() {
+  renderHistorial();
+}
+
+function clearHistFilters() {
+  tableFilterValue = '';
+  $('table-filter-select').value = '';
+  $('hist-date-from').value = '';
+  $('hist-date-to').value = '';
+  renderHistorial();
+}
+
+function toggleHistFilters() {
+  const panel = $('hist-filters');
+  const abierto = panel.style.display !== 'none';
+  panel.style.display = abierto ? 'none' : '';
+  $('hist-filter-btn').classList.toggle('on', !abierto);
+}
+
+// Devuelve a qué semana pertenece una fecha: relativa al bloque de carga si está
+// configurado (Semana 1, 2, 3…), o "Semana del dd/mm" (lunes) si no lo está.
+function semanaDe(fechaISO) {
+  const inicio = getLoadStart();
+  if (inicio) {
+    const d = diasEntre(inicio, fechaISO);
+    if (d < 0) return { key: 'pre', label: 'Antes del bloque' };
+    const n = Math.floor(d / 7) + 1;
+    return { key: 'w' + n, label: 'Semana ' + n };
+  }
+  const f = fechaDesdeISO(fechaISO);
+  const lunes = new Date(f.getFullYear(), f.getMonth(), f.getDate() - ((f.getDay() + 6) % 7));
+  return { key: isoDeFecha(lunes), label: 'Semana del ' + fechaCorta(isoDeFecha(lunes)) };
+}
+
+function renderHistorial() {
+  const cont = $('rows');
+  if (!cont) return;
+  const desde = $('hist-date-from').value;
+  const hasta = $('hist-date-to').value;
+
+  let lista = entrenamientosCache.slice();
+  if (desde) lista = lista.filter((e) => e.fecha >= desde);
+  if (hasta) lista = lista.filter((e) => e.fecha <= hasta);
+  if (tableFilterValue === 'agua') lista = lista.filter((e) => e.medio === 'agua');
+  else if (tableFilterValue) lista = lista.filter((e) => esErgo(e) && (e.categoria || '').toLowerCase() === tableFilterValue);
+
+  $('result-count').textContent = entrenamientosCache.length
+    ? `${lista.length} sesión${lista.length === 1 ? '' : 'es'}`
+    : '';
+
+  cont.innerHTML = '';
+  if (!lista.length) {
+    cont.innerHTML = entrenamientosCache.length
+      ? '<p class="emptyMsg">No hay sesiones para este filtro.</p>'
+      : '<p class="emptyMsg">Todavía no cargaste sesiones.<br>Tocá Train para guardar la primera.</p>';
+    return;
+  }
+
+  // Semanas de la más reciente a la más vieja (la lista ya viene ordenada por fecha desc).
+  const grupos = new Map();
+  lista.forEach((e) => {
+    const s = semanaDe(e.fecha);
+    if (!grupos.has(s.key)) grupos.set(s.key, { label: s.label, items: [] });
+    grupos.get(s.key).items.push(e);
+  });
+
+  grupos.forEach((g) => {
+    const bloque = document.createElement('div');
+    bloque.className = 'week-group';
+    bloque.innerHTML = `<h3 class="week-label">${esc(g.label)}</h3>`;
+    // Dentro de cada semana, de la más reciente a la más antigua (igual que las semanas).
+    g.items.forEach((e) => bloque.appendChild(crearTarjetaSesion(e)));
+    cont.appendChild(bloque);
+  });
+}
+
+function etiquetaCirculo(e) {
+  const cat = (e.categoria || '').toLowerCase();
+  if (cat === 'test' && Number(e.distancia_metros) === 2000) return '2K';
+  return CAT_LABEL[cat] || '--';
+}
+
+function crearTarjetaSesion(e) {
+  const cat = (e.categoria || '').toLowerCase();
+  const pace = paceDeSesion(e);
+  const item = document.createElement('div');
+  const esAgua = e.medio === 'agua';
+  const incompleto = e.completado === false;
+  // En agua y en 2K lo que importa es el tiempo total: va como título (el /500m queda a la derecha).
+  const totalSeg = tiempoDeSesion(e);
+  const mostrarTotal = (esAgua || es2K(e)) && totalSeg !== null;
+  item.className = 'session-item' + (esAgua ? ' agua' : '') + (incompleto ? ' incompleto' : '') + (mostrarTotal ? ' totalTitle' : '');
+
+  const parciales = parcialesDesdeEntreno(e);
+  const tablaParciales = parciales.length ? `
+    <div class="sd-table">
+      <div class="sd-row sd-head"><span>#</span><span>Tiempo</span><span>Metros</span><span>/500m</span><span>SPM</span></div>
+      ${parciales.map((p, i) => `
+        <div class="sd-row">
+          <span>${i + 1}</span>
+          <span>${esc(conComa(p.tiempo)) || '–'}</span>
+          <span>${p.metros != null ? esc(p.metros) + 'm' : '–'}</span>
+          <span>${esc(conComa(p.pace)) || '–'}</span>
+          <span>${p.spm != null ? esc(p.spm) : '–'}</span>
+        </div>`).join('')}
+    </div>` : '';
+
+  const datos = [
+    ['Fecha', fechaLegible(e.fecha)],
+    ['Medio', e.medio === 'agua' ? 'Agua' + (e.bote ? ' · ' + e.bote : '') : 'Ergómetro'],
+    e.distancia_metros ? ['Metros', e.distancia_metros + 'm'] : null,
+    e.tiempo_segundos != null ? ['Tiempo', segundosATiempo(e.tiempo_segundos)] : null,
+    e.spm_general != null ? ['SPM', e.spm_general] : null,
+    e.porcentaje != null ? ['%', conComa(e.porcentaje) + '%'] : null,
+    incompleto ? ['Estado', 'No completado'] : null,
+  ].filter(Boolean);
+
+  item.innerHTML = `
+    <div class="session-mini-card glass-card">
+      <div class="cat-circle z-${esc(cat)}">${esc(etiquetaCirculo(e))}</div>
+      <div class="session-main">
+        <div class="session-title">${esc(mostrarTotal ? conComa(segundosATiempo(totalSeg)) : (e.tipo || ''))}</div>
+        ${mostrarTotal && e.tipo ? `<div class="session-sub">${esc(e.tipo)}</div>` : ''}
+        ${(esAgua || incompleto) ? `<div class="tagRow">
+          ${esAgua ? `<span class="waterTag">≈ AGUA${e.bote ? ' · ' + esc(e.bote) : ''}</span>` : ''}
+          ${incompleto ? '<span class="incTag">NO COMPLETADO</span>' : ''}
+        </div>` : ''}
+      </div>
+      <div class="session-stats">
+        <div class="split">${pace !== null ? esc(conComa(segundosATiempo(pace))) : '--:--'}</div>
+        <div class="day">${esc(nombreDia(e.fecha))}</div>
+      </div>
+    </div>
+    <div class="session-detail">
+      <div class="sd-grid">
+        ${datos.map(([k, v]) => `<div><span class="sd-k">${esc(k)}</span><span class="sd-v">${esc(v)}</span></div>`).join('')}
+      </div>
+      ${tablaParciales}
+      <div class="sd-actions">
+        <button type="button" class="sd-btn" data-act="edit">Editar</button>
+        <button type="button" class="sd-btn danger" data-act="del">Eliminar</button>
+      </div>
+    </div>`;
+
+  item.querySelector('.session-mini-card').addEventListener('click', () => item.classList.toggle('open'));
+  item.querySelector('[data-act="edit"]').addEventListener('click', () => editSession(e.id));
+  item.querySelector('[data-act="del"]').addEventListener('click', () =>
+    askDeleteSession(e.id, `${e.tipo} del ${fechaLegible(e.fecha)}`));
+  return item;
+}
+
+/* ---------------- Eliminar sesión (modal) ---------------- */
+
+function askDeleteSession(id, descripcion) {
+  pendingDeleteId = id;
+  $('delete-session-desc').textContent = descripcion || 'esta sesión';
+  $('delete-confirm-input').value = '';
+  $('delete-confirm-btn').disabled = true;
+  $('delete-session-overlay').classList.add('show');
+}
+
+function cancelDeleteSession() {
+  pendingDeleteId = null;
+  $('delete-session-overlay').classList.remove('show');
+}
+
+function checkDeleteConfirmInput() {
+  $('delete-confirm-btn').disabled = $('delete-confirm-input').value.trim().toUpperCase() !== 'ELIMINAR';
+}
+
+async function confirmDeleteSession() {
+  if (!pendingDeleteId) return;
+  const { error } = await sb.from('entrenamientos').delete().eq('id', pendingDeleteId);
+  $('delete-session-overlay').classList.remove('show');
+  if (error) { toast('Error al eliminar: ' + error.message); return; }
+  toast('Sesión eliminada.');
+  pendingDeleteId = null;
+  await cargarEntrenamientos();
+}
+
+/* ---------------- Settings: exportar / importar / borrar ---------------- */
+
+function nombreUsuario() {
+  return currentUser ? currentUser.email.split('@')[0] : 'usuario';
+}
+
+function exportJSON() {
+  if (!entrenamientosCache.length) { toast('No hay entrenamientos para exportar.'); return; }
+  const blob = new Blob([JSON.stringify(entrenamientosCache, null, 2)], { type: 'application/json' });
+  descargar(blob, `entrenamientos_${nombreUsuario()}.json`);
+}
+
+function exportCSV() {
+  if (!entrenamientosCache.length) { toast('No hay entrenamientos para exportar.'); return; }
+  const celda = (v) => `"${String(v ?? '').replace(/"/g, '""')}"`;
+  const cols = ['fecha', 'tipo', 'categoria', 'medio', 'bote', 'porcentaje', 'distancia_metros', 'tiempo_segundos', 'pace_500m', 'spm_general'];
+  const header = [...cols, 'parciales'].join(',');
+  const filas = entrenamientosCache.map((e) => {
+    const parciales = parcialesDesdeEntreno(e)
+      .map((p) => [p.tiempo, p.metros != null ? p.metros + 'm' : '', p.pace, p.spm != null ? p.spm + 'spm' : ''].filter(Boolean).join(' '))
+      .join(' | ');
+    return [...cols.map((c) => celda(e[c])), celda(parciales)].join(',');
+  });
+  const csv = '\uFEFF' + [header, ...filas].join('\n'); // BOM para que Excel lea bien los acentos
+  descargar(new Blob([csv], { type: 'text/csv;charset=utf-8' }), `entrenamientos_${nombreUsuario()}.csv`);
+}
+
+async function importJSON(event) {
+  const file = event.target.files[0];
+  if (!file) return;
+  try {
+    const arr = JSON.parse(await file.text());
+    if (!Array.isArray(arr)) throw new Error('El archivo no tiene una lista de entrenamientos.');
+    const registros = arr.map((e) => {
+      const { id, created_at, usuario_id, ...resto } = e;
+      return { ...resto, usuario_id: currentUser.id };
+    });
+    const { error } = await sb.from('entrenamientos').insert(registros);
+    if (error) throw error;
+    toast(`${registros.length} sesiones importadas.`);
+    await cargarEntrenamientos();
+  } catch (e) {
+    toast('Error al importar: ' + e.message);
+  } finally {
+    event.target.value = '';
+  }
+}
+
+function importRowCoachJSON(event) {
+  event.target.value = '';
+  toast('Importar backup RowCoach: todavía no implementado en esta etapa.');
+}
+
+function importExcel(event) {
+  event.target.value = '';
+  toast('Carga de Excel del entrenador: todavía no implementada en esta etapa.');
+}
+
+async function syncNow() {
+  await cargarEntrenamientos();
+  toast('Sincronizado con Supabase.');
+}
+
+function showClearConfirm() {
+  $('clear-overlay').classList.add('show');
+}
+
+async function clearDB() {
+  $('clear-overlay').classList.remove('show');
+  if (!currentUser) return;
+  const { error } = await sb.from('entrenamientos').delete().eq('usuario_id', currentUser.id);
+  if (error) { toast('Error al borrar: ' + error.message); return; }
+  toast('Todas tus sesiones fueron eliminadas.');
+  await cargarEntrenamientos();
+}
+
+/* ---------------- Bloque de carga y regatas (Supabase) ----------------
+   Tablas `configuracion` (inicio_bloque) y `regatas`. Crealas con supabase_regatas_config.sql */
+
+function claveLocal(sufijo) {
+  return `remo_${currentUser ? currentUser.id : 'anon'}_${sufijo}`;
+}
+
+function esErrorTablaFaltante(error) {
+  return !!error && (error.code === '42P01' || error.code === 'PGRST205' || /does not exist|schema cache/i.test(error.message || ''));
+}
+
+function avisoTablasFaltantes() {
+  configDBLista = false;
+  const msg = 'Faltan las tablas "regatas" y "configuracion" en Supabase. Ejecutá supabase_regatas_config.sql en el SQL Editor.';
+  if ($('races-status')) $('races-status').textContent = msg;
+  if ($('dates-status')) $('dates-status').textContent = msg;
+  toast('Faltan tablas en Supabase (ver Settings).');
+}
+
+async function cargarConfigDB() {
+  if (!currentUser || !sb) return;
+  const uid = currentUser.id;
+  const [cfg, reg] = await Promise.all([
+    sb.from('configuracion').select('inicio_bloque').eq('usuario_id', uid).maybeSingle(),
+    sb.from('regatas').select('*').eq('usuario_id', uid).order('fecha', { ascending: true }),
+  ]);
+  if (esErrorTablaFaltante(cfg.error) || esErrorTablaFaltante(reg.error)) {
+    renderConfig();
+    avisoTablasFaltantes();
+    return;
+  }
+  const err = cfg.error || reg.error;
+  if (err) toast('Error al cargar regatas y bloque de carga: ' + err.message);
+  configDBLista = true;
+  inicioBloque = (cfg.data && cfg.data.inicio_bloque) || null;
+  regatasCache = reg.data || [];
+  await migrarConfigLocal();
+  renderConfig();
+}
+
+// Si el usuario ya tenía datos guardados en este navegador (versión anterior), se suben una sola vez.
+async function migrarConfigLocal() {
+  const uid = currentUser.id;
+  const kInicio = claveLocal('load_start');
+  const kRegatas = claveLocal('races');
+  const localInicio = localStorage.getItem(kInicio);
+  let localRegatas = [];
+  try { localRegatas = JSON.parse(localStorage.getItem(kRegatas) || '[]'); } catch (e) { localRegatas = []; }
+  let migrado = false;
+
+  if (localInicio && !inicioBloque) {
+    const { error } = await sb.from('configuracion')
+      .upsert({ usuario_id: uid, inicio_bloque: localInicio }, { onConflict: 'usuario_id' });
+    if (!error) { inicioBloque = localInicio; localStorage.removeItem(kInicio); migrado = true; }
+  }
+  if (localRegatas.length && !regatasCache.length) {
+    const filas = localRegatas.filter((r) => r.nombre && r.fecha).map((r) => ({ usuario_id: uid, nombre: r.nombre, fecha: r.fecha }));
+    if (filas.length) {
+      const { data, error } = await sb.from('regatas').insert(filas).select();
+      if (!error) {
+        regatasCache = (data || []).sort((a, b) => a.fecha.localeCompare(b.fecha));
+        localStorage.removeItem(kRegatas);
+        migrado = true;
+      }
+    }
+  }
+  if (migrado) toast('Regatas y bloque de carga pasados a tu cuenta.');
+}
+
+function renderConfig() {
+  if (inicioBloque) {
+    $('load-start-input').value = inicioBloque;
+    $('dates-status').textContent = `Bloque de carga iniciado el ${fechaLegible(inicioBloque)}.`;
+  } else {
+    $('load-start-input').value = '';
+    $('dates-status').textContent = 'Configurá el inicio del bloque para ver la semana de carga en Home.';
+  }
+  renderRaces();
+  renderHome();
+  renderHistorial();
+}
+
+async function saveDatesConfig() {
+  const val = $('load-start-input').value;
+  if (!val) { toast('Elegí una fecha.'); return; }
+  const { error } = await sb.from('configuracion')
+    .upsert({ usuario_id: currentUser.id, inicio_bloque: val, updated_at: new Date().toISOString() }, { onConflict: 'usuario_id' });
+  if (error) {
+    if (esErrorTablaFaltante(error)) avisoTablasFaltantes();
+    else toast('Error al guardar: ' + error.message);
+    return;
+  }
+  inicioBloque = val;
+  toast('Bloque de carga guardado.');
+  renderConfig();
+}
+
+function getRaces() {
+  return regatasCache.slice();
+}
+
+function renderRaces() {
+  const races = getRaces().sort((a, b) => a.fecha.localeCompare(b.fecha));
+  const cont = $('races-list');
+  cont.innerHTML = races.length
+    ? races.map((r) => `
+        <div class="card raceRow">
+          <div><strong>${esc(r.nombre)}</strong><div class="muted">${fechaLegible(r.fecha)}</div></div>
+          <button type="button" class="settingsBtn danger" style="margin:0;width:auto;" data-id="${esc(r.id)}" onclick="deleteRace(this.dataset.id)">✕</button>
+        </div>`).join('')
+    : '<p class="muted">Todavía no cargaste regatas.</p>';
+}
+
+async function addRace() {
+  const nombre = $('race-name-input').value.trim();
+  const fecha = $('race-date-new-input').value;
+  if (!nombre || !fecha) { $('races-status').textContent = 'Completá nombre y fecha.'; return; }
+  const { data, error } = await sb.from('regatas')
+    .insert({ usuario_id: currentUser.id, nombre, fecha })
+    .select()
+    .single();
+  if (error) {
+    if (esErrorTablaFaltante(error)) avisoTablasFaltantes();
+    else $('races-status').textContent = 'Error al guardar la regata: ' + error.message;
+    return;
+  }
+  regatasCache.push(data);
+  $('race-name-input').value = '';
+  $('race-date-new-input').value = '';
+  $('races-status').textContent = 'Regata agregada.';
+  renderRaces();
+  renderHome();
+}
+
+async function deleteRace(id) {
+  const { error } = await sb.from('regatas').delete().eq('id', id);
+  if (error) { toast('Error al borrar la regata: ' + error.message); return; }
+  regatasCache = regatasCache.filter((r) => String(r.id) !== String(id));
+  renderRaces();
+  renderHome();
+}
+
+/* ---------------- Init ---------------- */
+
+document.addEventListener('DOMContentLoaded', () => {
+  initSupabase();
+  checkSession();
+  toggleWaterOptions();
+  construirMenuZona();
+  zonaManual = false;
+  setCategoria('z1');
+  addParcialRow();
+
+  // Zona automática: se recalcula al escribir el trabajo, el SPM o los parciales.
+  $('train').addEventListener('input', (ev) => {
+    const t = ev.target;
+    // Lo que escribe el usuario deja de ser "automático" y no se pisa más.
+    if (t.dataset) delete t.dataset.auto;
+    if (esCampoTiempo(t)) autoFormatoTiempo(t, ev);
+    const fila = t.closest('.parcial-row');
+    if (fila) { recalcularFila(fila); autoTotalesForm(); }
+    else if (t.id === 'f-totaltime' || t.id === 'f-meters') autoTotalesForm();
+    if (t.id === 'f-totaltime' || t.id === 'f-meters' || t.id === 'f-type' || t.id === 'f-spm' || t.classList.contains('p-spm') || t.classList.contains('p-metros') || t.classList.contains('p-tiempo')) autoZona();
+  });
+  // Cerrar la lista de zonas al tocar afuera.
+  document.addEventListener('click', (ev) => { if (!ev.target.closest('.zoneWrap')) cerrarMenuZona(); });
+
+  // Fuera de alcance en esta etapa (panel de entrenador).
+  if ($('excel-import-wrap')) $('excel-import-wrap').style.display = 'none';
+
+  // Enter para ingresar / crear cuenta.
+  [['login-user', doLogin], ['login-pass', doLogin], ['reg-user', doRegister], ['reg-pass', doRegister], ['reg-pass2', doRegister]]
+    .forEach(([id, fn]) => $(id).addEventListener('keydown', (ev) => { if (ev.key === 'Enter') fn(); }));
+});
+
+// Bloquea el zoom por pellizco (el doble toque ya lo bloquea touch-action en el CSS) (iOS Safari ignora user-scalable=no).
+['gesturestart', 'gesturechange', 'gestureend'].forEach((ev) =>
+  document.addEventListener(ev, (e) => e.preventDefault(), { passive: false }));
+document.addEventListener('touchmove', (e) => {
+  if (e.touches.length > 1) e.preventDefault();
+}, { passive: false });
+
 </script>
 </body>
 </html>
