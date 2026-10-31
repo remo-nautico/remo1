@@ -18,6 +18,8 @@ let entrenamientosCache = [];
 let editingSessionId = null;
 let pendingDeleteId = null;
 let tableFilterValue = '';
+let trabajoFilterValue = ''; // filtro de Sesiones por tipo de trabajo (20 min, 3000 m, 6x8:00…)
+let chartFilterValue = 'all'; // qué trabajos muestra el gráfico de líneas de Sesiones
 let regatasCache = [];      // regatas del usuario (tabla `regatas` en Supabase)
 let inicioBloque = null;    // inicio del bloque de carga (tabla `configuracion`)
 let zonaManual = false;     // true = el usuario eligió la zona a mano; false = automática
@@ -979,11 +981,11 @@ function setAvatarInitials(email) {
 }
 
 function renderHome() {
-  // Los trabajos en agua van aparte: no entran en los gráficos de zona ni de 2K.
+  // Los trabajos en agua van aparte: no entran en los gráficos de zona ni de 2K (el de agua es solo 2K).
   renderChart(chartSesiones((e) => esErgo(e) && catDe(e) === 'z1'), 'chart-z1', 'chart-z1-best', 'pace');
   renderChart(chartSesiones((e) => esErgo(e) && catDe(e) === 'z2'), 'chart-z2', 'chart-z2-best', 'pace');
   renderChart(chartSesiones(es2K), 'chart-2k', 'chart-2k-best', 'tiempo');
-  renderChart(chartSesiones((e) => e.medio === 'agua'), 'chart-agua', 'chart-agua-best', 'pace');
+  renderChart(chartSesiones(es2KAgua), 'chart-agua', 'chart-agua-best', 'tiempo');
   renderRaceCard();
   renderWeekBadge();
   renderLastSessionCard();
@@ -994,6 +996,203 @@ function esErgo(e) { return e.medio !== 'agua'; }
 // 2K = test de 2000 m en ergómetro (por categoría test o por distancia exacta).
 function es2K(e) {
   return esErgo(e) && Number(e.distancia_metros) === 2000 && (catDe(e) === 'test' || /2\s*k|2000/i.test(e.tipo || ''));
+}
+
+// 2K en agua: lo que importa es el tiempo total. Se acepta una pequeña tolerancia en los metros.
+function es2KAgua(e) {
+  if (e.medio !== 'agua') return false;
+  const m = Number(e.distancia_metros);
+  if (m >= 1900 && m <= 2100) return true;
+  return /^\s*(2\s*k|2000\s*m?)\s*$/i.test(e.tipo || '');
+}
+
+/* ---------------- Tipo de trabajo (20 min, 3000 m, 6x8:00…) ---------------- */
+
+function numTxt(s) { return Number(String(s).replace(',', '.')); }
+
+// Lee el texto libre de "tipo" y lo normaliza para poder agrupar y filtrar.
+// Devuelve { key, label, grupo: 'min' | 'm' | 'int' | 'otro', valor } o null si no hay tipo.
+function trabajoDe(e) {
+  const raw = String(e.tipo || '').trim();
+  const t = raw.toLowerCase().replace(/\s+/g, ' ');
+  if (!t || t === 'sesión' || t === 'sesion') return null;
+
+  // Intervalos: 6x8:00 · 6x8min · 4x500m · 3x2k
+  let m = t.match(/(\d+)\s*[x×]\s*(\d+(?::\d{2})?(?:[.,]\d+)?)\s*(min|mins|minutos|minuto|'|′|km|k|mts|metros|m)?(?![a-z])/);
+  if (m) {
+    const v = m[2];
+    const u = m[3] || '';
+    let resto;
+    if (v.includes(':')) resto = v.replace(/^0+(?=\d)/, '');
+    else {
+      const n = numTxt(v);
+      if (/^(min|mins|minutos|minuto|'|′)$/.test(u)) resto = `${n}:00`;
+      else if (/^(km|k)$/.test(u)) resto = `${n * 1000}m`;
+      else if (/^(m|mts|metros)$/.test(u)) resto = `${n}m`;
+      else resto = n >= 100 ? `${n}m` : `${n}:00`;
+    }
+    const label = `${Number(m[1])}x${resto}`;
+    return { key: 'int:' + label, label, grupo: 'int', valor: 0 };
+  }
+  // Por duración: 20 min · 30' · 20:00
+  m = t.match(/(\d+(?:[.,]\d+)?)\s*(min|mins|minutos|minuto|'|′)(?![a-z])/) || t.match(/^(\d{1,3}):00$/);
+  if (m) {
+    const v = numTxt(m[1]);
+    return { key: 'min:' + v, label: `${v} min`, grupo: 'min', valor: v };
+  }
+  // Por distancia: 3000m · 3000 · 5k · 6km
+  m = t.match(/(\d+(?:[.,]\d+)?)\s*(km|k)(?![a-z])/);
+  if (m) {
+    const mt = Math.round(numTxt(m[1]) * 1000);
+    return { key: 'm:' + mt, label: `${mt} m`, grupo: 'm', valor: mt };
+  }
+  m = t.match(/(\d{3,5})\s*(?:m|mts|metros)?(?![a-z\d])/);
+  if (m) {
+    const mt = Number(m[1]);
+    return { key: 'm:' + mt, label: `${mt} m`, grupo: 'm', valor: mt };
+  }
+  return { key: 'otro:' + t, label: raw.toUpperCase(), grupo: 'otro', valor: 0 };
+}
+
+// Tipos de trabajo distintos que hay cargados, ordenados: duración, distancia, intervalos, otros.
+function listaTrabajos() {
+  const mapa = new Map();
+  entrenamientosCache.forEach((e) => {
+    const w = trabajoDe(e);
+    if (w && !mapa.has(w.key)) mapa.set(w.key, w);
+  });
+  const orden = { min: 0, m: 1, int: 2, otro: 3 };
+  return [...mapa.values()].sort((a, b) =>
+    orden[a.grupo] - orden[b.grupo] || a.valor - b.valor || a.label.localeCompare(b.label, 'es', { numeric: true }));
+}
+
+/* ---------------- Gráfico de líneas (Sesiones) ---------------- */
+
+const GRAFICO_W = 340;
+const GRAFICO_H = 170;
+
+// Qué sesiones entran y qué se mide: tiempo total (pruebas de distancia fija) o /500m.
+function defGrafico(v) {
+  v = v || 'all';
+  if (v === 'k2') return { filtro: es2K, modo: 'tiempo', nombre: '2K ergómetro' };
+  if (v === 'k2agua') return { filtro: es2KAgua, modo: 'tiempo', nombre: '2K agua' };
+  if (v === 'agua') return { filtro: (e) => e.medio === 'agua', modo: 'pace', nombre: 'Agua' };
+  if (v.startsWith('zona:')) {
+    const z = v.slice(5);
+    return { filtro: (e) => esErgo(e) && catDe(e) === z, modo: 'pace', nombre: CAT_NOMBRE[z] || z };
+  }
+  if (v.startsWith('trabajo:')) {
+    const k = v.slice(8);
+    const w = listaTrabajos().find((x) => x.key === k);
+    return {
+      filtro: (e) => { const t = trabajoDe(e); return !!t && t.key === k; },
+      modo: w && w.grupo === 'm' ? 'tiempo' : 'pace',
+      nombre: w ? w.label : k,
+    };
+  }
+  return { filtro: () => true, modo: 'pace', nombre: 'Todos los trabajos' };
+}
+
+function poblarSelectorGrafico() {
+  const sel = $('hist-chart-select');
+  if (!sel) return;
+  const zonas = CATEGORIAS.filter((c) => entrenamientosCache.some((e) => esErgo(e) && catDe(e) === c));
+  const pruebas = [];
+  if (entrenamientosCache.some(es2K)) pruebas.push('<option value="k2">2K ergómetro</option>');
+  if (entrenamientosCache.some(es2KAgua)) pruebas.push('<option value="k2agua">2K agua</option>');
+  if (entrenamientosCache.some((e) => e.medio === 'agua')) pruebas.push('<option value="agua">Agua (todos)</option>');
+  const trabajos = listaTrabajos();
+  sel.innerHTML = '<option value="all">Todos los trabajos</option>' +
+    (zonas.length ? '<optgroup label="Zona">' + zonas.map((z) => `<option value="zona:${z}">${esc(CAT_NOMBRE[z])}</option>`).join('') + '</optgroup>' : '') +
+    (pruebas.length ? '<optgroup label="Pruebas">' + pruebas.join('') + '</optgroup>' : '') +
+    (trabajos.length ? '<optgroup label="Tipo de trabajo">' + trabajos.map((w) => `<option value="trabajo:${esc(w.key)}">${esc(w.label)}</option>`).join('') + '</optgroup>' : '');
+  if (![...sel.options].some((o) => o.value === chartFilterValue)) chartFilterValue = 'all';
+  sel.value = chartFilterValue;
+}
+
+function setChartFilter(value) {
+  chartFilterValue = value || 'all';
+  renderGraficoSesiones();
+}
+
+function renderGraficoSesiones() {
+  const cont = $('hist-chart');
+  if (!cont) return;
+  const bestEl = $('hist-chart-best');
+  const labelEl = $('hist-chart-label');
+  const def = defGrafico(chartFilterValue);
+  if (labelEl) labelEl.textContent = def.nombre;
+
+  const desde = $('hist-date-from') ? $('hist-date-from').value : '';
+  const hasta = $('hist-date-to') ? $('hist-date-to').value : '';
+  const valor = def.modo === 'tiempo' ? tiempoDeSesion : paceDeSesion;
+  const unidad = def.modo === 'tiempo' ? '' : '/500m';
+
+  const ses = entrenamientosCache
+    .filter(def.filtro)
+    .filter((e) => (!desde || e.fecha >= desde) && (!hasta || e.fecha <= hasta))
+    .filter((e) => valor(e) !== null)
+    .slice().reverse()
+    .sort((a, b) => a.fecha.localeCompare(b.fecha))
+    .slice(-30);
+
+  cont.innerHTML = '';
+  if (!ses.length) {
+    cont.innerHTML = '<div class="empty">Sin sesiones para este trabajo</div>';
+    if (bestEl) bestEl.textContent = '--';
+    return;
+  }
+
+  const vals = ses.map(valor);
+  const min = Math.min(...vals);
+  const max = Math.max(...vals);
+  const completas = vals.filter((_, i) => ses[i].completado !== false);
+  const mejor = completas.length ? Math.min(...completas) : min;
+  const mejorTexto = 'Mejor ' + conComa(segundosATiempo(mejor));
+  if (bestEl) bestEl.textContent = mejorTexto;
+
+  const W = GRAFICO_W, H = GRAFICO_H, pl = 46, pr = 12, pt = 14, pb = 26;
+  const rango = max - min;
+  const lo = rango ? min - rango * 0.12 : min - 1;
+  const hi = rango ? max + rango * 0.12 : max + 1;
+  // Lo más rápido (menor valor) queda arriba, igual que las barras del Resumen.
+  const yDe = (v) => pt + ((v - lo) / (hi - lo)) * (H - pt - pb);
+  const xDe = (i) => (ses.length === 1 ? pl + (W - pl - pr) / 2 : pl + (i * (W - pl - pr)) / (ses.length - 1));
+
+  let grid = '';
+  for (let k = 0; k < 3; k++) {
+    const v = lo + ((hi - lo) * k) / 2;
+    const y = yDe(v).toFixed(1);
+    grid += `<line class="lc-grid" x1="${pl}" x2="${W - pr}" y1="${y}" y2="${y}"/>` +
+            `<text class="lc-ylab" x="${pl - 6}" y="${(+y + 3).toFixed(1)}" text-anchor="end">${esc(conComa(segundosATiempo(v)))}</text>`;
+  }
+  const path = ses.map((e, i) => `${i ? 'L' : 'M'}${xDe(i).toFixed(1)},${yDe(vals[i]).toFixed(1)}`).join(' ');
+  const r = ses.length > 20 ? 3 : 4.5;
+  const puntos = ses.map((e, i) => {
+    const incompleta = e.completado === false;
+    const mejorPunto = vals[i] === mejor && !incompleta;
+    const cx = xDe(i).toFixed(1), cy = yDe(vals[i]).toFixed(1);
+    const tip = `${fechaLegible(e.fecha)} — ${conComa(segundosATiempo(vals[i]))}${unidad}`;
+    return `<circle class="lc-dot${mejorPunto ? ' best' : ''}${incompleta ? ' incompleto' : ''}" data-i="${i}" cx="${cx}" cy="${cy}" r="${r}"><title>${esc(tip)}</title></circle>` +
+           `<circle class="lc-hit" data-i="${i}" cx="${cx}" cy="${cy}" r="12"/>`;
+  }).join('');
+  const xl = `<text class="lc-xlab" x="${pl}" y="${H - 6}" text-anchor="start">${esc(fechaCorta(ses[0].fecha))}</text>` +
+    (ses.length > 1 ? `<text class="lc-xlab" x="${W - pr}" y="${H - 6}" text-anchor="end">${esc(fechaCorta(ses[ses.length - 1].fecha))}</text>` : '');
+
+  cont.innerHTML = `<svg class="lineChartSvg" viewBox="0 0 ${W} ${H}" role="img" aria-label="Evolución de ${esc(def.nombre)}">${grid}<path class="lc-line" d="${path}"/>${puntos}${xl}</svg>`;
+
+  // Tocá un punto para ver su fecha y valor; tocalo de nuevo para volver al mejor.
+  cont.querySelectorAll('.lc-hit').forEach((h) => {
+    h.addEventListener('click', () => {
+      const i = Number(h.dataset.i);
+      const dot = cont.querySelector(`.lc-dot[data-i="${i}"]`);
+      const ya = dot.classList.contains('sel');
+      cont.querySelectorAll('.lc-dot').forEach((d) => d.classList.remove('sel'));
+      if (ya) { if (bestEl) bestEl.textContent = mejorTexto; return; }
+      dot.classList.add('sel');
+      if (bestEl) bestEl.textContent = `${fechaCorta(ses[i].fecha)} · ${conComa(segundosATiempo(vals[i]))}`;
+    });
+  });
 }
 
 function paceDeSesion(e) {
@@ -1145,10 +1344,28 @@ function poblarFiltroTipos() {
     (hayAgua ? '<option value="agua">Agua</option>' : '');
   sel.value = opciones.includes(actual) ? actual : '';
   tableFilterValue = sel.value;
+  poblarFiltroTrabajo();
+  poblarSelectorGrafico();
+}
+
+// Filtro por tipo de trabajo: se arma con los tipos que ya cargaste.
+function poblarFiltroTrabajo() {
+  const sel = $('trabajo-filter-select');
+  if (!sel) return;
+  const trabajos = listaTrabajos();
+  sel.innerHTML = '<option value="">Todos</option>' +
+    trabajos.map((w) => `<option value="${esc(w.key)}">${esc(w.label)}</option>`).join('');
+  if (!trabajos.some((w) => w.key === trabajoFilterValue)) trabajoFilterValue = '';
+  sel.value = trabajoFilterValue;
 }
 
 function setTableFilter(value) {
   tableFilterValue = value;
+  renderHistorial();
+}
+
+function setTrabajoFilter(value) {
+  trabajoFilterValue = value;
   renderHistorial();
 }
 
@@ -1158,7 +1375,9 @@ function setDateFilter() {
 
 function clearHistFilters() {
   tableFilterValue = '';
+  trabajoFilterValue = '';
   $('table-filter-select').value = '';
+  if ($('trabajo-filter-select')) $('trabajo-filter-select').value = '';
   $('hist-date-from').value = '';
   $('hist-date-to').value = '';
   renderHistorial();
@@ -1191,12 +1410,14 @@ function renderHistorial() {
   if (!cont) return;
   const desde = $('hist-date-from').value;
   const hasta = $('hist-date-to').value;
+  renderGraficoSesiones();
 
   let lista = entrenamientosCache.slice();
   if (desde) lista = lista.filter((e) => e.fecha >= desde);
   if (hasta) lista = lista.filter((e) => e.fecha <= hasta);
   if (tableFilterValue === 'agua') lista = lista.filter((e) => e.medio === 'agua');
   else if (tableFilterValue) lista = lista.filter((e) => esErgo(e) && (e.categoria || '').toLowerCase() === tableFilterValue);
+  if (trabajoFilterValue) lista = lista.filter((e) => { const w = trabajoDe(e); return !!w && w.key === trabajoFilterValue; });
 
   $('result-count').textContent = entrenamientosCache.length
     ? `${lista.length} sesión${lista.length === 1 ? '' : 'es'}`
